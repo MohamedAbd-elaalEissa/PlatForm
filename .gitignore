@@ -364,3 +364,4 @@ FodyWeavers.xsd
 # ASP.NET Core app settings files
 appsettings.json
 appsettings.*.json
+/Presentation/appsettings.json
