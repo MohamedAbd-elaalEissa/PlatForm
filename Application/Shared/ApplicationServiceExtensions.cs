@@ -1,15 +1,11 @@
 ﻿using ApplicationContract.IFiles;
+using ApplicationContract.IStudent;
 using ApplicationContract.ITeacher;
 using FluentValidation;
 using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Shared
 {
@@ -26,6 +22,7 @@ namespace Application.Shared
             // Register the validation pipeline behavior
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped<ITeacherRepository, TeacherRepository>();
+            services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<IFilesRepository, FilesRepository>();
             return services;
         }
