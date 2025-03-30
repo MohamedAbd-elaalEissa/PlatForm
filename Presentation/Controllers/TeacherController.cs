@@ -1,5 +1,9 @@
-﻿using Application.Features.Teachers.Commands;
+﻿using Application.Features.Files.Commands;
+using Application.Features.Files.Queries;
+using Application.Features.Teachers.Commands;
 using Application.Features.Teachers.Queries;
+using ApplicationContract.Models;
+using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,6 +50,24 @@ namespace Presentation.Controllers
         public async Task<IActionResult> GetTeacherWithStudents()
         {
             GetTeacherWithStudentsQueries query = new GetTeacherWithStudentsQueries();
+            var res = await Mediator.Send(query);
+            return Ok(res);
+        }
+
+        [HttpPost]
+        [Route("UploadFile")]
+        public async Task<IActionResult> UploadFile(IFormFile file, int userId, int teacherID)
+        {
+            UploadFilesCommand query = new UploadFilesCommand(file,userId,teacherID);
+            var res = await Mediator.Send(query);
+            return Ok(res);
+        }
+
+        [HttpGet]
+        [Route("GetTeachersFiles")]
+        public async Task<IActionResult> GetTeachersFiles(int teacherID)
+        {
+            GetTeachersFilesQuery query = new GetTeachersFilesQuery(teacherID);
             var res = await Mediator.Send(query);
             return Ok(res);
         }

@@ -15,6 +15,7 @@ namespace ApplicationContract.IFiles
         Task<IReadOnlyList<Files>> GetAllAsync();
         Task<Files> GetAsync(int? ID);
         Task DeleteAsync(int ID);
-        Task<CommonResult> CreateAsync(IFormFile file, int userId);
+        Task<CommonResult> CreateAsync(IFormFile file, int userId, int teacherID);
+        Task<IEnumerable<Files>> GetTeachersFilesAsync(int TeacherID);
     }
 }

@@ -5,11 +5,6 @@ using Infrastructure.Presistence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
@@ -22,13 +17,12 @@ namespace Infrastructure.Repositories
         public FilesRepository(PlatFormDbContext dbContext, IConfiguration _configuration)
         {
             _dbContext = dbContext;
-            _configuration = _configuration;
             var appSettingsSection = _configuration.GetSection("AppConfiguration");
             uploadImagePath = appSettingsSection["UploadFilePath"];
 
         }
 
-        public async Task<CommonResult> CreateAsync(IFormFile file, int userId)
+        public async Task<CommonResult> CreateAsync(IFormFile file, int userId, int teacherID)
         {
             try
             {
@@ -62,27 +56,28 @@ namespace Infrastructure.Repositories
                     await file.CopyToAsync(stream);
                 }
 
-                // Save to database via EF Core
-                var files = await _dbContext.Files
-                    .FirstOrDefaultAsync(c => c.UserID == userId); // Or whatever the correct filtering logic is
+                //// Save to database via EF Core
+                //var files = await _dbContext.Files
+                //    .FirstOrDefaultAsync(c => c.UserID == userId); // Or whatever the correct filtering logic is
 
-                if (files == null)
+                //if (files == null)
+                //{
+                // Create new if it doesn't exist
+                var files = new Files
                 {
-                    // Create new if it doesn't exist
-                    files = new Files
-                    {
-                        UserID = userId,
-                        FileName = fullFileName
-                    };
+                    UserID = userId,
+                    FileName = fullFileName,
+                    TeacherID = teacherID
+                };
 
-                    _dbContext.Files.Add(files);
-                }
-                else
-                {
-                    // Update existing
-                    files.FileName = fullFileName;
-                    _dbContext.Files.Update(files);
-                }
+                _dbContext.Files.Add(files);
+                //  }
+                //else
+                //{
+                //    // Update existing
+                //    files.FileName = fullFileName;
+                //    _dbContext.Files.Update(files);
+                //}
 
                 await _dbContext.SaveChangesAsync();
 
@@ -116,6 +111,9 @@ namespace Infrastructure.Repositories
 
         public async Task<Files> GetAsync(int? ID)
         => await _dbContext.Files.FindAsync(ID);
+
+        public async Task<IEnumerable<Files>> GetTeachersFilesAsync(int TeacherID)
+        => await _dbContext.Files.Where(n => n.TeacherID == TeacherID).ToListAsync();
 
     }
 }

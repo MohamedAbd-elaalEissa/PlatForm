@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Files.Commands
 {
-    public record UploadFilesCommand(IFormFile File,int UserID):IRequest<CommonResult>;
+    public record UploadFilesCommand(IFormFile File,int UserID,int TeacherID):IRequest<CommonResult>;
 
     public class UploadFilesCommandHandler:IRequestHandler<UploadFilesCommand, CommonResult>
     {
@@ -21,9 +21,9 @@ namespace Application.Features.Files.Commands
             _repository = repository;
         }
 
-        public Task<CommonResult> Handle(UploadFilesCommand request, CancellationToken cancellationToken)
+        public async Task<CommonResult> Handle(UploadFilesCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return await _repository.CreateAsync(request.File,request.UserID,request.TeacherID);
         }
     }
 
