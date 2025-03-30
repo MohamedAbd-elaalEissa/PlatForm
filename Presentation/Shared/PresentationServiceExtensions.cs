@@ -25,6 +25,20 @@ namespace Presentation.Shared
              {
                  options.MultipartBodyLengthLimit = 3221225472; // 500 MB
              });
+
+
+            // allow Angular to reach to API(CORS)
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:4200")
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
+            });
             return services;
         }
     }
