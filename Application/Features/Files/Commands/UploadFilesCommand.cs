@@ -2,6 +2,7 @@
 using ApplicationContract.Models;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Files.Commands
 {
-    public record UploadFilesCommand(IFormFile File,int UserID,int TeacherID):IRequest<CommonResult>;
+    public record UploadFilesCommand([FromForm] FileChunkDto chunkDto) :IRequest<CommonResult>;
 
     public class UploadFilesCommandHandler:IRequestHandler<UploadFilesCommand, CommonResult>
     {
@@ -23,7 +24,7 @@ namespace Application.Features.Files.Commands
 
         public async Task<CommonResult> Handle(UploadFilesCommand request, CancellationToken cancellationToken)
         {
-            return await _repository.CreateAsync(request.File,request.UserID,request.TeacherID);
+            return await _repository.UploadFileChunk(request.chunkDto);
         }
     }
 

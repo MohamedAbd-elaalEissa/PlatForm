@@ -53,12 +53,13 @@ namespace Presentation.Controllers
             var res = await Mediator.Send(query);
             return Ok(res);
         }
-
+        [DisableRequestSizeLimit]
+        [RequestFormLimits(MultipartBodyLengthLimit = 3221225472)]
         [HttpPost]
         [Route("UploadFile")]
-        public async Task<IActionResult> UploadFile(IFormFile file, int userId, int teacherID)
+        public async Task<IActionResult> UploadFile([FromForm] FileChunkDto chunkDto)
         {
-            UploadFilesCommand query = new UploadFilesCommand(file,userId,teacherID);
+            UploadFilesCommand query = new UploadFilesCommand(chunkDto);
             var res = await Mediator.Send(query);
             return Ok(res);
         }

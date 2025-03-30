@@ -1,6 +1,7 @@
 ﻿using ApplicationContract.Generic;
 using Infrastructure.Presistence;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -19,6 +20,11 @@ namespace Presentation.Shared
                  {
                      options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
                  });
+
+            services.Configure<FormOptions>(options =>
+             {
+                 options.MultipartBodyLengthLimit = 3221225472; // 500 MB
+             });
             return services;
         }
     }

@@ -18,7 +18,10 @@ namespace Presentation
             builder.Services.AddApplicationServices();
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddPresentationServices();
-
+            builder.WebHost.ConfigureKestrel(serverOptions =>
+            {
+                serverOptions.Limits.MaxRequestBodySize = 3221225472; // 3GB
+            });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
