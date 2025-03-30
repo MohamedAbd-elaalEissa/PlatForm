@@ -17,7 +17,7 @@ namespace Application.Features.Teachers.Queries
         public async Task<IReadOnlyList<Domain.Entities.Teachers>> Handle(GetAllTeachersQueries request, CancellationToken cancellationToken)
         {
             var res = await _repository.GetAllAsync();
-            return res;
+            return res ;
         }
     }
 }
