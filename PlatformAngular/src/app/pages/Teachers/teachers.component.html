@@ -1,0 +1,29 @@
+<div class="card flex flex-col items-center overflow-hidden">
+
+    <div class="h-[h-[100%]]">
+        <div class="flex flex-wrap justify-center gap-8">
+
+            <div *ngFor="let teacher of teachers" pAnimateOnScroll enterClass="animate-enter fade-in-10 slide-in-from-t-20 animate-duration-1000"
+                leaveClass="animate-leave fade-out-0" class="flex flex-col border border-primary-200 shadow-xl justify-center items-center max-w-lg rounded-3xl p-12 gap-6 
+                   ">
+                <!-- Teacher Image -->
+                <img [src]="'assets/demo/TeacherImg/' + teacher.imagesUrl"  alt="{{ teacher.firstName }} {{ teacher.lastName }}"
+                    class="w-56 h-56 rounded-full object-cover border-4 border-primary dark:border-primary-400" />
+
+                <!-- Teacher Name -->
+                <span class="text-3xl font-semibold text-gray-900 dark:text-white">{{ teacher.firstName }} {{ teacher.lastName }}</span>
+
+                <!-- Subject -->
+                <span class="text-primary-600 text-xl font-semibold dark:text-primary-400">{{ teacher.studySubject }}</span>
+
+                <!-- Brief Description -->
+                <span class="text-muted-color text-lg text-center text-gray-700 dark:text-gray-300">
+                    {{ teacher.brief }}
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+
