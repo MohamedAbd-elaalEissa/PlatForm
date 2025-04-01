@@ -35,6 +35,7 @@ namespace Presentation
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("AllowAllOrigins");
             app.UseAuthorization();
             app.MapControllers();
 

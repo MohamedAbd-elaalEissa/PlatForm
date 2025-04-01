@@ -28,7 +28,7 @@ namespace Presentation.Shared
 
 
             // allow Angular to reach to API(CORS)
-            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+            var MyAllowSpecificOrigins = "AllowAllOrigins";
             services.AddCors(options =>
             {
                 options.AddPolicy(name: MyAllowSpecificOrigins,

@@ -53,14 +53,23 @@ namespace Presentation.Controllers
             var res = await Mediator.Send(query);
             return Ok(res);
         }
+        [HttpPost]
+        [Route("UploadFilePDF")]
+        public async Task<IActionResult> UploadFilePDF(IFormFile file, int userId, int teacherID)
+        {
+            UploadFilesPDFCommand command = new UploadFilesPDFCommand(file,userId,teacherID);
+            var res = await Mediator.Send(command);
+            return Ok(res);
+        }
+
         [DisableRequestSizeLimit]
         [RequestFormLimits(MultipartBodyLengthLimit = 3221225472)]
         [HttpPost]
-        [Route("UploadFile")]
-        public async Task<IActionResult> UploadFile([FromForm] FileChunkDto chunkDto)
+        [Route("UploadFileChunk")]
+        public async Task<IActionResult> UploadFileChunk([FromForm] FileChunkDto chunkDto)
         {
-            UploadFilesCommand query = new UploadFilesCommand(chunkDto);
-            var res = await Mediator.Send(query);
+            UploadFilesChunkCommand command = new UploadFilesChunkCommand(chunkDto);
+            var res = await Mediator.Send(command);
             return Ok(res);
         }
 
@@ -69,6 +78,15 @@ namespace Presentation.Controllers
         public async Task<IActionResult> GetTeachersFiles(int teacherID)
         {
             GetTeachersFilesQuery query = new GetTeachersFilesQuery(teacherID);
+            var res = await Mediator.Send(query);
+            return Ok(res);
+        }
+
+        [HttpGet]
+        [Route("CheckUploadedChunks")]
+        public async Task<IActionResult> CheckUploadedChunks(int userId, string fileName)
+        {
+            CheckUploadedChunksQuery query = new CheckUploadedChunksQuery(userId,fileName);
             var res = await Mediator.Send(query);
             return Ok(res);
         }

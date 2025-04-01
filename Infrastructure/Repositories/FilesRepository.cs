@@ -23,7 +23,7 @@ namespace Infrastructure.Repositories
 
         }
 
-        public async Task<CommonResult> UploadFile(IFormFile file, int userId, int teacherID)
+        public async Task<CommonResult> UploadFilePDF(IFormFile file, int userId, int teacherID)
         {
             try
             {
@@ -156,7 +156,7 @@ namespace Infrastructure.Repositories
                 string tempChunkPath = Path.Combine(tempDir, $"chunk_{chunkDto.ChunkNumber}");
                 string finalFilePath = Path.Combine(uploadImagePath, $"{Guid.NewGuid()}_{chunkDto.FileName}");
 
-                Console.WriteLine($"Receiving chunk {chunkDto.ChunkNumber} of {chunkDto.TotalChunks} for {chunkDto.FileName}");
+                //Console.WriteLine($"Receiving chunk {chunkDto.ChunkNumber} of {chunkDto.TotalChunks} for {chunkDto.FileName}");
 
                 // Ensure temp directory exists
                 Directory.CreateDirectory(tempDir);
@@ -169,7 +169,7 @@ namespace Infrastructure.Repositories
 
                 // Check if all chunks are uploaded
                 int uploadedChunks = Directory.GetFiles(tempDir).Length;
-                Console.WriteLine($"Uploaded chunks: {uploadedChunks} / {chunkDto.TotalChunks}");
+                //Console.WriteLine($"Uploaded chunks: {uploadedChunks} / {chunkDto.TotalChunks}");
 
                 if (uploadedChunks == chunkDto.TotalChunks)
                 {
@@ -220,7 +220,7 @@ namespace Infrastructure.Repositories
 
                     await _dbContext.SaveChangesAsync();
 
-                    Console.WriteLine("File upload completed successfully");
+                    //Console.WriteLine("File upload completed successfully");
                     return new CommonResult
                     {
                         IsValidTransaction = true,
@@ -239,12 +239,53 @@ namespace Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error uploading chunk: {ex.Message}");
+                //Console.WriteLine($"Error uploading chunk: {ex.Message}");
                 return new CommonResult
                 {
                     IsValidTransaction = false,
                     TransactionDetails = "An error occurred while uploading the chunk",
                     TransactionHeaderMessage = "Upload failed"
+                };
+            }
+        }
+
+
+        public async Task<ChunkStatusDto> CheckUploadedChunks(int userId, string fileName)
+        {
+            try
+            {
+                string tempDir = Path.Combine(uploadImagePath, "temp", $"{fileName}_{userId}");
+                if (!Directory.Exists(tempDir))
+                {
+                    return new ChunkStatusDto
+                    {
+                        FileName = fileName,
+                        UserId = userId,
+                        UploadedChunkNumbers = new List<int>()
+                    };
+                }
+
+                var uploadedChunks = Directory.GetFiles(tempDir)
+                    .Select(file => int.Parse(Path.GetFileName(file).Replace("chunk_", "")))
+                    .OrderBy(num => num)
+                    .ToList();
+
+                return new ChunkStatusDto
+                {
+                    FileName = fileName,
+                    UserId = userId,
+                    UploadedChunkNumbers = uploadedChunks
+                };
+            }
+            catch (Exception ex)
+            {
+                // Console.WriteLine($"Error checking chunks: {ex.Message}");
+                return new ChunkStatusDto
+                {
+                    FileName = fileName,
+                    UserId = userId,
+                    UploadedChunkNumbers = new List<int>(),
+                    ErrorMessage = "An error occurred while checking uploaded chunks."
                 };
             }
         }

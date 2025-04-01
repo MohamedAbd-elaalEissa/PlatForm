@@ -16,8 +16,9 @@ namespace ApplicationContract.IFiles
         Task<IReadOnlyList<Files>> GetAllAsync();
         Task<Files> GetAsync(int? ID);
         Task DeleteAsync(int ID);
-        Task<CommonResult> UploadFile(IFormFile file, int userId, int teacherID);
+        Task<CommonResult> UploadFilePDF(IFormFile file, int userId, int teacherID);
         Task<CommonResult> UploadFileChunk([FromForm] FileChunkDto chunkDto);
         Task<IEnumerable<Files>> GetTeachersFilesAsync(int TeacherID);
+        Task<ChunkStatusDto> CheckUploadedChunks(int userId, string fileName);
     }
 }

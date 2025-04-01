@@ -11,18 +11,18 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Files.Commands
 {
-    public record UploadFilesCommand([FromForm] FileChunkDto chunkDto) :IRequest<CommonResult>;
+    public record UploadFilesChunkCommand([FromForm] FileChunkDto chunkDto) :IRequest<CommonResult>;
 
-    public class UploadFilesCommandHandler:IRequestHandler<UploadFilesCommand, CommonResult>
+    public class UploadFilesChunkCommandHandler : IRequestHandler<UploadFilesChunkCommand, CommonResult>
     {
         private readonly IFilesRepository _repository;
 
-        public UploadFilesCommandHandler(IFilesRepository repository)
+        public UploadFilesChunkCommandHandler(IFilesRepository repository)
         {
             _repository = repository;
         }
 
-        public async Task<CommonResult> Handle(UploadFilesCommand request, CancellationToken cancellationToken)
+        public async Task<CommonResult> Handle(UploadFilesChunkCommand request, CancellationToken cancellationToken)
         {
             return await _repository.UploadFileChunk(request.chunkDto);
         }
