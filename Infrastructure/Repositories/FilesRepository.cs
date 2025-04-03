@@ -47,7 +47,7 @@ namespace Infrastructure.Repositories
                 //Check Duplicat Name
                 var checkfiles = await _dbContext.Files
                    .FirstOrDefaultAsync(c => c.TeacherID == teacherID && (c.FileName == fullFileName || c.AnswerName == fullFileName)); // Or whatever the correct filtering logic is
-                
+
                 if (checkfiles != null)
                 {
                     return new CommonResult
@@ -75,25 +75,25 @@ namespace Infrastructure.Repositories
                 //// Save to database via EF Core
                 if (isAnswer == false)
                 {
-                    files = await _dbContext.Files
-                  .FirstOrDefaultAsync(c => c.FilesID == fileID);
-                    if (files != null)
+                    //  files = await _dbContext.Files
+                    //.FirstOrDefaultAsync(c => c.FilesID == fileID);
+                    //  if (files != null)
+                    //  {
+                    //      // Update existing
+                    //      files.FileName = fullFileName;
+                    //      _dbContext.Files.Update(files);
+                    //  }
+                    //  else
+                    //  {
+                    // Create new if it doesn't exist
+                    files = new Files
                     {
-                        // Update existing
-                        files.FileName = fullFileName;
-                        _dbContext.Files.Update(files);
-                    }
-                    else
-                    {
-                        // Create new if it doesn't exist
-                        files = new Files
-                        {
-                            UserID = userId,
-                            FileName = fullFileName,
-                            TeacherID = teacherID
-                        };
-                        _dbContext.Files.Add(files);
-                    }
+                        UserID = userId,
+                        FileName = fullFileName,
+                        TeacherID = teacherID
+                    };
+                    _dbContext.Files.Add(files);
+                    // }
                 }
                 else
                 {
