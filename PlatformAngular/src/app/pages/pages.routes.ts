@@ -9,5 +9,9 @@ export default [
     { path: 'crud', component: Crud },
     { path: 'empty', component: Empty },
     { path: 'teachers', component: TeachersComponent },
+    {
+        path: 'teachers/videos-and-tasks',
+        loadChildren: () => import('./VideosAndTasks/VideosAndTasks.routes')
+    },
     { path: '**', redirectTo: '/notfound' }
 ] as Routes;
