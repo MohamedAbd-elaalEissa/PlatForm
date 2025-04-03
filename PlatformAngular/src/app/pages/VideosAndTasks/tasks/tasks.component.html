@@ -24,6 +24,7 @@
                             <div class="text-lg font-medium mt-2">{{ item.name }}</div>
                         </div>
                     </div>
+                    <!-- Upload Buttons -->
                     <div class="flex flex-row gap-8">
                         <div class="flex flex-col gap-2">
                             <button pButton icon="pi pi-clipboard" 
@@ -52,9 +53,6 @@
                         </div>
                     </div>
                     
-                    
-                    
-                    
                 </div>
             </div>
         </div>
@@ -73,21 +71,50 @@
                     <div class="pt-6">
                         <div class="flex flex-row justify-between products-start gap-2">
                             <div>
-                                <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">{{
-                                    product.category
-                                    }}</span>
+                                <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PDF</span>
                                 <div class="text-lg font-medium mt-1">{{ product.name }}</div>
                             </div>
                         </div>
-                        <div class="flex flex-col gap-6 mt-6">
-                            <span class="text-2xl font-semibold">{{ product.price | currency: 'USD' }}</span>
-                            <div class="flex gap-2">
-                                <button pButton icon="pi pi-shopping-cart" label="Buy Now"
-                                    [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"
-                                    class="flex-auto whitespace-nowrap"></button>
-                                <button pButton icon="pi pi-heart" outlined></button>
+                        <div class="flex flex-col gap-8">
+
+                            <div class="flex flex-row-reverse gap-2 ">
+                                <button pButton icon="pi pi-thumbs-up" [outlined]="false"></button>
+                            </div>
+                            
+                            <div class="flex flex-col gap-2">
+                                <div class="flex flex-row gap-2">
+                                    <button pButton 
+                                        icon="pi pi-clipboard" 
+                                        label="Download Task"
+                                        [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"
+                                        class="flex-1 whitespace-nowrap"></button>
+                        
+                                    <button pButton
+                                        icon="pi pi-clipboard" 
+                                        label="Upload Task"
+                                        [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"
+                                        class="flex-1 whitespace-nowrap"></button>
+                                </div>
+                        
+                                <div class="flex flex-row gap-2">
+                                    <button pButton 
+                                        icon="pi pi-file-check"
+                                        label="Download Solving"
+                                        [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"
+                                        class="flex-1 whitespace-nowrap"></button>
+                        
+                                    <button pButton 
+                                        icon="pi pi-file-check" 
+                                        label="Upload Solving"
+                                        [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"
+                                        class="flex-1 whitespace-nowrap"></button>
+                                </div>
                             </div>
                         </div>
+                        
+                        
+                        
+                        
                     </div>
                 </div>
             </div>
