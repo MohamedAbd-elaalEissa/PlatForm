@@ -1,14 +1,9 @@
 ﻿using DomainShared.SharedData;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Files:BaseEntity
+    public class Files : BaseEntity
     {
         [Key]
         public int FilesID { get; set; }
@@ -20,5 +15,7 @@ namespace Domain.Entities
         public bool IsAnswer { get; set; }
         public int TeacherID { get; set; }
         public Teachers Teacher { get; set; }
+        public int AcademicLevelID { get; set; }
+        public AcademicLevels AcademicLevel { get; set; }
     }
 }

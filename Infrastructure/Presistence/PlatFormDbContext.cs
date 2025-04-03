@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using DomainShared.SharedData;
+using Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -36,5 +37,6 @@ namespace Infrastructure.Presistence
         public DbSet<Students> Students { get; set; }
         public DbSet<Files> Files { get; set; }
         public DbSet<Videos> Videos { get; set; }
+        public DbSet<AcademicLevels> AcademicLevels { get; set; }
     }
 }

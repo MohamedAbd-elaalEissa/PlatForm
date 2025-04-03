@@ -26,7 +26,7 @@ namespace Infrastructure.Repositories
 
         }
 
-        public async Task<CommonResult> UploadFilePDF(IFormFile file, int userId, int teacherID, bool isAnswer, int? fileID)
+        public async Task<CommonResult> UploadFilePDF(IFormFile file, int userId, int teacherID, bool isAnswer, int? fileID, int AcademicLevelID)
         {
             try
             {
@@ -44,19 +44,7 @@ namespace Infrastructure.Repositories
                 string fullFileName = fileName + fileExtension;
 
                 string filePath = Path.Combine(FilePath, fullFileName);
-                //Check Duplicat Name
-                var checkfiles = await _dbContext.Files
-                   .FirstOrDefaultAsync(c => c.TeacherID == teacherID && (c.FileName == fullFileName || c.AnswerName == fullFileName)); // Or whatever the correct filtering logic is
-
-                if (checkfiles != null)
-                {
-                    return new CommonResult
-                    {
-                        IsValidTransaction = false,
-                        TransactionDetails = "TaskName Exist Befor ,Please Change It",
-                        TransactionHeaderMessage = filePath
-                    };
-                }
+              
                 // Delete existing file if it exists
                 string[] existingFiles = Directory.GetFiles(Path.GetDirectoryName(filePath), Path.GetFileName(filePath));
                 foreach (string existingFile in existingFiles)
@@ -75,25 +63,26 @@ namespace Infrastructure.Repositories
                 //// Save to database via EF Core
                 if (isAnswer == false)
                 {
-                    //  files = await _dbContext.Files
-                    //.FirstOrDefaultAsync(c => c.FilesID == fileID);
-                    //  if (files != null)
-                    //  {
-                    //      // Update existing
-                    //      files.FileName = fullFileName;
-                    //      _dbContext.Files.Update(files);
-                    //  }
-                    //  else
-                    //  {
-                    // Create new if it doesn't exist
-                    files = new Files
+                    files = await _dbContext.Files
+                  .FirstOrDefaultAsync(c => c.FilesID == fileID);
+                    if (files != null)
                     {
-                        UserID = userId,
-                        FileName = fullFileName,
-                        TeacherID = teacherID
-                    };
-                    _dbContext.Files.Add(files);
-                    // }
+                        // Update existing
+                        files.FileName = fullFileName;
+                        _dbContext.Files.Update(files);
+                    }
+                    else
+                    {
+                        // Create new if it doesn't exist
+                        files = new Files
+                        {
+                            UserID = userId,
+                            FileName = fullFileName,
+                            TeacherID = teacherID,
+                            AcademicLevelID = AcademicLevelID
+                        };
+                        _dbContext.Files.Add(files);
+                    }
                 }
                 else
                 {
@@ -120,7 +109,7 @@ namespace Infrastructure.Repositories
                 return new CommonResult
                 {
                     IsValidTransaction = false,
-                    TransactionDetails = ex.Message,
+                    TransactionDetails = ex.InnerException.Message,
                     TransactionHeaderMessage = ex.Message
                 };
             }
@@ -243,7 +232,8 @@ namespace Infrastructure.Repositories
                         {
                             UserID = chunkDto.UserId,
                             VideoName = finalFileName,
-                            TeacherID = chunkDto.TeacherId
+                            TeacherID = chunkDto.TeacherId,
+                            AcademicLevelID=chunkDto.AcademicLevelID
                         };
                         _dbContext.Videos.Add(newFile);
 

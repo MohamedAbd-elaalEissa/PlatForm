@@ -11,11 +11,21 @@ namespace Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterColumn<string>(
+                name: "FileName",
+                schema: "Relation",
+                table: "Files",
+                type: "nvarchar(450)",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(max)",
+                oldNullable: true);
+
             migrationBuilder.AddColumn<string>(
                 name: "AnswerName",
                 schema: "Relation",
                 table: "Files",
-                type: "nvarchar(max)",
+                type: "nvarchar(450)",
                 nullable: true);
 
             migrationBuilder.AddColumn<bool>(
@@ -68,6 +78,22 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Files_AnswerName",
+                schema: "Relation",
+                table: "Files",
+                column: "AnswerName",
+                unique: true,
+                filter: "[AnswerName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Files_FileName",
+                schema: "Relation",
+                table: "Files",
+                column: "FileName",
+                unique: true,
+                filter: "[FileName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Videos_TeacherID",
                 schema: "Relation",
                 table: "Videos",
@@ -80,6 +106,16 @@ namespace Infrastructure.Migrations
             migrationBuilder.DropTable(
                 name: "Videos",
                 schema: "Relation");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Files_AnswerName",
+                schema: "Relation",
+                table: "Files");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Files_FileName",
+                schema: "Relation",
+                table: "Files");
 
             migrationBuilder.DropColumn(
                 name: "AnswerName",
@@ -100,6 +136,16 @@ namespace Infrastructure.Migrations
                 name: "TaskName",
                 schema: "Relation",
                 table: "Files");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "FileName",
+                schema: "Relation",
+                table: "Files",
+                type: "nvarchar(max)",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(450)",
+                oldNullable: true);
         }
     }
 }

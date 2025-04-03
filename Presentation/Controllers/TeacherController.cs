@@ -57,7 +57,7 @@ namespace Presentation.Controllers
         [Route("UploadFilePDF")]
         public async Task<IActionResult> UploadFilePDF([FromForm] FilePdfDTO file)
         {
-            UploadFilesPDFCommand command = new UploadFilesPDFCommand(file.file,file.userId,file.teacherId,file.isAnswer,file.fileID);
+            UploadFilesPDFCommand command = new UploadFilesPDFCommand(file.file,file.userId,file.teacherId,file.isAnswer,file.fileID, file.AcademicLevelID);
             var res = await Mediator.Send(command);
             return Ok(res);
         }

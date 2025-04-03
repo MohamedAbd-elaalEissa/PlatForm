@@ -13,6 +13,8 @@ namespace Infrastructure.Config
     {
         public void Configure(EntityTypeBuilder<Files> builder)
         {
+            builder.HasIndex(f => f.FileName).IsUnique();
+            builder.HasIndex(f => f.AnswerName).IsUnique();
             builder.ToTable("Files", "Relation");
         }
     }

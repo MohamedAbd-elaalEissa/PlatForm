@@ -4,6 +4,7 @@ using Infrastructure.Presistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(PlatFormDbContext))]
-    partial class PlatFormDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250403211911_File&Video")]
+    partial class FileVideo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,41 +25,6 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Domain.Entities.AcademicLevels", b =>
-                {
-                    b.Property<int>("AcademicLevelID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AcademicLevelID"));
-
-                    b.Property<string>("AcademicLevelName")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("CreateBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ParentID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("UpdateBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdateDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("AcademicLevelID");
-
-                    b.HasIndex("AcademicLevelName")
-                        .IsUnique()
-                        .HasFilter("[AcademicLevelName] IS NOT NULL");
-
-                    b.ToTable("AcademicLevels", "Relation");
-                });
-
             modelBuilder.Entity("Domain.Entities.Files", b =>
                 {
                     b.Property<int>("FilesID")
@@ -64,9 +32,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FilesID"));
-
-                    b.Property<int>("AcademicLevelID")
-                        .HasColumnType("int");
 
                     b.Property<string>("AnswerName")
                         .HasColumnType("nvarchar(450)");
@@ -102,8 +67,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("FilesID");
-
-                    b.HasIndex("AcademicLevelID");
 
                     b.HasIndex("AnswerName")
                         .IsUnique()
@@ -228,9 +191,6 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VideoID"));
 
-                    b.Property<int>("AcademicLevelID")
-                        .HasColumnType("int");
-
                     b.Property<int>("CreateBy")
                         .HasColumnType("int");
 
@@ -254,8 +214,6 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("VideoID");
 
-                    b.HasIndex("AcademicLevelID");
-
                     b.HasIndex("TeacherID");
 
                     b.ToTable("Videos", "Relation");
@@ -278,38 +236,22 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Files", b =>
                 {
-                    b.HasOne("Domain.Entities.AcademicLevels", "AcademicLevel")
-                        .WithMany()
-                        .HasForeignKey("AcademicLevelID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Teachers", "Teacher")
                         .WithMany("Files")
                         .HasForeignKey("TeacherID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AcademicLevel");
-
                     b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("Domain.Entities.Videos", b =>
                 {
-                    b.HasOne("Domain.Entities.AcademicLevels", "AcademicLevel")
-                        .WithMany()
-                        .HasForeignKey("AcademicLevelID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Teachers", "Teacher")
                         .WithMany()
                         .HasForeignKey("TeacherID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("AcademicLevel");
 
                     b.Navigation("Teacher");
                 });

@@ -14,5 +14,6 @@ namespace ApplicationContract.Models
         public int userId { get; set; }
         public int teacherId { get; set; }
         public bool isAnswer { get; set; }
+        public int AcademicLevelID { get; set; }
     }
 }
