@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
 
 namespace Infrastructure.Repositories
 {
@@ -13,17 +14,19 @@ namespace Infrastructure.Repositories
     {
         private readonly PlatFormDbContext _dbContext;
         private readonly IConfiguration _configuration;
-        string uploadImagePath;
+        string FilePath;
+        string VideoPath;
 
         public FilesRepository(PlatFormDbContext dbContext, IConfiguration _configuration)
         {
             _dbContext = dbContext;
             var appSettingsSection = _configuration.GetSection("AppConfiguration");
-            uploadImagePath = appSettingsSection["UploadFilePath"];
+            FilePath = appSettingsSection["FilePath"];
+            VideoPath = appSettingsSection["VideoPath"];
 
         }
 
-        public async Task<CommonResult> UploadFilePDF(IFormFile file, int userId, int teacherID)
+        public async Task<CommonResult> UploadFilePDF(IFormFile file, int userId, int teacherID, bool isAnswer, int? fileID)
         {
             try
             {
@@ -36,13 +39,24 @@ namespace Infrastructure.Repositories
                         TransactionHeaderMessage = "No file uploaded"
                     };
                 }
-
                 string fileName = Path.GetFileNameWithoutExtension(file.FileName);
                 string fileExtension = Path.GetExtension(file.FileName);
                 string fullFileName = fileName + fileExtension;
 
-                string filePath = Path.Combine(uploadImagePath, fullFileName);
-
+                string filePath = Path.Combine(FilePath, fullFileName);
+                //Check Duplicat Name
+                var checkfiles = await _dbContext.Files
+                   .FirstOrDefaultAsync(c => c.TeacherID == teacherID && (c.FileName == fullFileName || c.AnswerName == fullFileName)); // Or whatever the correct filtering logic is
+                
+                if (checkfiles != null)
+                {
+                    return new CommonResult
+                    {
+                        IsValidTransaction = false,
+                        TransactionDetails = "TaskName Exist Befor ,Please Change It",
+                        TransactionHeaderMessage = filePath
+                    };
+                }
                 // Delete existing file if it exists
                 string[] existingFiles = Directory.GetFiles(Path.GetDirectoryName(filePath), Path.GetFileName(filePath));
                 foreach (string existingFile in existingFiles)
@@ -56,32 +70,44 @@ namespace Infrastructure.Repositories
                 {
                     await file.CopyToAsync(stream);
                 }
+                Files files = null;
 
                 //// Save to database via EF Core
-                //var files = await _dbContext.Files
-                //    .FirstOrDefaultAsync(c => c.UserID == userId); // Or whatever the correct filtering logic is
-
-                //if (files == null)
-                //{
-                // Create new if it doesn't exist
-                var files = new Files
+                if (isAnswer == false)
                 {
-                    UserID = userId,
-                    FileName = fullFileName,
-                    TeacherID = teacherID
-                };
-
-                _dbContext.Files.Add(files);
-                //  }
-                //else
-                //{
-                //    // Update existing
-                //    files.FileName = fullFileName;
-                //    _dbContext.Files.Update(files);
-                //}
+                    files = await _dbContext.Files
+                  .FirstOrDefaultAsync(c => c.FilesID == fileID);
+                    if (files != null)
+                    {
+                        // Update existing
+                        files.FileName = fullFileName;
+                        _dbContext.Files.Update(files);
+                    }
+                    else
+                    {
+                        // Create new if it doesn't exist
+                        files = new Files
+                        {
+                            UserID = userId,
+                            FileName = fullFileName,
+                            TeacherID = teacherID
+                        };
+                        _dbContext.Files.Add(files);
+                    }
+                }
+                else
+                {
+                    files = await _dbContext.Files
+                  .FirstOrDefaultAsync(c => c.FilesID == fileID);
+                    if (files != null)
+                    {
+                        // Update existing
+                        files.AnswerName = fullFileName;
+                        _dbContext.Files.Update(files);
+                    }
+                }
 
                 await _dbContext.SaveChangesAsync();
-
                 return new CommonResult
                 {
                     IsValidTransaction = true,
@@ -152,83 +178,86 @@ namespace Infrastructure.Repositories
                 }
 
                 // Define paths
-                string tempDir = Path.Combine(uploadImagePath, "temp", $"{chunkDto.FileName}_{chunkDto.UserId}");
+                string tempDir = Path.Combine(VideoPath, "temp", $"{chunkDto.FileName}_{chunkDto.UserId}");
                 string tempChunkPath = Path.Combine(tempDir, $"chunk_{chunkDto.ChunkNumber}");
-                string finalFilePath = Path.Combine(uploadImagePath, $"{Guid.NewGuid()}_{chunkDto.FileName}");
+                string finalFilePath = Path.Combine(VideoPath, $"{chunkDto.FileName}");
 
                 //Console.WriteLine($"Receiving chunk {chunkDto.ChunkNumber} of {chunkDto.TotalChunks} for {chunkDto.FileName}");
 
                 // Ensure temp directory exists
                 Directory.CreateDirectory(tempDir);
 
-                // Save the chunk
-                using (var stream = new FileStream(tempChunkPath, FileMode.Create))
+
+                var existingFile = await _dbContext.Videos
+                        .FirstOrDefaultAsync(f => f.TeacherID == chunkDto.TeacherId && f.VideoName == chunkDto.FileName);
+
+                string finalFileName = Path.GetFileName(finalFilePath);
+                if (existingFile != null)
                 {
-                    await chunkDto.Chunk.CopyToAsync(stream);
-                }
-
-                // Check if all chunks are uploaded
-                int uploadedChunks = Directory.GetFiles(tempDir).Length;
-                //Console.WriteLine($"Uploaded chunks: {uploadedChunks} / {chunkDto.TotalChunks}");
-
-                if (uploadedChunks == chunkDto.TotalChunks)
-                {
-                    Console.WriteLine("All chunks received, combining file...");
-                    // Combine all chunks into the final file
-                    using (var finalStream = new FileStream(finalFilePath, FileMode.Create))
-                    {
-                        for (int i = 1; i <= chunkDto.TotalChunks; i++)
-                        {
-                            string chunkPath = Path.Combine(tempDir, $"chunk_{i}");
-                            if (!File.Exists(chunkPath))
-                            {
-                                return new CommonResult
-                                {
-                                    IsValidTransaction = false,
-                                    TransactionDetails = $"Missing chunk {i}",
-                                    TransactionHeaderMessage = "Upload failed"
-                                };
-                            }
-                            byte[] chunkBytes = await File.ReadAllBytesAsync(chunkPath);
-                            await finalStream.WriteAsync(chunkBytes, 0, chunkBytes.Length);
-                        }
-                    }
-
-                    // Clean up temp directory
-                    Directory.Delete(tempDir, true);
-
-                    // Save to database
-                    var existingFile = await _dbContext.Files
-                        .FirstOrDefaultAsync(f => f.UserID == chunkDto.UserId && f.TeacherID == chunkDto.TeacherId);
-
-                    string finalFileName = Path.GetFileName(finalFilePath);
-                    if (existingFile != null)
-                    {
-                        existingFile.FileName = finalFileName;
-                        _dbContext.Files.Update(existingFile);
-                    }
-                    else
-                    {
-                        var newFile = new Files
-                        {
-                            UserID = chunkDto.UserId,
-                            FileName = finalFileName,
-                            TeacherID = chunkDto.TeacherId
-                        };
-                        _dbContext.Files.Add(newFile);
-                    }
-
-                    await _dbContext.SaveChangesAsync();
-
-                    //Console.WriteLine("File upload completed successfully");
+                    //existingFile.VideoName = finalFileName;
+                    //_dbContext.Videos.Update(existingFile);
                     return new CommonResult
                     {
-                        IsValidTransaction = true,
-                        TransactionDetails = "File uploaded successfully",
+                        IsValidTransaction = false,
+                        TransactionDetails = "Check Another VideoName",
                         TransactionHeaderMessage = finalFilePath
                     };
                 }
+                else
+                {
+                    // Save the chunk
+                    using (var stream = new FileStream(tempChunkPath, FileMode.Create))
+                    {
+                        await chunkDto.Chunk.CopyToAsync(stream);
+                    }
 
+                    // Check if all chunks are uploaded
+                    int uploadedChunks = Directory.GetFiles(tempDir).Length;
+                    //Console.WriteLine($"Uploaded chunks: {uploadedChunks} / {chunkDto.TotalChunks}");
+
+                    if (uploadedChunks == chunkDto.TotalChunks)
+                    {
+                        Console.WriteLine("All chunks received, combining file...");
+                        // Combine all chunks into the final file
+                        using (var finalStream = new FileStream(finalFilePath, FileMode.Create))
+                        {
+                            for (int i = 1; i <= chunkDto.TotalChunks; i++)
+                            {
+                                string chunkPath = Path.Combine(tempDir, $"chunk_{i}");
+                                if (!File.Exists(chunkPath))
+                                {
+                                    return new CommonResult
+                                    {
+                                        IsValidTransaction = false,
+                                        TransactionDetails = $"Missing chunk {i}",
+                                        TransactionHeaderMessage = "Upload failed"
+                                    };
+                                }
+                                byte[] chunkBytes = await File.ReadAllBytesAsync(chunkPath);
+                                await finalStream.WriteAsync(chunkBytes, 0, chunkBytes.Length);
+                            }
+                        }
+                        // Clean up temp directory
+                        Directory.Delete(tempDir, true);
+                        var newFile = new Videos
+                        {
+                            UserID = chunkDto.UserId,
+                            VideoName = finalFileName,
+                            TeacherID = chunkDto.TeacherId
+                        };
+                        _dbContext.Videos.Add(newFile);
+
+                        await _dbContext.SaveChangesAsync();
+
+                        //Console.WriteLine("File upload completed successfully");
+                        return new CommonResult
+                        {
+                            IsValidTransaction = true,
+                            TransactionDetails = "File uploaded successfully",
+                            TransactionHeaderMessage = finalFilePath
+                        };
+                    }
+                }
                 // Return partial success for intermediate chunks
                 return new CommonResult
                 {
@@ -254,7 +283,7 @@ namespace Infrastructure.Repositories
         {
             try
             {
-                string tempDir = Path.Combine(uploadImagePath, "temp", $"{fileName}_{userId}");
+                string tempDir = Path.Combine(VideoPath, "temp", $"{fileName}_{userId}");
                 if (!Directory.Exists(tempDir))
                 {
                     return new ChunkStatusDto
@@ -288,6 +317,24 @@ namespace Infrastructure.Repositories
                     ErrorMessage = "An error occurred while checking uploaded chunks."
                 };
             }
+        }
+
+        public async Task<FileDto> GetFileAsync(string fileName)
+        {
+            var path = Path.Combine(FilePath, fileName);
+
+            if (!File.Exists(path))
+                throw new FileNotFoundException($"File '{fileName}' not found.");
+
+            var bytes = await File.ReadAllBytesAsync(path);
+            var contentType = MimeMapping.MimeUtility.GetMimeMapping(fileName);
+
+            return new FileDto
+            {
+                Content = bytes,
+                ContentType = contentType,
+                FileName = fileName
+            };
         }
     }
 }

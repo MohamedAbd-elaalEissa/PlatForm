@@ -55,9 +55,9 @@ namespace Presentation.Controllers
         }
         [HttpPost]
         [Route("UploadFilePDF")]
-        public async Task<IActionResult> UploadFilePDF(IFormFile file, int userId, int teacherID)
+        public async Task<IActionResult> UploadFilePDF([FromForm] FilePdfDTO file)
         {
-            UploadFilesPDFCommand command = new UploadFilesPDFCommand(file,userId,teacherID);
+            UploadFilesPDFCommand command = new UploadFilesPDFCommand(file.file,file.userId,file.teacherId,file.isAnswer,file.fileID);
             var res = await Mediator.Send(command);
             return Ok(res);
         }
@@ -89,6 +89,15 @@ namespace Presentation.Controllers
             CheckUploadedChunksQuery query = new CheckUploadedChunksQuery(userId,fileName);
             var res = await Mediator.Send(query);
             return Ok(res);
+        }
+
+        [HttpGet]
+        [Route("DownloadFile")]
+        public async Task<IActionResult> Download(string fileName)
+        {
+            var fileDto = await Mediator.Send(new DownloadFileQuery(fileName));
+
+            return File(fileDto.Content, fileDto.ContentType, fileDto.FileName);
         }
     }
 }

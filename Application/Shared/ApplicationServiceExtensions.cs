@@ -1,4 +1,5 @@
-﻿using ApplicationContract.IFiles;
+﻿using Application.Features.Files.Queries;
+using ApplicationContract.IFiles;
 using ApplicationContract.IStudent;
 using ApplicationContract.ITeacher;
 using FluentValidation;
@@ -15,10 +16,8 @@ namespace Application.Shared
         {
             // Register MediatR from the Application layer assembly
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-
             // Register FluentValidation validators from the Application layer assembly
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
             // Register the validation pipeline behavior
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped<ITeacherRepository, TeacherRepository>();

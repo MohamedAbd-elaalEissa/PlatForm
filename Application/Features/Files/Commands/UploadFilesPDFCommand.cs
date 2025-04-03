@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Files.Commands
 {
-    public record UploadFilesPDFCommand(IFormFile file, int userId, int teacherID) :IRequest<CommonResult>;
+    public record UploadFilesPDFCommand(IFormFile file, int userId, int teacherID,bool isAnswer,int? fileID) :IRequest<CommonResult>;
 
     public class UploadFilesPDFCommandHandler : IRequestHandler<UploadFilesPDFCommand, CommonResult>
     {
@@ -24,7 +24,7 @@ namespace Application.Features.Files.Commands
 
         public async Task<CommonResult> Handle(UploadFilesPDFCommand request, CancellationToken cancellationToken)
         {
-            return await _repository.UploadFilePDF(request.file,request.userId,request.teacherID);
+            return await _repository.UploadFilePDF(request.file,request.userId,request.teacherID,request.isAnswer,request.fileID);
         }
     }
 

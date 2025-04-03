@@ -8,16 +8,12 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Files:BaseEntity
+    public class Videos:BaseEntity
     {
         [Key]
-        public int FilesID { get; set; }
+        public int VideoID { get; set; }
         public int? UserID { get; set; }
-        public string FileName { get; set; }
-        public string AnswerName { get; set; }
-        public int? StudentID { get; set; }
-        public string TaskName { get; set; }
-        public bool IsAnswer { get; set; }
+        public string VideoName { get; set; }
         public int TeacherID { get; set; }
         public Teachers Teacher { get; set; }
     }

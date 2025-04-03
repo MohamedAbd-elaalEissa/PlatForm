@@ -35,5 +35,6 @@ namespace Infrastructure.Presistence
         public DbSet<Teachers> Teachers { get; set; }
         public DbSet<Students> Students { get; set; }
         public DbSet<Files> Files { get; set; }
+        public DbSet<Videos> Videos { get; set; }
     }
 }
