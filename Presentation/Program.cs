@@ -22,22 +22,7 @@ namespace Presentation
                 serverOptions.Limits.MaxRequestBodySize = 3221225472; // 3GB
             });
 
-            // Add CORS service
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("AllowLocalhost", policy =>
-                {
-                    policy.WithOrigins("http://localhost:4200") // The URL of your Angular frontend
-                          .AllowAnyHeader()
-                          .AllowAnyMethod();
-                });
-            });
-
             var app = builder.Build();
-
-            // Enable CORS with the policy
-            app.UseCors("AllowLocalhost");
-
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
