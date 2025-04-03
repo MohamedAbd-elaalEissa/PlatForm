@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './teachers.component.scss',
 })
 
+
 export class TeachersComponent {
   teachers: any;
 
