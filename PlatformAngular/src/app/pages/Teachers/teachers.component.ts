@@ -3,10 +3,10 @@ import { AnimateOnScrollModule } from 'primeng/animateonscroll';
 import { CardModule } from 'primeng/card';
 import { TeachersService } from '../service/teachers.service';
 import { CommonModule } from '@angular/common';
-
+import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-teachers',
-  imports: [AnimateOnScrollModule, CardModule,CommonModule],
+  imports: [AnimateOnScrollModule, CardModule,CommonModule,RouterModule],
   templateUrl: './teachers.component.html',
   styleUrl: './teachers.component.scss',
 })

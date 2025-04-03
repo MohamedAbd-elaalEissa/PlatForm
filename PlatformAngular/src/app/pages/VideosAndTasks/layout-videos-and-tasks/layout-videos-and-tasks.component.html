@@ -1,0 +1,19 @@
+<p-tabs value="tasks">
+    <p-tablist>
+        <p-tab [value]="'tasks'" [routerLink]="['tasks']">
+            <i class="pi pi-file-pdf"></i>
+            <span>Tasks</span>
+        </p-tab>
+        <p-tab [value]="'videos'" [routerLink]="['videos']">
+            <i class="pi pi-video"></i>
+            <span>Videos</span>
+        </p-tab>
+        <p-tab [value]="'uploadTasks'" [routerLink]="['uploadTasks']">
+            <i class="pi pi-cloud-upload"></i>
+            <span>Upload Tasks</span>
+        </p-tab>
+    </p-tablist>
+</p-tabs>
+
+<router-outlet></router-outlet>
+
