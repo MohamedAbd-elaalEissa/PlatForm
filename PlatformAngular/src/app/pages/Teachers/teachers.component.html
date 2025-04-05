@@ -2,11 +2,11 @@
     <div class="h-[100%]">
         <div class="flex flex-wrap justify-center gap-8">
             <div *ngFor="let teacher of teachers" 
-                pAnimateOnScroll 
+                pAnimateOnScroll (click)="saveInLocalStorage(teacher.teacherID)"
                 enterClass="animate-enter fade-in-10 slide-in-from-t-20 animate-duration-1000"
-                leaveClass="animate-leave fade-out-0"
+                leaveClass="animate-leave fade-out-0" 
                 class="flex flex-col border border-primary-200 shadow-xl justify-center items-center max-w-lg rounded-3xl p-12 gap-6 cursor-pointer"
-                [routerLink]="['/pages/teachers/videos-and-tasks', teacher.teacherID]"> 
+                [routerLink]="['/pages/teachers/videos-and-tasks']" > 
                 
                 <img [src]="'assets/demo/TeacherImg/' + teacher.imagesUrl"  
                     alt="{{ teacher.firstName }} {{ teacher.lastName }}"

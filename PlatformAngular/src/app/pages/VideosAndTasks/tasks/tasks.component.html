@@ -9,62 +9,68 @@
         </div>
     </ng-template>
     <ng-template #list let-items>
-        <div *ngFor="let item of items; let first = first">
+        <div *ngFor="let item of tasksFiles; let first = first">
             <div class="flex flex-col sm:flex-row sm:items-center p-6 gap-4"
                 [ngClass]="{ 'border-t border-surface-200 dark:border-surface-700': !first }">
                 <div class="md:w-40 relative">
-                    <img class="block xl:block mx-auto rounded w-full" [src]="'assets/File/download.png'"
-                        [alt]="item.name" />
+                    <img class="block xl:block mx-auto rounded w-full" [src]="'assets/File/PDFile.png'" [alt]="'PDF'" />
                 </div>
                 <div class="flex flex-col md:flex-row justify-between md:items-center flex-1 gap-6">
                     <div class="flex flex-row md:flex-col justify-between items-start gap-2">
                         <div>
                             <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PDF Task</span>
                             <!-- item name here  -->
-                            <div class="text-lg font-medium mt-2">{{ item.name }}</div>
+                            <div class="text-lg font-medium mt-2">{{ item.taskName }}</div>
                         </div>
                     </div>
                     <!-- Upload Buttons -->
                     <div class="flex flex-row gap-8">
                         <div class="flex flex-col gap-2">
-                            <button pButton icon="pi pi-clipboard" 
-                                    label="Download Task"
-                                    [disabled]="item.inventoryStatus === 'OUTOFSTOCK'"
-                                    class="whitespace-nowrap"></button>
-                    
-                            <button pButton icon="pi pi-clipboard" 
+                            <button pButton icon="pi pi-clipboard" label="Download Task" class="whitespace-nowrap"
+                                (click)="downloadTask(item.fileName)">
+                            </button>
+
+                            <!-- <button pButton icon="pi pi-clipboard" 
                                     label="Upload Task"
                                     [disabled]="item.inventoryStatus === 'OUTOFSTOCK'"
-                                    class="whitespace-nowrap"></button>
-                    
-                            <button pButton icon="pi pi-file-check" 
+                                    class="whitespace-nowrap"></button> -->
+
+                            <!-- <button pButton icon="pi pi-file-check" 
                                     label="Download Solving"
                                     [disabled]="item.inventoryStatus === 'OUTOFSTOCK'"
-                                    class="whitespace-nowrap"></button>
-                    
-                            <button pButton icon="pi pi-file-check" 
+                                    class="whitespace-nowrap"></button> -->
+
+                            <!-- <button pButton icon="pi pi-file-check" 
                                     label="Upload Solving"
-                                    [disabled]="item.inventoryStatus === 'OUTOFSTOCK'"
-                                    class="whitespace-nowrap"></button>
+                                    [disabled]="item.isAnswer"
+                                    class="whitespace-nowrap"
+                                    (click)="uploadTask(item.filesID,item.fileName,item.userID,studentId,item.teacherID,true,item.academicLevelID,item.taskName,item.taskName+'Answer')">
+                                </button> -->
+
+                            <p-fileUpload name="file" customUpload="true" (uploadHandler)="uploadTask($event,item.filesID,studentId,item.teacherID,true,item.academicLevelID,item.taskName,item.taskName+'Answer')"
+                                mode="basic" [auto]="true" chooseLabel="Upload Solving" [disabled]="item.isAnswer"
+                                [accept]="'application/pdf'" chooseIcon="pi pi-file-check"
+                                 />
+
                         </div>
-                        <div class="flex flex-col justify-start items-center mt-4"
-                         style="margin-top: 60px;">
-                            <button pButton icon="pi pi-thumbs-up" [outlined]="false"></button>
+
+                        <div class="flex flex-col justify-start items-center mt-4" style="margin-top: 20px;">
+                            <button pButton icon="pi pi-check-circle" [outlined]="!item.isAnswer"></button>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
     </ng-template>
     <ng-template #grid let-items>
         <div class="grid grid-cols-12 gap-4">
-            <div *ngFor="let product of items" class="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-6 p-2">
+            <div *ngFor="let product of tasksFiles" class="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-6 p-2">
                 <div
                     class="p-6 border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 rounded flex flex-col">
                     <div class="bg-surface-50 flex justify-center rounded p-4">
                         <div class="relative mx-auto">
-                            <img class="rounded w-full" [src]="'assets/File/download.png'" [alt]="'PDF'"
+                            <img class="rounded w-full" [src]="'assets/File/PDFile.png'" [alt]="'PDF'"
                                 style="max-width: 300px" />
                         </div>
                     </div>
@@ -72,52 +78,46 @@
                         <div class="flex flex-row justify-between products-start gap-2">
                             <div>
                                 <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PDF</span>
-                                <div class="text-lg font-medium mt-1">{{ product.name }}</div>
+                                <div class="text-lg font-medium mt-1">{{ product.taskName }}</div>
                             </div>
                         </div>
                         <div class="flex flex-col gap-8">
 
                             <div class="flex flex-row-reverse gap-2 ">
-                                <button pButton icon="pi pi-thumbs-up" [outlined]="false"></button>
+                                <button pButton icon="pi pi-check-circle" [outlined]="true"></button>
                             </div>
-                            
+
                             <div class="flex flex-col gap-2">
                                 <div class="flex flex-row gap-2">
-                                    <button pButton 
-                                        icon="pi pi-clipboard" 
-                                        label="Download Task"
+                                    <button pButton icon="pi pi-clipboard" label="Download Task"
                                         [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"
                                         class="flex-1 whitespace-nowrap"></button>
-                        
-                                    <button pButton
+
+                                    <!-- <button pButton
                                         icon="pi pi-clipboard" 
                                         label="Upload Task"
                                         [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"
                                         class="flex-1 whitespace-nowrap"></button>
-                                </div>
-                        
-                                <div class="flex flex-row gap-2">
+                                </div> -->
+
+                                    <!-- <div class="flex flex-row gap-2">
                                     <button pButton 
                                         icon="pi pi-file-check"
                                         label="Download Solving"
                                         [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"
-                                        class="flex-1 whitespace-nowrap"></button>
-                        
-                                    <button pButton 
-                                        icon="pi pi-file-check" 
-                                        label="Upload Solving"
+                                        class="flex-1 whitespace-nowrap"></button> -->
+
+                                    <button pButton icon="pi pi-file-check" label="Upload Solving"
                                         [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"
                                         class="flex-1 whitespace-nowrap"></button>
                                 </div>
                             </div>
                         </div>
-                        
-                        
-                        
-                        
                     </div>
                 </div>
             </div>
         </div>
     </ng-template>
 </p-dataview>
+
+<p-toast></p-toast>

@@ -14,7 +14,7 @@ import { ToastModule } from 'primeng/toast';
   standalone: true,
   imports: [FileUpload, ButtonModule, BadgeModule, ProgressBar, ToastModule, HttpClientModule, CommonModule],
   templateUrl: './upload-tasks.component.html',
-  styleUrls: ['./upload-tasks.component.scss'], // تم التصحيح هنا
+  styleUrls: ['./upload-tasks.component.scss'], 
   providers: [MessageService]
 })
 export class UploadTasksComponent {

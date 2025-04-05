@@ -38,5 +38,7 @@ namespace Infrastructure.Presistence
         public DbSet<Files> Files { get; set; }
         public DbSet<Videos> Videos { get; set; }
         public DbSet<AcademicLevels> AcademicLevels { get; set; }
+        public DbSet<FileAnswers> FileAnswers { get; set; }
+
     }
 }

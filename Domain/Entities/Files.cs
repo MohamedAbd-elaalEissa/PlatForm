@@ -9,8 +9,6 @@ namespace Domain.Entities
         public int FilesID { get; set; }
         public int? UserID { get; set; }
         public string FileName { get; set; }
-        public string AnswerName { get; set; }
-        public int? StudentID { get; set; }
         public string TaskName { get; set; }
         public bool IsAnswer { get; set; }
         public int TeacherID { get; set; }

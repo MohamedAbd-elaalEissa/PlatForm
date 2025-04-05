@@ -6,14 +6,13 @@ import { UploadTasksComponent } from './upload-tasks/upload-tasks.component';
 
 export default [
     {
-        path: ':id',
+        path: '',
         component: LayoutVideosAndTasksComponent,
         children: [
             { path: '', redirectTo: 'tasks', pathMatch: 'full' },  
             { path: 'tasks', component: TasksComponent },
             { path: 'videos', component: VideosComponent },
             { path: 'uploadTasks', component: UploadTasksComponent }
-            
         ]
     }
 ] as Routes;

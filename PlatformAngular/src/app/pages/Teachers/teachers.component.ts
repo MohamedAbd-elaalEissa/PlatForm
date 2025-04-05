@@ -34,5 +34,10 @@ export class TeachersComponent {
 
   }
 
+  saveInLocalStorage(teacherId : string)
+  {
+    sessionStorage.setItem('teacherId', teacherId);
+  }
+
 
 }

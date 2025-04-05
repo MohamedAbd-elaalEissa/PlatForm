@@ -26,11 +26,11 @@ namespace Infrastructure.Repositories
 
         }
 
-        public async Task<CommonResult> UploadFilePDF(IFormFile file, int userId, int teacherID, bool isAnswer, int? fileID, int AcademicLevelID)
+        public async Task<CommonResult> UploadFilePDF(FilePdfDTO filePDF)
         {
             try
             {
-                if (file == null || file.Length == 0)
+                if (filePDF.file == null || filePDF.file.Length == 0)
                 {
                     return new CommonResult
                     {
@@ -39,8 +39,8 @@ namespace Infrastructure.Repositories
                         TransactionHeaderMessage = "No file uploaded"
                     };
                 }
-                string fileName = Path.GetFileNameWithoutExtension(file.FileName);
-                string fileExtension = Path.GetExtension(file.FileName);
+                string fileName = Path.GetFileNameWithoutExtension(filePDF.file.FileName);
+                string fileExtension = Path.GetExtension(filePDF.file.FileName);
                 string fullFileName = fileName + fileExtension;
 
                 string filePath = Path.Combine(FilePath, fullFileName);
@@ -56,15 +56,15 @@ namespace Infrastructure.Repositories
                 // Save the new file
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await file.CopyToAsync(stream);
+                    await filePDF.file.CopyToAsync(stream);
                 }
                 Files files = null;
 
                 //// Save to database via EF Core
-                if (isAnswer == false)
+                if (filePDF.isAnswer == false)
                 {
                     files = await _dbContext.Files
-                  .FirstOrDefaultAsync(c => c.FilesID == fileID);
+                  .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID);
                     if (files != null)
                     {
                         // Update existing
@@ -76,23 +76,48 @@ namespace Infrastructure.Repositories
                         // Create new if it doesn't exist
                         files = new Files
                         {
-                            UserID = userId,
+                            UserID = filePDF.userId,
                             FileName = fullFileName,
-                            TeacherID = teacherID,
-                            AcademicLevelID = AcademicLevelID
+                            TeacherID = (int)filePDF.teacherId,
+                            AcademicLevelID = (int)filePDF.academicLevelID,
+                            TaskName = filePDF.taskName 
+                            
                         };
                         _dbContext.Files.Add(files);
                     }
                 }
                 else
                 {
-                    files = await _dbContext.Files
-                  .FirstOrDefaultAsync(c => c.FilesID == fileID);
-                    if (files != null)
+                   var filesAnswer = await _dbContext.FileAnswers
+                   .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID && c.StudentID == filePDF.studentId);
+                    if (filesAnswer != null)
                     {
                         // Update existing
-                        files.AnswerName = fullFileName;
-                        _dbContext.Files.Update(files);
+                        filesAnswer.AnswerName = fullFileName;
+                        _dbContext.FileAnswers.Update(filesAnswer);
+                    }
+                    else
+                    {
+
+                        // Create new if it doesn't exist
+                        filesAnswer = new FileAnswers
+                        {
+                           StudentID = filePDF.studentId,
+                           AnswerName = filePDF.answerName,
+                           FilesID = (int) filePDF.fileID,
+                           
+                        };
+
+                        var filessolved = await _dbContext.Files
+                        .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID);
+
+                        if (filessolved != null)
+                        {
+                            filessolved.IsAnswer = true;
+                            _dbContext.Files.Update(filessolved);
+                        }
+
+                        _dbContext.FileAnswers.Add(filesAnswer);
                     }
                 }
 
