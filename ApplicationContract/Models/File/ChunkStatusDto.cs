@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApplicationContract.Models
+namespace ApplicationContract.Models.File
 {
     public class ChunkStatusDto
     {

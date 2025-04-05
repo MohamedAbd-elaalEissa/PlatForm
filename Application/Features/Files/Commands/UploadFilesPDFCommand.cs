@@ -1,5 +1,6 @@
 ﻿using ApplicationContract.IFiles;
 using ApplicationContract.Models;
+using ApplicationContract.Models.File;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

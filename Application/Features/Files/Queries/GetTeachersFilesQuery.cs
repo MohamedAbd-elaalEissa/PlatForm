@@ -1,4 +1,6 @@
 ﻿using ApplicationContract.IFiles;
+using ApplicationContract.Models;
+using ApplicationContract.Models.File;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -8,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Files.Queries
 {
-    public record GetTeachersFilesQuery(int TeacherID):IRequest<IEnumerable<Domain.Entities.Files>>;
+    public record GetTeachersFilesQuery(TeacherFileDTO teacherFile) :IRequest<PaginatedResult<Domain.Entities.Files>>;
 
-    public class GetTeachersFilesQueryHandler : IRequestHandler<GetTeachersFilesQuery, IEnumerable<Domain.Entities.Files>>
+    public class GetTeachersFilesQueryHandler : IRequestHandler<GetTeachersFilesQuery, PaginatedResult<Domain.Entities.Files>>
     {
         private readonly IFilesRepository _repository;
 
@@ -18,9 +20,9 @@ namespace Application.Features.Files.Queries
         {
             _repository = repository;
         }
-        public async Task<IEnumerable<Domain.Entities.Files>> Handle(GetTeachersFilesQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<Domain.Entities.Files>> Handle(GetTeachersFilesQuery request, CancellationToken cancellationToken)
         {
-            return await _repository.GetTeachersFilesAsync(request.TeacherID);
+            return await _repository.GetTeachersFilesAsync(request.teacherFile);
         }
     }
 }

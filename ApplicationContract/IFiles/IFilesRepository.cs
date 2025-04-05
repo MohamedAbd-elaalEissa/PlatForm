@@ -1,4 +1,5 @@
 ﻿using ApplicationContract.Models;
+using ApplicationContract.Models.File;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,8 +19,10 @@ namespace ApplicationContract.IFiles
         Task DeleteAsync(int ID);
         Task<CommonResult> UploadFilePDF(FilePdfDTO file);
         Task<CommonResult> UploadFileChunk([FromForm] FileChunkDto chunkDto);
-        Task<IEnumerable<Files>> GetTeachersFilesAsync(int TeacherID);
+        Task<PaginatedResult<Files>> GetTeachersFilesAsync(TeacherFileDTO teacherFile);
         Task<ChunkStatusDto> CheckUploadedChunks(int userId, string fileName);
         Task<FileDto> GetFileAsync(string fileName);
+        Task<PaginatedResult<Videos>> GetTeachersVideoAsync(TeacherVideoDTO teacherVideo);
+        Task<IEnumerable<AcademicLevels>> GetAllAcademicLevelsAsync();
     }
 }

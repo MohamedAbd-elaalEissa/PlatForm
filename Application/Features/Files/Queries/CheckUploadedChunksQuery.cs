@@ -1,5 +1,5 @@
 ﻿using ApplicationContract.IFiles;
-using ApplicationContract.Models;
+using ApplicationContract.Models.File;
 using MediatR;
 using System;
 using System.Collections.Generic;

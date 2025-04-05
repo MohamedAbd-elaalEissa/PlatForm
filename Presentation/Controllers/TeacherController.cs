@@ -3,6 +3,7 @@ using Application.Features.Files.Queries;
 using Application.Features.Teachers.Commands;
 using Application.Features.Teachers.Queries;
 using ApplicationContract.Models;
+using ApplicationContract.Models.File;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -52,52 +53,6 @@ namespace Presentation.Controllers
             GetTeacherWithStudentsQueries query = new GetTeacherWithStudentsQueries();
             var res = await Mediator.Send(query);
             return Ok(res);
-        }
-        [HttpPost]
-        [Route("UploadFilePDF")]
-        public async Task<IActionResult> UploadFilePDF([FromForm] FilePdfDTO file)
-        {
-            UploadFilesPDFCommand command = new UploadFilesPDFCommand(file);
-            var res = await Mediator.Send(command);
-            return Ok(res);
-        }
-
-        [DisableRequestSizeLimit]
-        [RequestFormLimits(MultipartBodyLengthLimit = 3221225472)]
-        [HttpPost]
-        [Route("UploadFileChunk")]
-        public async Task<IActionResult> UploadFileChunk([FromForm] FileChunkDto chunkDto)
-        {
-            UploadFilesChunkCommand command = new UploadFilesChunkCommand(chunkDto);
-            var res = await Mediator.Send(command);
-            return Ok(res);
-        }
-
-        [HttpGet]
-        [Route("GetTeachersFiles")]
-        public async Task<IActionResult> GetTeachersFiles(int teacherID)
-        {
-            GetTeachersFilesQuery query = new GetTeachersFilesQuery(teacherID);
-            var res = await Mediator.Send(query);
-            return Ok(res);
-        }
-
-        [HttpGet]
-        [Route("CheckUploadedChunks")]
-        public async Task<IActionResult> CheckUploadedChunks(int userId, string fileName)
-        {
-            CheckUploadedChunksQuery query = new CheckUploadedChunksQuery(userId,fileName);
-            var res = await Mediator.Send(query);
-            return Ok(res);
-        }
-
-        [HttpGet]
-        [Route("DownloadFile")]
-        public async Task<IActionResult> Download(string fileName)
-        {
-            var fileDto = await Mediator.Send(new DownloadFileQuery(fileName));
-
-            return File(fileDto.Content, fileDto.ContentType, fileDto.FileName);
         }
     }
 }

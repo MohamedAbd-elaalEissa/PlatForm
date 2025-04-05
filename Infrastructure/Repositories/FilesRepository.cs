@@ -1,12 +1,11 @@
 ﻿using ApplicationContract.IFiles;
 using ApplicationContract.Models;
+using ApplicationContract.Models.File;
 using Domain.Entities;
 using Infrastructure.Presistence;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System.Linq;
 
 namespace Infrastructure.Repositories
 {
@@ -44,7 +43,7 @@ namespace Infrastructure.Repositories
                 string fullFileName = fileName + fileExtension;
 
                 string filePath = Path.Combine(FilePath, fullFileName);
-              
+
                 // Delete existing file if it exists
                 string[] existingFiles = Directory.GetFiles(Path.GetDirectoryName(filePath), Path.GetFileName(filePath));
                 foreach (string existingFile in existingFiles)
@@ -80,16 +79,16 @@ namespace Infrastructure.Repositories
                             FileName = fullFileName,
                             TeacherID = (int)filePDF.teacherId,
                             AcademicLevelID = (int)filePDF.academicLevelID,
-                            TaskName = filePDF.taskName 
-                            
+                            TaskName = filePDF.taskName
+
                         };
                         _dbContext.Files.Add(files);
                     }
                 }
                 else
                 {
-                   var filesAnswer = await _dbContext.FileAnswers
-                   .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID && c.StudentID == filePDF.studentId);
+                    var filesAnswer = await _dbContext.FileAnswers
+                    .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID && c.StudentID == filePDF.studentId);
                     if (filesAnswer != null)
                     {
                         // Update existing
@@ -102,10 +101,10 @@ namespace Infrastructure.Repositories
                         // Create new if it doesn't exist
                         filesAnswer = new FileAnswers
                         {
-                           StudentID = filePDF.studentId,
-                           AnswerName = filePDF.answerName,
-                           FilesID = (int) filePDF.fileID,
-                           
+                            StudentID = filePDF.studentId,
+                            AnswerName = filePDF.answerName,
+                            FilesID = (int)filePDF.fileID,
+
                         };
 
                         var filessolved = await _dbContext.Files
@@ -153,9 +152,43 @@ namespace Infrastructure.Repositories
         public async Task<Files> GetAsync(int? ID)
         => await _dbContext.Files.FindAsync(ID);
 
-        public async Task<IEnumerable<Files>> GetTeachersFilesAsync(int TeacherID)
-        => await _dbContext.Files.Where(n => n.TeacherID == TeacherID).ToListAsync();
+        public async Task<IEnumerable<AcademicLevels>> GetAllAcademicLevelsAsync()
+       => await _dbContext.AcademicLevels.ToListAsync();
 
+        public async Task<PaginatedResult<Files>> GetTeachersFilesAsync(TeacherFileDTO teacherFile)
+        {
+            var query = _dbContext.Files.AsQueryable();
+            query = query.Where(f => f.TeacherID == teacherFile.TeacherId);
+
+            if (!string.IsNullOrWhiteSpace(teacherFile.TaskName) && teacherFile.AcademicLevelId.HasValue)
+            {
+                query = query.Where(f => f.TaskName.Contains(teacherFile.TaskName) && f.AcademicLevelID == teacherFile.AcademicLevelId.Value);
+
+            }
+            else if (!string.IsNullOrWhiteSpace(teacherFile.TaskName))
+            {
+                query = query.Where(f => f.TaskName.Contains(teacherFile.TaskName));
+            }
+
+            else if (teacherFile.AcademicLevelId.HasValue)
+            {
+                query = query.Where(f => f.AcademicLevelID == teacherFile.AcademicLevelId.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((teacherFile.PageNumber - 1) * teacherFile.PageSize)
+                .Take(teacherFile.PageSize)
+                .ToListAsync();
+
+            return new PaginatedResult<Files>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = teacherFile.PageNumber,
+                PageSize = teacherFile.PageSize
+            };
+        }
         public async Task<CommonResult> UploadFileChunk([FromForm] FileChunkDto chunkDto)
         {
             try
@@ -258,7 +291,7 @@ namespace Infrastructure.Repositories
                             UserID = chunkDto.UserId,
                             VideoName = finalFileName,
                             TeacherID = chunkDto.TeacherId,
-                            AcademicLevelID=chunkDto.AcademicLevelID
+                            AcademicLevelID = chunkDto.AcademicLevelID
                         };
                         _dbContext.Videos.Add(newFile);
 
@@ -349,6 +382,41 @@ namespace Infrastructure.Repositories
                 Content = bytes,
                 ContentType = contentType,
                 FileName = fileName
+            };
+        }
+
+        public async Task<PaginatedResult<Videos>> GetTeachersVideoAsync(TeacherVideoDTO teacherVideo)
+        {
+            var query = _dbContext.Videos.AsQueryable();
+            query = query.Where(f => f.TeacherID == teacherVideo.TeacherId);
+
+            if (!string.IsNullOrWhiteSpace(teacherVideo.VideoName) && teacherVideo.AcademicLevelId.HasValue)
+            {
+                query = query.Where(f => f.VideoName.Contains(teacherVideo.VideoName) && f.AcademicLevelID == teacherVideo.AcademicLevelId.Value);
+
+            }
+            else if (!string.IsNullOrWhiteSpace(teacherVideo.VideoName))
+            {
+                query = query.Where(f => f.VideoName.Contains(teacherVideo.VideoName));
+            }
+
+            else if (teacherVideo.AcademicLevelId.HasValue)
+            {
+                query = query.Where(f => f.AcademicLevelID == teacherVideo.AcademicLevelId.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((teacherVideo.PageNumber - 1) * teacherVideo.PageSize)
+                .Take(teacherVideo.PageSize)
+                .ToListAsync();
+
+            return new PaginatedResult<Videos>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = teacherVideo.PageNumber,
+                PageSize = teacherVideo.PageSize
             };
         }
     }
