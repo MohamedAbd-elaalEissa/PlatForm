@@ -419,5 +419,79 @@ namespace Infrastructure.Repositories
                 PageSize = teacherVideo.PageSize
             };
         }
+
+        public async Task<PaginatedResult<StudentAnswerFilesDTO>> GetStudentAnswerAsync(StudentAnswerFilesDTO StudentAnswerFile)
+        {
+            var query = _dbContext.FileAnswers
+                                .Include(f => f.Files)
+                                    .ThenInclude(f => f.AcademicLevel)
+                                //.Include(f => f.Student) 
+                                .Where(f => f.Files.TeacherID == StudentAnswerFile.TeacherId
+                                         && f.Files.FilesID == StudentAnswerFile.FilesId)
+                                .AsQueryable();
+
+            //if (!string.IsNullOrWhiteSpace(StudentAnswerFile.TaskName))
+            //{
+            //    query = query.Where(f => f.Files.TaskName.Contains(StudentAnswerFile.TaskName));
+            //}
+
+            if (!string.IsNullOrWhiteSpace(StudentAnswerFile.AnswerName))
+            {
+                query = query.Where(f => f.AnswerName.Contains(StudentAnswerFile.AnswerName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(StudentAnswerFile.AcademicLevelName))
+            {
+                query = query.Where(f => f.Files.AcademicLevel.AcademicLevelName.Contains(StudentAnswerFile.AcademicLevelName));
+            }
+
+            //if (!string.IsNullOrWhiteSpace(StudentAnswerFile.StudentName))
+            //{
+            //    query = query.Where(f => f.Student.StudentName.Contains(StudentAnswerFile.StudentName));
+            //}
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((StudentAnswerFile.PageNumber - 1) * StudentAnswerFile.PageSize)
+                .Take(StudentAnswerFile.PageSize)
+                .Select(f => new
+                {
+                    f.FileAnswersID,
+                    f.AnswerName,
+                    f.StudentID,
+                    //f.Student.StudentName, 
+                    f.Files.FileName,
+                    f.Files.FilesID,
+                    f.Files.TeacherID,
+                    f.Files.TaskName,
+                    f.Files.AcademicLevel.AcademicLevelName,
+                    f.Files.AcademicLevel.AcademicLevelID
+                })
+                .ToListAsync();
+
+            return new PaginatedResult<StudentAnswerFilesDTO>
+            {
+                Items = items.Select(x => new StudentAnswerFilesDTO
+                {
+                    FileAnswersID = x.FileAnswersID,
+                    AnswerName = x.AnswerName,
+                    StudentId = x.StudentID,
+                    //StudentName = x.StudentName, 
+                    FileName=x.FileName , 
+                    TaskName = x.TaskName,
+                    AcademicLevelId = x.AcademicLevelID,
+                    AcademicLevelName = x.AcademicLevelName,
+                    FilesId = x.FilesID,
+                    TeacherId = x.TeacherID
+                }).ToList(),
+                TotalCount = totalCount,
+                PageNumber = StudentAnswerFile.PageNumber,
+                PageSize = StudentAnswerFile.PageSize
+            };
+        }
+
+
     }
+
 }

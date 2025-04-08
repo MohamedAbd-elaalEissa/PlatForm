@@ -72,5 +72,15 @@ namespace Presentation.Controllers
             var res = await Mediator.Send(query);
             return Ok(res);
         }
+
+        [HttpPost]
+        [Route("GetStudentAnswer")]
+        public async Task<IActionResult>GetStudentAnswer(StudentAnswerFilesDTO studentAnswerFiles)
+        {
+            StudentAnswerFilesQuery query = new StudentAnswerFilesQuery(studentAnswerFiles);
+            var res = await Mediator.Send(query);
+            return Ok(res);
+        }
+
     }
 }

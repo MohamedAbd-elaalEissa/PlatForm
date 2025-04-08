@@ -24,7 +24,8 @@ export class AppMenu {
                 label: 'Home',
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
-                    { label: 'Teachers', icon: 'pi pi-graduation-cap', routerLink: ['/pages/teachers'] }
+                    { label: 'Teachers', icon: 'pi pi-graduation-cap', routerLink: ['/pages/teachers'] },
+                    { label: 'student Tasks Dashboard', icon: 'pi pi-graduation-cap', routerLink: ['/pages/teachers/videos-and-tasks/studentTasksDashboard'] }
                 ]
             },
             {
