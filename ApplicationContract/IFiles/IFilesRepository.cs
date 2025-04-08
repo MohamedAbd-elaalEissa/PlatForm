@@ -24,5 +24,7 @@ namespace ApplicationContract.IFiles
         Task<FileDto> GetFileAsync(string fileName);
         Task<PaginatedResult<Videos>> GetTeachersVideoAsync(TeacherVideoDTO teacherVideo);
         Task<IEnumerable<AcademicLevels>> GetAllAcademicLevelsAsync();
+        Task<PaginatedResult<StudentAnswerFilesDTO>> GetStudentAnswerAsync(StudentAnswerFilesDTO StudentAnswerFile);
+
     }
 }

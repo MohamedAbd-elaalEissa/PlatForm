@@ -3,6 +3,7 @@ import { TasksComponent } from './tasks/tasks.component';
 import { LayoutVideosAndTasksComponent } from './layout-videos-and-tasks/layout-videos-and-tasks.component';
 import { VideosComponent } from './videos/videos.component';
 import { UploadTasksComponent } from './upload-tasks/upload-tasks.component';
+import { StudentTasksDashboardComponent } from './student-tasks-dashboard/student-tasks-dashboard.component';
 
 export default [
     {
@@ -12,7 +13,9 @@ export default [
             { path: '', redirectTo: 'tasks', pathMatch: 'full' },  
             { path: 'tasks', component: TasksComponent },
             { path: 'videos', component: VideosComponent },
-            { path: 'uploadTasks', component: UploadTasksComponent }
-        ]
-    }
+            { path: 'uploadTasks', component: UploadTasksComponent },
+        ],
+    },
+    { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent }
+
 ] as Routes;

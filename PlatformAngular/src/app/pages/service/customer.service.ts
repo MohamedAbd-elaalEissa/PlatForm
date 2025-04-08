@@ -17,10 +17,12 @@ export interface Customer {
     country?: Country;
     company?: string;
     date?: string;
+    _date?: Date;
     status?: string;
     activity?: number;
     representative?: Representative;
 }
+
 
 @Injectable()
 export class CustomerService {
