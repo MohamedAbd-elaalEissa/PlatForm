@@ -26,7 +26,7 @@ namespace Presentation.Shared
                  options.MultipartBodyLengthLimit = 3221225472; // 500 MB
              });
 
-          
+
             // allow Angular to reach to API(CORS)
             var MyAllowSpecificOrigins = "AllowAllOrigins";
             services.AddCors(options =>
@@ -36,9 +36,12 @@ namespace Presentation.Shared
                     {
                         policy.WithOrigins("http://localhost:4200")
                               .AllowAnyHeader()
-                              .AllowAnyMethod();
+                              .AllowAnyMethod()
+                              .AllowCredentials();
                     });
             });
+
+            services.AddSignalR();
             return services;
         }
     }

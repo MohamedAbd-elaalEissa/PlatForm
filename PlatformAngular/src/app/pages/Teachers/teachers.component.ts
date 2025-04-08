@@ -4,6 +4,7 @@ import { CardModule } from 'primeng/card';
 import { TeachersService } from '../service/teachers.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { SignalrService } from '../service/signalr.service';
 @Component({
   selector: 'app-teachers',
   imports: [AnimateOnScrollModule, CardModule,CommonModule,RouterModule],
@@ -15,10 +16,12 @@ import { RouterModule } from '@angular/router';
 export class TeachersComponent {
   teachers: any;
 
-  constructor(private teachersService: TeachersService) {}
+  constructor(private teachersService: TeachersService,private signalRService: SignalrService ) {}
 
   ngOnInit(): void {
     this.getAllTeacher()
+    this.signalRService.startConnection("currentUserId");
+
   }
 
   getAllTeacher() {

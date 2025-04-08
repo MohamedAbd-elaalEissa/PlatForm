@@ -1,4 +1,5 @@
 ﻿using Application.Shared;
+using Infrastructure.Repositories;
 using Infrastructure.Shared;
 using Presentation.Shared;
 
@@ -35,7 +36,7 @@ namespace Presentation
             app.UseCors("AllowAllOrigins");
             app.UseAuthorization();
             app.MapControllers();
-
+            app.MapHub<NotificationHub>("/notificationHub");
             app.Run();
         }
     }

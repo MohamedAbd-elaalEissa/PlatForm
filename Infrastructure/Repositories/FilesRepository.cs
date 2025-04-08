@@ -1,9 +1,11 @@
 ﻿using ApplicationContract.IFiles;
+using ApplicationContract.IStudent;
 using ApplicationContract.Models;
 using ApplicationContract.Models.File;
 using Domain.Entities;
 using Infrastructure.Presistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -12,13 +14,17 @@ namespace Infrastructure.Repositories
     public class FilesRepository : IFilesRepository
     {
         private readonly PlatFormDbContext _dbContext;
+        private readonly IStudentRepository _student;
+        private readonly IHubContext<NotificationHub> _hub;
         private readonly IConfiguration _configuration;
         string FilePath;
         string VideoPath;
 
-        public FilesRepository(PlatFormDbContext dbContext, IConfiguration _configuration)
+        public FilesRepository(PlatFormDbContext dbContext, IConfiguration _configuration,IStudentRepository student,IHubContext<NotificationHub> hub)
         {
             _dbContext = dbContext;
+            _student = student;
+            _hub = hub;
             var appSettingsSection = _configuration.GetSection("AppConfiguration");
             FilePath = appSettingsSection["FilePath"];
             VideoPath = appSettingsSection["VideoPath"];
@@ -97,7 +103,6 @@ namespace Infrastructure.Repositories
                     }
                     else
                     {
-
                         // Create new if it doesn't exist
                         filesAnswer = new FileAnswers
                         {
@@ -121,6 +126,12 @@ namespace Infrastructure.Repositories
                 }
 
                 await _dbContext.SaveChangesAsync();
+                var students=await _student.GetAllAsync();
+                foreach (var item in students)
+                {
+                    //await _hub.Clients.Users(item.StudentID.ToString()).SendAsync("ReceiveNotification", "ـم أضافه ـاسك <ديده");
+                    await _hub.Clients.All.SendAsync("ReceiveNotification", "ـم أضافه ـاسك <ديده");
+                }
                 return new CommonResult
                 {
                     IsValidTransaction = true,
