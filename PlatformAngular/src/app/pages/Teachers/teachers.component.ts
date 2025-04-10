@@ -20,7 +20,7 @@ export class TeachersComponent {
 
   ngOnInit(): void {
     this.getAllTeacher()
-    this.signalRService.startConnection("currentUserId");
+    this.signalRService.startConnection("Memo@gamil.com");
 
   }
 
@@ -42,5 +42,5 @@ export class TeachersComponent {
     sessionStorage.setItem('teacherId', teacherId);
   }
 
-
+  
 }

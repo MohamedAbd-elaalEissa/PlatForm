@@ -111,6 +111,7 @@ import { MatBadgeModule } from '@angular/material/badge';
             padding: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
+            color:red;
         }
         
         .message-item {
@@ -138,7 +139,6 @@ export class AppTopbar {
             this.latestMessage = message;
             if(this.latestMessage)
             this.notificationCount++;
-            console.log("Notification count:", this.notificationCount);
             this.messages.push(message);
             if (this.latestMessage) {
                 this.toastService.add({

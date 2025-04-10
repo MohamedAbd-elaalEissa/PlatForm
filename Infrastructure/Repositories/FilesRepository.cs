@@ -1,9 +1,11 @@
 ﻿using ApplicationContract.IFiles;
 using ApplicationContract.IStudent;
+using ApplicationContract.ITeacher;
 using ApplicationContract.Models;
 using ApplicationContract.Models.File;
 using Domain.Entities;
 using Infrastructure.Presistence;
+using Infrastructure.Repositories.SignalR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -14,16 +16,16 @@ namespace Infrastructure.Repositories
     public class FilesRepository : IFilesRepository
     {
         private readonly PlatFormDbContext _dbContext;
-        private readonly IStudentRepository _student;
+        private readonly ITeacherRepository _teacher;
         private readonly IHubContext<NotificationHub> _hub;
         private readonly IConfiguration _configuration;
         string FilePath;
         string VideoPath;
 
-        public FilesRepository(PlatFormDbContext dbContext, IConfiguration _configuration,IStudentRepository student,IHubContext<NotificationHub> hub)
+        public FilesRepository(PlatFormDbContext dbContext, IConfiguration _configuration, ITeacherRepository teacher, IHubContext<NotificationHub> hub)
         {
             _dbContext = dbContext;
-            _student = student;
+            _teacher = teacher;
             _hub = hub;
             var appSettingsSection = _configuration.GetSection("AppConfiguration");
             FilePath = appSettingsSection["FilePath"];
@@ -126,12 +128,24 @@ namespace Infrastructure.Repositories
                 }
 
                 await _dbContext.SaveChangesAsync();
-                var students=await _student.GetAllAsync();
-                foreach (var item in students)
+                if (filePDF.studentId is null)
                 {
-                    //await _hub.Clients.Users(item.StudentID.ToString()).SendAsync("ReceiveNotification", "ـم أضافه ـاسك <ديده");
-                    await _hub.Clients.All.SendAsync("ReceiveNotification", "ـم أضافه ـاسك <ديده");
+                    var res = await _teacher.GetTeacherWithInclude(filePDF.userId);
+                    foreach (var item in res.Students)
+                    {
+                        try
+                        {
+                            await _hub.Clients.Client(NotificationHub.GetConnectionId(item.Email)).SendAsync("ReceiveNotification",
+                                $"تم إضافة مهمة جديدة: {filePDF.taskName}");
+                            //await _hub.Clients.All.SendAsync("ReceiveNotification", $"{filePDF.userId} من {filePDF.taskName}تم اضافه  ");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message, $"Failed to send notification to student {item.Email}");
+                        }                       // await _hub.Clients.All.SendAsync("ReceiveNotification", $"{filePDF.userId} من {filePDF.taskName}تم اضافه  ");
+                    }
                 }
+
                 return new CommonResult
                 {
                     IsValidTransaction = true,
@@ -489,7 +503,7 @@ namespace Infrastructure.Repositories
                     AnswerName = x.AnswerName,
                     StudentId = x.StudentID,
                     //StudentName = x.StudentName, 
-                    FileName=x.FileName , 
+                    FileName = x.FileName,
                     TaskName = x.TaskName,
                     AcademicLevelId = x.AcademicLevelID,
                     AcademicLevelName = x.AcademicLevelName,

@@ -13,11 +13,11 @@ message$ = this.messageSubject.asObservable();  // Observable to be used in comp
 
   constructor() {
   }
-  startConnection(userId: string): void {
+  startConnection(email: string): void {
     debugger
     this.hubConnection = new signalR.HubConnectionBuilder()
 
-      .withUrl(`https://localhost:44305/notificationHub?userId=${userId}`, {
+      .withUrl(`https://localhost:7056/notificationHub?email=${email}`, {
         withCredentials: true // this matches the CORS settings on the server
       })
       .build();
@@ -31,5 +31,8 @@ message$ = this.messageSubject.asObservable();  // Observable to be used in comp
       debugger
       this.messageSubject.next(message);
     });
+  }
+  public stopConnection(): void {
+    this.hubConnection.stop();
   }
 }

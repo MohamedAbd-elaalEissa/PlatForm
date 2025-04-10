@@ -6,3 +6,28 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+/* In your styles.scss */
+
+/* Light theme styles */
+body.light-theme .messages-modal {
+    background-color: white;  /* Light background */
+    border: 1px solid #ccc;
+}
+
+body.light-theme .message-item {
+    color: black;
+    background-color: #fff;
+}
+
+/* Dark theme styles */
+body.dark-theme .messages-modal {
+    background-color: #333;  /* Dark background */
+    border: 1px solid #444;
+}
+
+body.dark-theme .message-item {
+    color: white;
+    background-color: #444;
+}
+
+/* Add more specific styles for your notification dropdown or other elements */

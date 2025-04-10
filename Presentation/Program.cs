@@ -1,5 +1,5 @@
 ﻿using Application.Shared;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.SignalR;
 using Infrastructure.Shared;
 using Presentation.Shared;
 

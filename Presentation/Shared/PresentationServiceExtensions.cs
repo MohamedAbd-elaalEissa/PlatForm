@@ -23,7 +23,7 @@ namespace Presentation.Shared
 
             services.Configure<FormOptions>(options =>
              {
-                 options.MultipartBodyLengthLimit = 3221225472; // 500 MB
+                 options.MultipartBodyLengthLimit = 3221225472; // 3 GB
              });
 
 

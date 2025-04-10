@@ -2,7 +2,7 @@
 // For Development 
 export const environment = {
     production: false,
-    apiUrl: 'https://localhost:44305/api/' 
+    apiUrl: 'https://localhost:7056/api/' 
   };
 
 
