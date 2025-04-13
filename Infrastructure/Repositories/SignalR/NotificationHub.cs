@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Infrastructure.Presistence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Concurrent;
@@ -12,14 +13,18 @@ namespace Infrastructure.Repositories.SignalR
     // [Authorize]
     public class NotificationHub : Hub
     {
-        private static readonly ConcurrentDictionary<string, string> _connections = new ConcurrentDictionary<string, string>();
+        private readonly PlatFormDbContext _context;
 
+        public NotificationHub(PlatFormDbContext context)
+        {
+            _context = context;
+        }
         public override Task OnConnectedAsync()
         {
             string email = Context.GetHttpContext().Request.Query["email"];
             if (!string.IsNullOrEmpty(email))
             {
-                _connections.TryAdd(email, Context.ConnectionId);
+                UserConnectionManager.AddConnection(email, Context.ConnectionId);
             }
             else
             {
@@ -30,25 +35,21 @@ namespace Infrastructure.Repositories.SignalR
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            var email = _connections.FirstOrDefault(c => c.Value == Context.ConnectionId).Key;
+            string email = Context.GetHttpContext().Request.Query["email"];
             if (!string.IsNullOrEmpty(email))
             {
-                _connections.TryRemove(email, out _);
+                UserConnectionManager.RemoveConnection(email, Context.ConnectionId);
             }
             return base.OnDisconnectedAsync(exception);
         }
-        public async Task SendNotification(string email, string message)
+        public async Task GetMissedMessages(string email)
         {
-            if (_connections.TryGetValue(email, out var connectionId))
+            var messages = await OfflineMessageManager.GetMessages(_context,email);
+            foreach (var msg in messages)
             {
-                await Clients.Client(connectionId).SendAsync("ReceiveNotification", message);
+                await Clients.Caller.SendAsync("ReceiveNotification", msg);
             }
-            //await Clients.All.SendAsync("ReceiveNotification", message);
-        }
-        public static string GetConnectionId(string email)
-        {
-            _connections.TryGetValue(email, out var connectionId);
-            return connectionId;
+            await OfflineMessageManager.ClearMessages(_context,email);
         }
     }
 }

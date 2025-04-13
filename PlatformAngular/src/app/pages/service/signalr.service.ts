@@ -6,10 +6,10 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class SignalrService {
-private apiUrl = environment.apiUrl;
-private hubConnection!: signalR.HubConnection;
-private messageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');  // Subject to store the latest message
-message$ = this.messageSubject.asObservable();  // Observable to be used in components
+  private apiUrl = environment.apiUrl;
+  private hubConnection!: signalR.HubConnection;
+  private messageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');  // Subject to store the latest message
+  message$ = this.messageSubject.asObservable();  // Observable to be used in components
 
   constructor() {
   }
@@ -24,13 +24,22 @@ message$ = this.messageSubject.asObservable();  // Observable to be used in comp
 
     this.hubConnection
       .start()
-      .then(() => console.log('SignalR Connected'))
+      .then(() => {
+        console.log('SignalR Connected')
+        this.registerEvents();
+        this.getMissedMessages(email);
+      })
       .catch(err => console.error('SignalR Error: ', err));
-
+  }
+  private registerEvents() {
     this.hubConnection.on('ReceiveNotification', (message: string) => {
       debugger
       this.messageSubject.next(message);
     });
+  }
+  private getMissedMessages(email: string) {
+    this.hubConnection.invoke('GetMissedMessages', email)
+      .catch(err => console.error(err));
   }
   public stopConnection(): void {
     this.hubConnection.stop();

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
@@ -135,9 +136,18 @@ namespace Infrastructure.Repositories
                     {
                         try
                         {
-                            await _hub.Clients.Client(NotificationHub.GetConnectionId(item.Email)).SendAsync("ReceiveNotification",
-                                $"تم إضافة مهمة جديدة: {filePDF.taskName}");
-                            //await _hub.Clients.All.SendAsync("ReceiveNotification", $"{filePDF.userId} من {filePDF.taskName}تم اضافه  ");
+                            string message = $"New task assigned: {filePDF.taskName}";
+                            var connections = UserConnectionManager.GetConnections(item.Email);
+                            if (UserConnectionManager.IsOnline(item.Email))
+                            {
+                                // Send notification to the student
+                                await _hub.Clients.Clients(connections).SendAsync("ReceiveNotification", message);
+                            }
+                            else
+                            {
+                                // Save offline message
+                                await OfflineMessageManager.SaveMessage(_dbContext, item.Email, message);
+                            }
                         }
                         catch (Exception ex)
                         {
