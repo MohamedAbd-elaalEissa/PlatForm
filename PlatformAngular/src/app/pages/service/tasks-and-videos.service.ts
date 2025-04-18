@@ -2,21 +2,9 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
+import { StudentAnswerFilterModel, TeacherFileModel } from '../models/models';
 
 
-export interface StudentAnswerFilterModel 
-  {
-      teacherId : number ,
-      filesId: number ,
-      studentId?: number ,
-      AnswerName? :string,
-      StudentName? :string,
-      AcademicLevelName? :string,
-      FileAnswersID?: number ,
-      AcademicLevelId?: number ,
-      pageNumber: number ,
-      pageSize: number ,
-    }
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +16,7 @@ export class TasksAndVideosService {
 
   constructor(private http: HttpClient) {}
 
-  getTeachersFiles( Obj: any ): Observable<any> {
+  getTeachersFiles( Obj: TeacherFileModel ): Observable<any> {
     return this.http.post(this.apiUrl+"GetTeachersFiles", Obj );
   }
 
@@ -43,6 +31,10 @@ export class TasksAndVideosService {
   getStudentAnswer( Obj: StudentAnswerFilterModel ): Observable<any> {
     
     return this.http.post(this.apiUrl+"GetStudentAnswer", Obj );
+  }
+
+  getAllAcademicLevels(): Observable<any> {
+    return this.http.get(this.apiUrl+"getAllAcademicLevels" );
   }
 
 

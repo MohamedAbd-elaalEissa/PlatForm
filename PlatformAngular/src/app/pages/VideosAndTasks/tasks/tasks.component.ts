@@ -9,6 +9,10 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TasksAndVideosService } from '../../service/tasks-and-videos.service';
+import { TeacherFileModel } from '../../models/models';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputIconModule } from 'primeng/inputicon';
 @Component({
   selector: 'app-tasks',
   imports: [DataView,
@@ -17,7 +21,9 @@ import { TasksAndVideosService } from '../../service/tasks-and-videos.service';
     SelectButton,
     FormsModule,
     FileUploadModule,
-    ToastModule,RouterModule
+    ToastModule,RouterModule,
+    InputIconModule,
+    FloatLabelModule,InputTextModule
   ],
   standalone: true,
   templateUrl: './tasks.component.html',
@@ -31,6 +37,7 @@ export class TasksComponent {
   tasksFiles: any[] = [];
   studentId: number = 3
   academicLevelId : number = 4 
+  Filter! : TeacherFileModel 
 
   layout: 'list' | 'grid' = 'list';
 
@@ -47,24 +54,22 @@ export class TasksComponent {
 
   
   ngOnInit() {
+    this.Filter =
+    {
+      teacherId: this.teacherId,
+      academicLevelId : this.academicLevelId,
+      pageNumber: 1,
+      pageSize: 25
+    }
+  
     this.getPDFiles()
   }
 
   getPDFiles() {
-
-    var obj  = 
-    {
-      teacherId : this.teacherId,
-      academicLevelId : this.academicLevelId,
-      pageNumber : 1 , 
-      pageSize : 25
-    }
   
-    this.tasksAndVideos.getTeachersFiles(obj).subscribe({
+    this.tasksAndVideos.getTeachersFiles(this.Filter).subscribe({
       next: (data) => {
         this.tasksFiles = data.items;
-
-        console.log("🚀 ~ TasksComponent ~ this.teachersService.getTeachersFiles ~ this.tasksAndVideos:", this.tasksFiles)
       },
       error: (err) => {
         console.error('Error fetching teachers:', err);
@@ -99,8 +104,6 @@ export class TasksComponent {
       }
     });
   }
-
-  
   uploadTask(event: any, filesID: number, studentId: number, teacherID: number, isAnswer: boolean, academicLevelID: number, taskName: string, taskNameAnswer: string) {
     
     const file = event.files[0];
@@ -126,8 +129,11 @@ export class TasksComponent {
   }
 
   navigateWithFileId(fileid: number) {
-    debugger
     sessionStorage.setItem('fileId', fileid.toString());
     this.router.navigate(['/pages/teachers/videos-and-tasks/studentTasksDashboard']);
+  }
+
+  onFilterChange() {
+    this.getPDFiles()
   }
 }

@@ -1,5 +1,5 @@
 <div class="card">
-    <p-table #dt2 [value]="studentAnswerData" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
+    <p-table #dt2 [value]="studentAnswerData" dataKey="id" [rows]="Filter.pageSize" [rowsPerPageOptions]="[10, 25, 50]"
         [loading]="loading" [paginator]="true" [tableStyle]="{ 'min-width': '75rem' }">
         <ng-template #header>
             <tr>
@@ -12,9 +12,7 @@
             </tr>
             <tr>
                 <th>
-
                 </th>
-
                 <th>
                     <p-iconfield iconPosition="left" class="ml-auto">
                         <p-inputicon>
@@ -38,13 +36,12 @@
                         <p-inputicon>
                             <i class="pi pi-search"></i>
                         </p-inputicon>
-                        <input pInputText type="text"
-                        [(ngModel)]="Filter.AcademicLevelName"
-                         (ngModelChange)="onFilterChange()" placeholder="Search keyword" />
+                        <input pInputText type="text" [(ngModel)]="Filter.AcademicLevelName"
+                            (ngModelChange)="onFilterChange()" placeholder="Search keyword" />
                     </p-iconfield>
                 </th>
                 <th></th>
-               
+
             </tr>
         </ng-template>
         <ng-template #body let-rowData let-rowIndex="rowIndex">

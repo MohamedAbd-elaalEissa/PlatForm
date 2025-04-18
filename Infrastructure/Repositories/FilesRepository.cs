@@ -168,7 +168,7 @@ namespace Infrastructure.Repositories
                 return new CommonResult
                 {
                     IsValidTransaction = false,
-                    TransactionDetails = ex.InnerException.Message,
+                    TransactionDetails = "اسم الملف موجود بالفعل",
                     TransactionHeaderMessage = ex.Message
                 };
             }
@@ -198,8 +198,8 @@ namespace Infrastructure.Repositories
             if (!string.IsNullOrWhiteSpace(teacherFile.TaskName) && teacherFile.AcademicLevelId.HasValue)
             {
                 query = query.Where(f => f.TaskName.Contains(teacherFile.TaskName) && f.AcademicLevelID == teacherFile.AcademicLevelId.Value);
-
             }
+
             else if (!string.IsNullOrWhiteSpace(teacherFile.TaskName))
             {
                 query = query.Where(f => f.TaskName.Contains(teacherFile.TaskName));
