@@ -1,7 +1,7 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { StudentAnswerFilterModel, TasksAndVideosService } from '../../service/tasks-and-videos.service';
+import { TasksAndVideosService } from '../../service/tasks-and-videos.service';
 import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -11,6 +11,7 @@ import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 import { FileUploadModule } from 'primeng/fileupload';
+import { StudentAnswerFilterModel } from '../../models/models';
 
 @Component({
   selector: 'app-student-tasks-dashboard',
