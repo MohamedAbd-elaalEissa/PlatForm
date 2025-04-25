@@ -4,6 +4,7 @@ import { LayoutVideosAndTasksComponent } from './layout-videos-and-tasks/layout-
 import { VideosComponent } from './videos/videos.component';
 import { UploadTasksComponent } from './upload-tasks/upload-tasks.component';
 import { StudentTasksDashboardComponent } from './student-tasks-dashboard/student-tasks-dashboard.component';
+import { UploadVideosComponent } from './upload-videos/upload-videos.component';
 
 export default [
     {
@@ -14,6 +15,8 @@ export default [
             { path: 'tasks', component: TasksComponent },
             { path: 'videos', component: VideosComponent },
             { path: 'uploadTasks', component: UploadTasksComponent },
+            { path: 'uploadVideos', component: UploadVideosComponent },
+
         ],
     },
     { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent }

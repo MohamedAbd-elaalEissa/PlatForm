@@ -3,3 +3,13 @@
     width: 100% !important;
   }
  
+
+  .filters-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem; 
+}
+
+.filter-item {
+    flex: 1;
+}   

@@ -281,7 +281,7 @@ namespace Infrastructure.Repositories
                     return new CommonResult
                     {
                         IsValidTransaction = false,
-                        TransactionDetails = "Check Another VideoName",
+                        TransactionDetails = "اسم الفديو موجود بالفعل",
                         TransactionHeaderMessage = finalFilePath
                     };
                 }

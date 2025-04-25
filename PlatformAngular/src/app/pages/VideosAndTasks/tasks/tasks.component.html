@@ -1,27 +1,37 @@
-<p-dataview [layout]="layout" [value]="tasksFiles">
-    <ng-template #header>
+<div class="card">
+
+    <p-dataview [layout]="'grid'" [value]="tasksFiles">
+        <ng-template #header>
+
+            <div class="filters-container">
+                <p-floatlabel variant="on" class="filter-item">
+                    <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.taskName"
+                        (ngModelChange)="onFilterChange()" autocomplete="off" />
+                    <label for="taskName" style="font-size: large;"> <p-inputicon Class="pi pi-search" />
+                        اسم التاسك</label>
+                </p-floatlabel>
 
 
-     
-     
-        <p-floatlabel variant="on">        
-            <input pInputText id="on_label" [(ngModel)]="Filter.taskName" (ngModelChange)="onFilterChange()" autocomplete="off" />
-            
-            <label for="on_label"> 
-                <p-inputicon  Class="pi pi-search"/>   Task Name</label>
-        </p-floatlabel>
+                <p-floatlabel class="w-full md:w-56 filter-item" variant="on">
+                    <p-dropdown [(ngModel)]="Filter.academicLevelId" inputId="academicLevel"
+                        [options]="academicLevelData" optionLabel="academicLevelName" optionValue="academicLevelID"
+                        styleClass="w-full" (ngModelChange)="onFilterChange()">
+                    </p-dropdown>
+                    <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
+                </p-floatlabel>
 
+            </div>
 
-
-        <div class="flex justify-end" *ngIf="tasksFiles.length > 0 ">
+            <!-- <div class="flex justify-end" *ngIf="tasksFiles.length > 0 ">
             <p-selectbutton [(ngModel)]="layout" [options]="options">
                 <ng-template #item let-item>
                     <i class="pi " [ngClass]="{ 'pi-bars': item === 'list', 'pi-table': item === 'grid' }"></i>
                 </ng-template>
             </p-selectbutton>
-        </div>
-    </ng-template>
-    <ng-template #list let-items>
+        </div> -->
+        </ng-template>
+
+        <!-- <ng-template #list let-items>
         <div *ngFor="let item of tasksFiles; let first = first">
             <div class="flex flex-col sm:flex-row sm:items-center p-6 gap-4"
                 [ngClass]="{ 'border-t border-surface-200 dark:border-surface-700': !first }">
@@ -56,50 +66,53 @@
                 </div>
             </div>
         </div>
-    </ng-template>
-    <ng-template #grid let-items>
-        <div class="grid grid-cols-12 gap-4">
-            <div *ngFor="let itemGrid of tasksFiles" class="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-6 p-2">
-                <div
-                    class="p-6 border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 rounded flex flex-col">
-                    <div class="bg-surface-50 flex justify-center rounded p-4">
-                        <div class="relative mx-auto">
-                            <img class="rounded w-full" [src]="'assets/File/PDFile.png'" [alt]="'PDF'"
-                                style="max-width: 300px" />
-                        </div>
-                    </div>
-                    <div class="pt-6">
-                        <div class="flex flex-row justify-between products-start gap-2">
-                            <div>
-                                <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PDF</span>
-                                <div class="text-lg font-medium mt-1">{{ itemGrid.taskName }}</div>
+    </ng-template> -->
+        <ng-template #grid let-items>
+            <div class="grid grid-cols-12 gap-4">
+                <div *ngFor="let itemGrid of tasksFiles"
+                    class="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-6 p-2">
+                    <div
+                        class="p-6 border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 rounded flex flex-col">
+                        <div class="bg-surface-50 flex justify-center rounded p-4">
+                            <div class="relative mx-auto">
+                                <img class="rounded w-full" [src]="'assets/File/PDFile.png'" [alt]="'PDF'"
+                                    style="max-width: 300px" />
                             </div>
                         </div>
+                        <div class="pt-6">
+                            <div class="flex flex-row justify-between products-start gap-2">
+                                <div>
+                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PDF</span>
+                                    <div class="text-lg font-medium mt-1">{{ itemGrid.taskName }}</div>
+                                </div>
+                            </div>
 
-                        <div class="flex flex-row-reverse gap-2 pb-4">
-                            <button pButton icon="pi pi-check-circle" [outlined]="!itemGrid.isAnswer"
-                                [routerLink]="['/pages/teachers/videos-and-tasks/studentTasksDashboard']"></button>
-                        </div>
+                            <div class="flex flex-row-reverse gap-2 pb-4">
+                                <button pButton icon="pi pi-check-circle" [outlined]="!itemGrid.isAnswer"
+                                    [routerLink]="['/pages/teachers/videos-and-tasks/studentTasksDashboard']"></button>
+                            </div>
 
-                        <div class="flex flex-row gap-2">
-                            <button pButton icon="pi pi-clipboard" label="Download Task"
-                                (click)="downloadTask(itemGrid.fileName)" class="flex-1 whitespace-nowrap"
-                                style="height: 40px;">
-                            </button>
-                            <div class="flex-1">
-                                <p-fileUpload name="file" customUpload="true"
-                                    (uploadHandler)="uploadTask($event, itemGrid.filesID, studentId, itemGrid.teacherID, true, itemGrid.academicLevelID, itemGrid.taskName, itemGrid.taskName + 'Answer')"
-                                    mode="basic" [auto]="true" chooseLabel="Upload Solving" [disabled]="false"
-                                    [accept]="'application/pdf'" chooseIcon="pi pi-file-check" class="whitespace-nowrap"
-                                    [style]="{ width: '100%' , height: '100%'  }">
-                                </p-fileUpload>
+                            <div class="flex flex-row gap-2">
+                                <button pButton icon="pi pi-clipboard" label="Download Task"
+                                    (click)="downloadTask(itemGrid.fileName)" class="flex-1 whitespace-nowrap"
+                                    style="height: 40px;">
+                                </button>
+                                <div class="flex-1">
+                                    <p-fileUpload name="file" customUpload="true"
+                                        (uploadHandler)="uploadTask($event, itemGrid.filesID, studentId, itemGrid.teacherID, true, itemGrid.academicLevelID, itemGrid.taskName, itemGrid.taskName + 'Answer')"
+                                        mode="basic" [auto]="true" chooseLabel="Upload Solving" [disabled]="false"
+                                        [accept]="'application/pdf'" chooseIcon="pi pi-file-check"
+                                        class="whitespace-nowrap" [style]="{ width: '100%' , height: '100%'  }">
+                                    </p-fileUpload>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </ng-template>
-</p-dataview>
+        </ng-template>
+    </p-dataview>
 
-<p-toast></p-toast>
+    <p-toast></p-toast>
+
+</div>
