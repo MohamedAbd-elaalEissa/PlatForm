@@ -76,6 +76,11 @@ export class AppMenu {
                                 label: 'Access Denied',
                                 icon: 'pi pi-fw pi-lock',
                                 routerLink: ['/auth/access']
+                            },
+                            {
+                                label: 'Register',
+                                icon: 'pi pi-fw pi-lock',
+                                routerLink: ['/auth/register']
                             }
                         ]
                     },

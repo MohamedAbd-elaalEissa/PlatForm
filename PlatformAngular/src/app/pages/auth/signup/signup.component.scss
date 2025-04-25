@@ -1,0 +1,59 @@
+:host {
+  --primary-color: #06b6d4;
+
+  .mesh-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    background: radial-gradient(circle at 20% 30%, #0ea5e9, transparent 25%),
+                radial-gradient(circle at 80% 70%, #9333ea, transparent 25%),
+                radial-gradient(circle at 50% 50%, #06b6d4, transparent 25%);
+    background-size: 400% 400%;
+    animation: animateMesh 20s ease-in-out infinite;
+    filter: blur(100px);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  @keyframes animateMesh {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .text-muted-color {
+    color: #6b7280;
+  }
+
+  .text-primary {
+    color: var(--primary-color);
+  }
+
+  input.p-inputtext {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .p-password .p-inputtext {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .p-button {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  a {
+    text-decoration: none;
+  }
+}

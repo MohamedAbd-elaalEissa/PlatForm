@@ -5,6 +5,7 @@ using Application.Features.Teachers.Queries;
 using ApplicationContract.Models;
 using ApplicationContract.Models.File;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,6 +40,7 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [Route("GetAllTeachers")]
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> GetAllTeachers()
         {
             GetAllTeachersQueries query = new GetAllTeachersQueries();
