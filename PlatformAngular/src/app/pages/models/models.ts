@@ -22,3 +22,12 @@ export interface academicLevelDataModel {
     academicLevelID: number,
     academicLevelName?: string,
 }
+
+export interface TeachersVideosDataModel {
+    teacherId: string,
+    videoName?: number,
+    academicLevelId?: number, 
+    pageNumber: number,
+    pageSize: number,
+}
+

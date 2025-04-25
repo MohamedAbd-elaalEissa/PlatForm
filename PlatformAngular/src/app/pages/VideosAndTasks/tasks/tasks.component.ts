@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { DataView } from 'primeng/dataview';
 import { ButtonModule } from 'primeng/button';
-import { SelectButton } from 'primeng/selectbutton';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -9,41 +8,45 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TasksAndVideosService } from '../../service/tasks-and-videos.service';
-import { TeacherFileModel } from '../../models/models';
+import { academicLevelDataModel, TeacherFileModel } from '../../models/models';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputIconModule } from 'primeng/inputicon';
+import { DropdownModule } from 'primeng/dropdown';
+
 @Component({
   selector: 'app-tasks',
   imports: [DataView,
     ButtonModule,
     CommonModule,
-    SelectButton,
     FormsModule,
     FileUploadModule,
-    ToastModule,RouterModule,
+    ToastModule, RouterModule,
     InputIconModule,
-    FloatLabelModule,InputTextModule
+    FloatLabelModule, InputTextModule,
+    DropdownModule
   ],
   standalone: true,
   templateUrl: './tasks.component.html',
   styleUrl: './tasks.component.scss',
   providers: [MessageService]
 })
+
 export class TasksComponent {
-//شوف هتستخدم ال user id ولا الstudent id and academicLevelId
+  //شوف هتستخدم ال user id ولا الstudent id and academicLevelId
 
   teacherId!: number
   tasksFiles: any[] = [];
   studentId: number = 3
-  academicLevelId : number = 4 
-  Filter! : TeacherFileModel 
+  academicLevelId: number = 4
+  Filter!: TeacherFileModel
+  academicLevelData: academicLevelDataModel[] = [];
 
   layout: 'list' | 'grid' = 'list';
 
   options = ['list', 'grid'];
 
-  constructor(private  tasksAndVideos: TasksAndVideosService, private route: ActivatedRoute, private messageService: MessageService ,private router: Router) {
+  constructor(private tasksAndVideos: TasksAndVideosService, private route: ActivatedRoute, private messageService: MessageService, private router: Router) {
     //Get student id here 
 
     const teacherId = sessionStorage.getItem('teacherId');
@@ -52,21 +55,23 @@ export class TasksComponent {
     }
   }
 
-  
+
   ngOnInit() {
     this.Filter =
     {
       teacherId: this.teacherId,
-      academicLevelId : this.academicLevelId,
+      academicLevelId: this.academicLevelId,
       pageNumber: 1,
       pageSize: 25
     }
-  
+
     this.getPDFiles()
+    this.getAcademicLevelFilter()
+
   }
 
   getPDFiles() {
-  
+
     this.tasksAndVideos.getTeachersFiles(this.Filter).subscribe({
       next: (data) => {
         this.tasksFiles = data.items;
@@ -75,6 +80,15 @@ export class TasksComponent {
         console.error('Error fetching teachers:', err);
       }
     });
+  }
+
+  getAcademicLevelFilter() {
+    this.tasksAndVideos.getAllAcademicLevels().subscribe({
+      next: (data) => {
+        this.academicLevelData = data
+      }
+    });
+
   }
 
   downloadTask(fileName: string) {
@@ -105,7 +119,7 @@ export class TasksComponent {
     });
   }
   uploadTask(event: any, filesID: number, studentId: number, teacherID: number, isAnswer: boolean, academicLevelID: number, taskName: string, taskNameAnswer: string) {
-    
+
     const file = event.files[0];
     const formData = new FormData();
     formData.append('file', file);
@@ -119,11 +133,11 @@ export class TasksComponent {
 
     this.tasksAndVideos.uploadFile(formData).subscribe({
       next: () => {
-        this.messageService.add({severity: 'success', summary: 'Success', detail: 'File uploaded successfully!'});
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'File uploaded successfully!' });
         this.getPDFiles()
       },
       error: (err) => {
-        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Upload failed!'});
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Upload failed!' });
       },
     });
   }

@@ -75,8 +75,8 @@ export class UploadTasksComponent {
     this.totalSize = this.files.reduce((sum, file) => sum + file.size, 0);
     this.totalSizePercent = this.totalSize / 10;
   }
+
   uploadEvent(): void {
-    console.log("🚀 ~ UploadTasksComponent ~ uploadEvent ~ this.academicLevelID:", this.academicLevelID);
 
     if (!this.taskName || !this.academicLevelID) {
       this.messageService.add({
@@ -102,7 +102,6 @@ export class UploadTasksComponent {
 
     this.tasksAndVideos.uploadFile(formData).subscribe({
       next: (data) => {
-        debugger
         if (data.isValidTransaction) {
           this.messageService.add({
             severity: 'success',
@@ -156,8 +155,6 @@ export class UploadTasksComponent {
     this.tasksAndVideos.getAllAcademicLevels().subscribe({
       next: (data) => {
         this.academicLevelData = data
-        console.log("🚀 ~ UploadTasksComponent ~ this.tasksAndVideos.getAllAcademicLevels ~  this.academicLevelData:", this.academicLevelData)
-
       }
     });
 

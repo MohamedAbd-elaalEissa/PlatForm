@@ -2,7 +2,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { StudentAnswerFilterModel, TeacherFileModel } from '../models/models';
+import { StudentAnswerFilterModel, TeacherFileModel, TeachersVideosDataModel } from '../models/models';
 
 
 
@@ -37,5 +37,12 @@ export class TasksAndVideosService {
     return this.http.get(this.apiUrl+"getAllAcademicLevels" );
   }
 
+  uploadFileChunk(formData: FormData): Observable<any> {
+    return this.http.post(this.apiUrl + 'UploadFileChunk', formData);
+  }
+  
+  getTeachersVideos( Obj: TeachersVideosDataModel ): Observable<any> {
+    return this.http.post(this.apiUrl+"GetTeachersVideos", Obj );
+  }
 
 }
