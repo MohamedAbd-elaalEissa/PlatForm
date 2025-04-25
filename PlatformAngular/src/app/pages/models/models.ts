@@ -31,8 +31,6 @@ export interface TeachersVideosDataModel {
     pageSize: number,
 }
 
-}
-
 export interface RegisterModel {
     userName: string,
     email: string,
