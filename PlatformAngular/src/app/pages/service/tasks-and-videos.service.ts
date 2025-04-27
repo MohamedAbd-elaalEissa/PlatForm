@@ -45,4 +45,12 @@ export class TasksAndVideosService {
     return this.http.post(this.apiUrl+"GetTeachersVideos", Obj );
   }
 
+  checkUploadedChunks( userId: number, fileName: string): Observable<any> {
+    return this.http.get(this.apiUrl+"CheckUploadedChunks?userId="+userId+"&"+"fileName="+fileName);
+  }
+
+  getVideoFile(fileName:string): Observable<any> {
+    return this.http.get(this.apiUrl+"GetVideoFile?fileName="+fileName ,{ responseType: 'blob' });
+  }
+  
 }

@@ -12,14 +12,18 @@ import { BadgeModule } from 'primeng/badge';
 import { ToastModule } from 'primeng/toast';
 import { academicLevelDataModel } from '../../models/models';
 import { InputTextModule } from 'primeng/inputtext';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-upload-videos',
-  imports: [CommonModule, FileUploadModule, FloatLabelModule, DropdownModule, FormsModule, ButtonModule, ProgressBar, BadgeModule, ToastModule,InputTextModule],
+  standalone: true,
+  imports: [CommonModule, FileUploadModule, FloatLabelModule, DropdownModule,
+    FormsModule, ButtonModule, ProgressBar, BadgeModule, ToastModule
+    , InputTextModule, ConfirmDialogModule],
   templateUrl: './upload-videos.component.html',
   styleUrl: './upload-videos.component.scss',
-  standalone: true,
-  providers: [MessageService]
+  providers: [MessageService, ConfirmationService]
 
 })
 export class UploadVideosComponent {
@@ -29,12 +33,12 @@ export class UploadVideosComponent {
   uploadProgress = 0;
   userId = 1;
   teacherId!: string
-  isPending: boolean = true
+  isPending!: number  //1 = pending - 2 completed  -3 error
   academicLevelData: academicLevelDataModel[] = [];
   VideoName!: string;
 
-  academicLevelID! : number
-  constructor( private tasksAndVideosService: TasksAndVideosService, private messageService: MessageService) {
+  academicLevelID!: number
+  constructor(private tasksAndVideosService: TasksAndVideosService, private messageService: MessageService, private confirmationService: ConfirmationService) {
 
     const teacherId = sessionStorage.getItem('teacherId');
     if (teacherId) {
@@ -61,8 +65,7 @@ export class UploadVideosComponent {
     this.selectedVideo = event.files[0];
   }
 
-  uploadVideo() {
-
+  async uploadVideo() {
     if (!this.VideoName || !this.academicLevelID) {
       this.messageService.add({
         severity: 'warn',
@@ -73,60 +76,100 @@ export class UploadVideosComponent {
     }
 
     if (!this.selectedVideo) return;
-    console.log("🚀 ~ UploadVideosComponent ~ onVideoSelected ~ this.selectedVideo:", this.selectedVideo)
 
-    const totalChunks = Math.ceil(this.selectedVideo.size / this.chunkSize);
     const fileName = this.selectedVideo.name;
-    let currentChunk = 0;
+    const totalChunks = Math.ceil(this.selectedVideo.size / this.chunkSize);
 
-    const uploadChunk = () => {
-      const start = currentChunk * this.chunkSize;
-      const end = Math.min(start + this.chunkSize, this.selectedVideo!.size);
-      const chunk = this.selectedVideo!.slice(start, end);
+    try {
+      const uploadedChunks = await this.checkUploadedChunks(fileName, this.userId);
+      let currentChunk = uploadedChunks.length;
 
-      const formData = new FormData();
-      formData.append('FileName', fileName);
-      formData.append('Chunk', chunk);
-      formData.append('ChunkNumber', (currentChunk + 1).toString());
-      formData.append('TotalChunks', totalChunks.toString());
-      formData.append('UserId', '1');
-      formData.append('TeacherId', this.teacherId);
-      formData.append('AcademicLevelId', this.academicLevelID.toString());
+      const uploadChunk = () => {
+        if (currentChunk >= totalChunks) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'نجاح',
+            detail: 'تم رفع الفيديو بنجاح',
+          });
+          this.selectedVideo = null;
+          this.isPending = 2;
+          this.uploadProgress = 100;
+          return;
+        }
 
-      this.tasksAndVideosService.uploadFileChunk(formData).subscribe({
-        next: (data) => {
-          currentChunk++;
-          this.uploadProgress = Math.round((currentChunk / totalChunks) * 100);
-          if (currentChunk < totalChunks) {
-            uploadChunk();
-          } else {
+        const start = currentChunk * this.chunkSize;
+        const end = Math.min(start + this.chunkSize, this.selectedVideo!.size);
+        const chunk = this.selectedVideo!.slice(start, end);
+
+        const formData = new FormData();
+        formData.append('FileName', fileName);
+        formData.append('Chunk', chunk);
+        formData.append('ChunkNumber', (currentChunk + 1).toString());
+        formData.append('TotalChunks', totalChunks.toString());
+        formData.append('UserId', this.userId.toString());
+        formData.append('TeacherId', this.teacherId);
+        formData.append('AcademicLevelId', this.academicLevelID.toString());
+
+        this.tasksAndVideosService.uploadFileChunk(formData).subscribe({
+          next: (data) => {
+            currentChunk++;
+            this.uploadProgress = Math.round((currentChunk / totalChunks) * 100);
+
             if (data.isValidTransaction) {
-            this.messageService.add({ severity: 'success', summary: 'نجاح', detail: 'تم رفع الفيديو بنجاح' });
-            this.uploadProgress = 0;
-            this.selectedVideo = null;
-              this.isPending = false
-            }
-            else {
+              uploadChunk();
+            } else {
               this.messageService.add({
                 severity: 'error',
                 summary: 'خطأ',
                 detail: data.transactionDetails,
               });
+              this.uploadProgress = 0
+              this.isPending = 3
+              return;
             }
+          },
+          error: () => {
+            this.confirmationService.confirm({
+              header: 'خطأ',
+              message: 'فشل رفع الفيديو. قم بالضغط علي زرار الرفع مره اخري.',
+              icon: 'pi pi-exclamation-triangle text-red-500 text-5xl',
+              acceptVisible: false,
+              rejectVisible: false,
+              closeOnEscape: true,
+              closable: true
+            });
           }
-        },
-        error: () => {
-          this.messageService.add({ severity: 'error', summary: 'خطأ', detail: 'فشل رفع الفيديو' });
-        }
-      });
-    };
+        });
+      };
 
-    uploadChunk();
+      uploadChunk();
+
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'خطأ',
+        detail: 'فشل التحقق من الأجزاء المرفوعة',
+      });
+    }
   }
 
 
+
+  checkUploadedChunks(fileName: string, userId: number): Promise<number[]> {
+    return new Promise((resolve, reject) => {
+      this.tasksAndVideosService.checkUploadedChunks(userId, fileName).subscribe({
+        next: (response) => {
+          resolve(response.uploadedChunkNumbers || []);
+        },
+        error: (err) => {
+          reject(err);
+        }
+      });
+    });
+  }
+
   choose(event: Event, callback: Function) {
-    this.isPending = true
+    this.isPending = 1
     event.preventDefault();
     callback();
   }
@@ -142,6 +185,7 @@ export class UploadVideosComponent {
 
   onRemoveVideo(removeFn: Function, index: number) {
     removeFn(index);
+    this.uploadProgress = 0;
     this.selectedVideo = null;
   }
 
@@ -149,7 +193,7 @@ export class UploadVideosComponent {
     clearFn();
     this.selectedVideo = null;
     this.uploadProgress = 0;
-    this.isPending = true;
+    this.isPending = 1;
   }
 
 };
