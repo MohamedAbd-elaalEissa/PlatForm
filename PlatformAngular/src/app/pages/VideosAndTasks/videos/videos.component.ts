@@ -10,10 +10,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ProductService } from '../../service/product.service';
 import { academicLevelDataModel, TeachersVideosDataModel } from '../../models/models';
 import { TasksAndVideosService } from '../../service/tasks-and-videos.service';
-
-
-
-
+import { Router } from '@angular/router';
 @Component({
     selector: 'app-videos',
     templateUrl: './videos.component.html',
@@ -26,7 +23,9 @@ import { TasksAndVideosService } from '../../service/tasks-and-videos.service';
         FormsModule,
         FloatLabelModule,
         InputIconModule,
-        DropdownModule, InputTextModule
+        DropdownModule, 
+        InputTextModule
+        
     ],
     providers: [ProductService],
 })
@@ -39,7 +38,7 @@ export class VideosComponent {
     academicLevelId: number = 4
     videosData: any[] = [];
 
-    constructor(private tasksAndVideos: TasksAndVideosService, private productService: ProductService) {
+    constructor(private tasksAndVideos: TasksAndVideosService, private productService: ProductService ,private router: Router) {
         const teacherId = sessionStorage.getItem('teacherId');
         if (teacherId) {
             this.teacherId = teacherId
@@ -76,12 +75,18 @@ export class VideosComponent {
         this.tasksAndVideos.getTeachersVideos(this.Filter).subscribe({
             next: (data) => {
                 this.videosData = data.items;
-                console.log("🚀 ~ VideosComponent ~ this.tasksAndVideos.GetTeachersVideos ~ this.videosData:", this.videosData)
             },
             error: (err) => {
                 console.error('Error fetching teachers:', err);
             }
         });
+    }
+
+
+    viewVideo(videoName :string)
+    {
+    sessionStorage.setItem("videoName",videoName)
+    this.router.navigate(["/pages/teachers/videos-and-tasks/VideoPlayer"]);
     }
 
 }
