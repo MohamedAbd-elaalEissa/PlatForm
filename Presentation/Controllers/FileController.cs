@@ -82,5 +82,12 @@ namespace Presentation.Controllers
             return Ok(res);
         }
 
+        [HttpGet]
+        [Route("GetVideoFile")]
+        public async Task<IActionResult> GetVideoFile(string fileName)
+        {
+            var fileStreamResult = await Mediator.Send(new GetVideoFileQuery(fileName));
+            return fileStreamResult;
+        }
     }
 }
