@@ -5,6 +5,7 @@ import { VideosComponent } from './videos/videos.component';
 import { UploadTasksComponent } from './upload-tasks/upload-tasks.component';
 import { StudentTasksDashboardComponent } from './student-tasks-dashboard/student-tasks-dashboard.component';
 import { UploadVideosComponent } from './upload-videos/upload-videos.component';
+import { VideoPlayerComponent } from './video-player/video-player.component';
 
 export default [
     {
@@ -19,6 +20,7 @@ export default [
 
         ],
     },
-    { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent }
+    { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent },
+    { path: 'VideoPlayer', component: VideoPlayerComponent }
 
 ] as Routes;

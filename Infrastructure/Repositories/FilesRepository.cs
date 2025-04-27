@@ -526,7 +526,26 @@ namespace Infrastructure.Repositories
             };
         }
 
+        public async Task<FileStream> GetVideoFileStreamAsync(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName) ||
+                fileName.Contains("..") ||
+                fileName.Contains("/") ||
+                fileName.Contains("\\"))
+            {
+                throw new ArgumentException("Invalid file name.");
+            }
 
+            var videoPath = Path.Combine(VideoPath, fileName);
+
+            if (!File.Exists(videoPath))
+            {
+                throw new FileNotFoundException("الملف غير موجود", fileName);
+            }
+
+            var stream = new FileStream(videoPath, FileMode.Open, FileAccess.Read);
+            return stream;
+        }
     }
 
 }

@@ -24,13 +24,8 @@
                     <p-button (onClick)="uploadVideo()" icon="pi pi-cloud-upload" [rounded]="true" [outlined]="true"
                         severity="success" [disabled]="!selectedVideo" />
 
-                        <p-button 
-                        (onClick)="resetVideoSelection(clearCallback)" 
-                        icon="pi pi-times" 
-                        [rounded]="true" 
-                        [outlined]="true"
-                        severity="danger" 
-                        [disabled]="!files || files.length === 0" />
+                    <p-button (onClick)="resetVideoSelection(clearCallback)" icon="pi pi-times" [rounded]="true"
+                        [outlined]="true" severity="danger" [disabled]="!files || files.length === 0" />
                 </div>
 
                 <p-progressbar [value]="uploadProgress" [showValue]="false" class="w-full"
@@ -42,7 +37,14 @@
         <ng-template #content let-files let-removeFileCallback="removeFileCallback">
             <div class="flex flex-col gap-8 pt-4">
                 <div *ngIf="files?.length > 0">
-                    <h5>Pending</h5>
+                   
+                    <h5 *ngIf="isPending === 1; else templateCompleted">Pending</h5>
+                    <ng-template #templateCompleted>
+                        <h5 *ngIf="isPending === 2; else templateError"> Completed </h5> 
+                    </ng-template>
+                    <ng-template #templateError>
+                         <h5 *ngIf="isPending === 3" > Error </h5> 
+                    </ng-template>
                     <div class="flex flex-wrap gap-4">
                         <div *ngFor="let file of files; let i = index"
                             class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
@@ -52,13 +54,17 @@
                             </span>
                             <div>{{ formatSize(file.size) }}</div>
 
-                            <p-badge *ngIf="isPending ; else templateDone" value="Pending" severity="warn" />
-                            <ng-template #templateDone>
-                                <p-badge value="Completed" class="mt-4" severity="success" />
+                            <p-badge *ngIf="isPending === 1; else templateCompleted" value="Pending" severity="warn" />
+                            <ng-template #templateCompleted>
+                                <p-badge *ngIf="isPending === 2; else templateError" value="Completed" class="mt-4"
+                                    severity="success" />
+                            </ng-template>
+                            <ng-template #templateError>
+                                <p-badge *ngIf="isPending === 3" value="Error" class="mt-4" severity="danger" />
                             </ng-template>
 
-                            <p-button icon="pi pi-times" (click)="onRemoveVideo(removeFileCallback, i)" [outlined]="true"
-                                [rounded]="true" severity="danger" />
+                            <p-button icon="pi pi-times" (click)="onRemoveVideo(removeFileCallback, i)"
+                                [outlined]="true" [rounded]="true" severity="danger" />
                         </div>
                     </div>
                 </div>
@@ -73,5 +79,5 @@
         </ng-template>
     </p-fileupload>
 </div>
-
+<p-confirmdialog></p-confirmdialog>
 <p-toast />
