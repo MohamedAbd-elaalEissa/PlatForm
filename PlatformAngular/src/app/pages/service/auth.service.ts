@@ -16,7 +16,8 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) { }
 
   Register(payload: { register: RegisterModel }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, payload);
+    return this.http.post(`${this.apiUrl}/register`, payload,
+      { responseType: 'text' } );
   }
 
   signIn(payload: { Login: LogInModel }): Observable<any> {
@@ -84,5 +85,9 @@ export class AuthService {
 
   getAccessTokenSubject(): BehaviorSubject<object | null> {
     return this.accessTokenSubject;
+  }
+
+  GetUserRoles(email:string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/GetUserRoles?email=`+ email);
   }
 }

@@ -12,11 +12,11 @@ namespace Infrastructure.Config
                 .WithMany(s => s.Student);
             builder.HasKey(s => s.StudentID);
             builder.Property(s => s.Email).IsRequired();
-            builder.Property(s => s.StudySubject).IsRequired();
+            //builder.Property(s => s.StudySubject).IsRequired();
             builder.Property(s => s.FirstName).IsRequired();
-            builder.Property(s => s.LastName).IsRequired();
+            //builder.Property(s => s.LastName).IsRequired();
             builder.Property(s => s.PhoneNumber).IsRequired();
-            builder.Property(s => s.Age).IsRequired();
+            //builder.Property(s => s.Age).IsRequired();
             builder.ToTable("Students", "Relation");
         }
     }

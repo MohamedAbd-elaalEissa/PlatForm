@@ -35,7 +35,8 @@ export interface RegisterModel {
     userName: string,
     email: string,
     phoneNumber:string,
-    password:string
+    password:string,
+    isTeacher:boolean
 }
 
 export interface LogInModel {
