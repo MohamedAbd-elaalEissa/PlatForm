@@ -16,6 +16,7 @@ export class AppComponent {
     constructor(private signalRService: SignalrService) {
 
     }
+    
     ngOnDestroy(): void {
         // Stop SignalR connection when component is destroyed
         this.signalRService.stopConnection();

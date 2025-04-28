@@ -1,0 +1,38 @@
+$overlay-color: black;
+$overlay-opacity: 1;
+$z-index-overlay: 9999;
+
+.container {
+  padding: 20px;
+  text-align: center;
+
+  // Prevent text selection
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  // Attempt to obscure text (limited support)
+  -webkit-text-security: disc;
+}
+
+.black-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: $overlay-color;
+  z-index: $z-index-overlay;
+  opacity: $overlay-opacity;
+}
+
+// Hide content during print
+@media print {
+  .container {
+    display: none;
+  }
+  .black-overlay {
+    display: block;
+  }
+}
