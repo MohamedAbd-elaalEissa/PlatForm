@@ -34,8 +34,10 @@ import { CommonModule } from '@angular/common';
 })
 export class SignupComponent {
   userRoles: any;
+  email: string;
   constructor(private messageService: MessageService, private authService: AuthService, private router: Router) {
-    this.GetUserRoles("hamada@gmail.com");
+    this.email = this.authService.getUserEmail();
+    this.GetUserRoles(this.email);
   }
   registerModel: RegisterModel = {
     userName: '',
