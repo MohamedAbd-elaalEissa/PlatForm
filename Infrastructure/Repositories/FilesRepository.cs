@@ -136,7 +136,7 @@ namespace Infrastructure.Repositories
                     {
                         try
                         {
-                            string message = $"New task assigned: {filePDF.taskName}";
+                            string message = $"تم اضافه  {filePDF.taskName} في الفايلات";
                             var connections = UserConnectionManager.GetConnections(item.Email);
                             if (UserConnectionManager.IsOnline(item.Email))
                             {

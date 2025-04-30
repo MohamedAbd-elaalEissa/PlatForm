@@ -6,6 +6,7 @@ import Aura from '@primeng/themes/aura';
 import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
 import { tokenInterceptor } from './app/pages/auth/token.interceptor';
+import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -13,6 +14,11 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(withFetch(),
         withInterceptors([tokenInterceptor])),
         provideAnimationsAsync(),
-        providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } }), provideAnimationsAsync(), provideAnimationsAsync()
+        providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } }), provideAnimationsAsync(), provideAnimationsAsync(),
+        {
+            provide: JWT_OPTIONS,
+            useValue: JWT_OPTIONS
+          },
+          JwtHelperService
     ]
 };

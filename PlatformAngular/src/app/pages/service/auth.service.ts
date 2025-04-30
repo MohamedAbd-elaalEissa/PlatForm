@@ -4,16 +4,17 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { LogInModel, RegisterModel } from '../models/models';
 import { Router } from '@angular/router';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'https://localhost:44300/api/Identity';
+  private apiUrl = `${environment.apiUrl}Identity`;
   private accessTokenSubject = new BehaviorSubject<object | null>(null);
   private isRefreshing = false;
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router,private jwtHelper: JwtHelperService) { }
 
   Register(payload: { register: RegisterModel }): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, payload,
@@ -90,4 +91,16 @@ export class AuthService {
   GetUserRoles(email:string): Observable<any> {
     return this.http.get(`${this.apiUrl}/GetUserRoles?email=`+ email);
   }
+
+  getUserEmail(): string {
+    debugger
+    const token = localStorage.getItem('token');
+    if (token) {
+      const tokenObj = JSON.parse(token);
+        const decodedToken = this.jwtHelper.decodeToken(tokenObj.token);
+        return decodedToken?.email;
+    }
+    return '';
+}
+  
 }
