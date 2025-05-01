@@ -5,27 +5,30 @@ import { TeachersService } from '../service/teachers.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SignalrService } from '../service/signalr.service';
+import { AuthService } from '../service/auth.service';
+import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
 @Component({
   selector: 'app-teachers',
   imports: [AnimateOnScrollModule, CardModule,CommonModule,RouterModule],
   templateUrl: './teachers.component.html',
   styleUrl: './teachers.component.scss',
+
 })
 
 
 export class TeachersComponent {
   teachers: any;
+  email: any;
 
-  constructor(private teachersService: TeachersService,private signalRService: SignalrService ) {}
+  constructor(private teachersService: TeachersService,private signalRService: SignalrService,private authService:AuthService ) {}
 
   ngOnInit(): void {
     this.getAllTeacher()
-    this.signalRService.startConnection("Memo@gamil.com");
-
+    this.email = this.authService.getUserEmail();
+    this.signalRService.startConnection(this.email);
   }
 
   getAllTeacher() {
-
     this.teachersService.getAllTeachers().subscribe({
       next: (data) => {
         this.teachers = data; 
@@ -34,13 +37,10 @@ export class TeachersComponent {
         console.error('Error fetching teachers:', err);
       }
     });
-
   }
 
   saveInLocalStorage(teacherId : string)
   {
     sessionStorage.setItem('teacherId', teacherId);
   }
-
-  
 }

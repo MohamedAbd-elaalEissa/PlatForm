@@ -40,7 +40,7 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [Route("GetAllTeachers")]
-        [Authorize(Roles ="Admin")]
+       // [Authorize(Roles ="Admin")]
         public async Task<IActionResult> GetAllTeachers()
         {
             GetAllTeachersQueries query = new GetAllTeachersQueries();

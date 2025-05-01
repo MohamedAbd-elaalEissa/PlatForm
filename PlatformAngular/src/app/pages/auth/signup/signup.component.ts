@@ -11,6 +11,7 @@ import { ToastModule } from 'primeng/toast';
 import { AppFloatingConfigurator } from '../../../layout/component/app.floatingconfigurator';
 import { RegisterModel } from '../../models/models';
 import { AuthService } from '../../service/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-signup',
@@ -24,6 +25,7 @@ import { AuthService } from '../../service/auth.service';
     PasswordModule,
     RouterModule,
     RippleModule,
+    CommonModule
     // AppFloatingConfigurator,
   ],
   templateUrl: './signup.component.html',
@@ -31,12 +33,18 @@ import { AuthService } from '../../service/auth.service';
   providers: [MessageService],
 })
 export class SignupComponent {
-  constructor(private messageService: MessageService, private authService: AuthService, private router: Router) { }
+  userRoles: any;
+  email: string;
+  constructor(private messageService: MessageService, private authService: AuthService, private router: Router) {
+    this.email = this.authService.getUserEmail();
+    this.GetUserRoles(this.email);
+  }
   registerModel: RegisterModel = {
     userName: '',
     email: '',
     phoneNumber: '',
-    password: ''
+    password: '',
+    isTeacher: false
   }; confirmPassword: string = '';
 
   register() {
@@ -73,11 +81,6 @@ export class SignupComponent {
       return;
     }
 
-    // Simulate success
-
-
-    console.log(this.registerModel)
-
     this.authService.Register({ register: this.registerModel }).subscribe({
       next: (data) => {
         this.messageService.add({
@@ -91,14 +94,43 @@ export class SignupComponent {
         }, 1500);
       },
       error: (err) => {
-        debugger
+        debugger;
+        
+        // Initialize an empty array to hold all error messages
+        let errorMessages: string[] = [];
+        
+        // Check if errors exist in the response
+        if (err.error && err.error.errors) {
+          // Get all error keys (like 'Register.Password')
+          const errorKeys = Object.keys(err.error.errors);
+          
+          // Loop through each error key and extract messages
+          errorKeys.forEach(key => {
+            // Get the array of messages for this key
+            const messages = err.error.errors[key];
+            
+            // Add each message to our array
+            messages.forEach((message: string) => {
+              errorMessages.push(message);
+            });
+          });
+        }
+        
+        // Join all messages with line breaks or display them separately
+        const errorMessage = errorMessages.join('\n') || 'An unknown error occurred';
+        
         this.messageService.add({
           severity: 'error',
           summary: 'Register',
-          detail: err.error.message,
+          detail: errorMessage,
         });
       }
     });
   }
 
+  GetUserRoles(email: string) {
+    this.authService.GetUserRoles(email).subscribe((res) => {
+      this.userRoles = res;
+    })
+  }
 }

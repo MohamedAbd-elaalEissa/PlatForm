@@ -11,7 +11,7 @@ import { ScrollPanelModule } from 'primeng/scrollpanel'
   imports: [CommonModule, CardModule,
     BadgeModule,
     DividerModule,
-    ScrollPanelModule,],
+    ScrollPanelModule],
   templateUrl: './video-player.component.html',
   styleUrl: './video-player.component.scss',
   standalone : true

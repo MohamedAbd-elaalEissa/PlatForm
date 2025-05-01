@@ -44,6 +44,17 @@
                     <p-password id="confirmPassword" [(ngModel)]="confirmPassword" name="confirmPassword"
                         placeholder="Confirm Password" [toggleMask]="true" [feedback]="false" class="mb-6"
                         inputStyleClass="w-full" styleClass="w-full"></p-password>
+
+                    <div *ngIf="userRoles == 'PLT_Admin'">
+                        <div class="flex items-center mb-5 mt-1">
+                            <p-checkbox name="IsTeacher" inputId="IsTeacher" [(ngModel)]="registerModel.isTeacher"
+                                binary="true" class="mr-2">
+                            </p-checkbox>
+                            <label for="IsTeacher" class="text-surface-900 dark:text-white text-xl font-medium mb-2">
+                                Is Teacher
+                            </label>
+                        </div>
+                    </div>
                     <div class="text-center mt-6">
 
                         <p-button label="Register" styleClass="w-full" type="submit"></p-button>

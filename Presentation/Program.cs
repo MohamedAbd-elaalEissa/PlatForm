@@ -1,4 +1,5 @@
 ﻿using Application.Shared;
+using Infrastructure.Repositories.RabbitMQ;
 using Infrastructure.Repositories.SignalR;
 using Infrastructure.Shared;
 using Presentation.Shared;
@@ -24,6 +25,12 @@ namespace Presentation
             });
 
             var app = builder.Build();
+            // For The 1 Soulution In Rabbitmq (Consumer)
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var consumer = scope.ServiceProvider.GetRequiredService<TeacherConsumer>();
+            //    consumer.ConsumeAsync();
+            //}
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -36,6 +43,7 @@ namespace Presentation
             app.UseCors("AllowAllOrigins");
             app.UseAuthorization();
             app.MapControllers();
+           
             app.MapHub<NotificationHub>("/notificationHub");
             app.Run();
         }

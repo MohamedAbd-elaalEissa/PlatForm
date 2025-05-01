@@ -1,6 +1,7 @@
 ﻿using ApplicationContract.Generic;
 using Infrastructure.Presistence;
 using Infrastructure.Repositories;
+using Infrastructure.Repositories.RabbitMQ;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -46,6 +47,9 @@ namespace Infrastructure.Shared
 
                 };
             });
+            //services.AddSingleton<TeacherConsumer>(); // For the First Solution For RabbitMq Consumer
+            services.AddHostedService<TeacherConsumerHostedService>();// For the Second Solution For RabbitMq Consumer
+            services.AddHostedService<StudentConsumerHostedService>();// For the Second Solution For RabbitMq Consumer
             return services;
         }
     }
