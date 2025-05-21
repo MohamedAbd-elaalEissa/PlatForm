@@ -10,16 +10,18 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressBar } from 'primeng/progressbar';
 import { BadgeModule } from 'primeng/badge';
 import { ToastModule } from 'primeng/toast';
-import { academicLevelDataModel } from '../../models/models';
+import { academicLevelDataModel, ChapterModel } from '../../models/models';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-
+import { DialogModule } from 'primeng/dialog';
+import { TableModule } from 'primeng/table';
+import { ChaptersService } from '../../service/chapters.service';
 @Component({
   selector: 'app-upload-videos',
   standalone: true,
-  imports: [CommonModule, FileUploadModule, FloatLabelModule, DropdownModule,
-    FormsModule, ButtonModule, ProgressBar, BadgeModule, ToastModule
+  imports: [CommonModule, FileUploadModule, FloatLabelModule, DropdownModule, TableModule,
+    FormsModule, ButtonModule, ProgressBar, BadgeModule, ToastModule, DialogModule
     , InputTextModule, ConfirmDialogModule],
   templateUrl: './upload-videos.component.html',
   styleUrl: './upload-videos.component.scss',
@@ -36,9 +38,14 @@ export class UploadVideosComponent {
   isPending!: number  //1 = pending - 2 completed  -3 error
   academicLevelData: academicLevelDataModel[] = [];
   VideoName!: string;
+  displayDialog = false;
+  Chapters: any[] = [];
+  Filter!: ChapterModel
+  selectedChapter!: ChapterModel;
+  chapterId!: number
 
   academicLevelID!: number
-  constructor(private tasksAndVideosService: TasksAndVideosService, private messageService: MessageService, private confirmationService: ConfirmationService) {
+  constructor(private chapters: ChaptersService, private tasksAndVideosService: TasksAndVideosService, private messageService: MessageService, private confirmationService: ConfirmationService) {
 
     const teacherId = sessionStorage.getItem('teacherId');
     if (teacherId) {
@@ -49,6 +56,13 @@ export class UploadVideosComponent {
   }
 
   ngOnInit() {
+    this.Filter =
+    {
+      teacherId: this.teacherId.toString(),
+      pageNumber: 1,
+      pageSize: 25
+    }
+  
     this.getAcademicLevelFilter()
   }
 
@@ -66,11 +80,11 @@ export class UploadVideosComponent {
   }
 
   async uploadVideo() {
-    if (!this.VideoName || !this.academicLevelID) {
+    if (!this.VideoName || !this.chapterId) {
       this.messageService.add({
         severity: 'warn',
         summary: 'تنبيه',
-        detail: 'يرجى تحديد اسم الفديو ومرحلة الدراسة قبل الرفع.',
+        detail: 'يرجى تحديد اسم الفديو واسم الفصل قبل الرفع.',
       });
       return;
     }
@@ -108,7 +122,8 @@ export class UploadVideosComponent {
         formData.append('TotalChunks', totalChunks.toString());
         formData.append('UserId', this.userId.toString());
         formData.append('TeacherId', this.teacherId);
-        formData.append('AcademicLevelId', this.academicLevelID.toString());
+        formData.append('chapterId', this.chapterId.toString());
+        // formData.append('AcademicLevelId', this.academicLevelID.toString());
 
         this.tasksAndVideosService.uploadFileChunk(formData).subscribe({
           next: (data) => {
@@ -194,6 +209,32 @@ export class UploadVideosComponent {
     this.selectedVideo = null;
     this.uploadProgress = 0;
     this.isPending = 1;
+  }
+
+  onFilterChange() {
+    this.getChapterData()
+  }
+
+  showDialog() {
+    this.getChapterData()
+    this.getAcademicLevelFilter()
+    this.displayDialog = true;
+  }
+  getChapterData() {
+
+    this.chapters.getAllChapters(this.Filter).subscribe({
+      next: (data) => {
+        this.Chapters = data.items;
+      },
+      error: (err) => {
+        console.error('Error fetching teachers:', err);
+      }
+    });
+  }
+
+  onRowSelect(event: any) {
+    this.chapterId = event.data.chapterID
+    this.messageService.add({ severity: 'info', summary: 'تم اختيار الفصل', detail: event.data.name });
   }
 
 };

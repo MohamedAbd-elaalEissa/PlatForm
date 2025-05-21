@@ -2,7 +2,6 @@
 
     <p-dataview [layout]="'grid'" [value]="tasksFiles">
         <ng-template #header>
-
             <div class="filters-container">
                 <p-floatlabel variant="on" class="filter-item">
                     <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.taskName"
@@ -10,8 +9,6 @@
                     <label for="taskName" style="font-size: large;"> <p-inputicon Class="pi pi-search" />
                         اسم التاسك</label>
                 </p-floatlabel>
-
-
                 <p-floatlabel class="w-full md:w-56 filter-item" variant="on">
                     <p-dropdown [(ngModel)]="Filter.academicLevelId" inputId="academicLevel"
                         [options]="academicLevelData" optionLabel="academicLevelName" optionValue="academicLevelID"
@@ -19,16 +16,12 @@
                     </p-dropdown>
                     <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
                 </p-floatlabel>
-
             </div>
 
-            <!-- <div class="flex justify-end" *ngIf="tasksFiles.length > 0 ">
-            <p-selectbutton [(ngModel)]="layout" [options]="options">
-                <ng-template #item let-item>
-                    <i class="pi " [ngClass]="{ 'pi-bars': item === 'list', 'pi-table': item === 'grid' }"></i>
-                </ng-template>
-            </p-selectbutton>
-        </div> -->
+            <div class="CheckBox">
+                <p-checkbox [(ngModel)]="Filter.isBook" [binary]="true" (ngModelChange)="onFilterChange()"></p-checkbox>
+                <label for="ny" class="ml-3">Is Book </label>
+            </div>
         </ng-template>
 
         <!-- <ng-template #list let-items>

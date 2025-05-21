@@ -13,38 +13,63 @@ import { TasksAndVideosService } from '../../service/tasks-and-videos.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { academicLevelDataModel } from '../../models/models';
+import { academicLevelDataModel, ChapterModel } from '../../models/models';
 import { DropdownModule } from 'primeng/dropdown';
+import { CheckboxModule } from 'primeng/checkbox';
+import { ChaptersService } from '../../service/chapters.service';
+import { DialogModule } from 'primeng/dialog';
+import { TableModule } from 'primeng/table';
+
+
 @Component({
   selector: 'app-upload-tasks',
   standalone: true,
-  imports: [FileUpload, ButtonModule, BadgeModule, ProgressBar,
-    ToastModule, HttpClientModule, CommonModule, InputTextModule,
-    FormsModule, MultiSelectModule, FloatLabelModule, DropdownModule],
+  imports: [FileUpload, ButtonModule, BadgeModule, ProgressBar, TableModule,
+    ToastModule, HttpClientModule, CommonModule, InputTextModule, DialogModule,
+    FormsModule, MultiSelectModule, FloatLabelModule, DropdownModule, CheckboxModule],
   templateUrl: './upload-tasks.component.html',
   styleUrls: ['./upload-tasks.component.scss'],
   providers: [MessageService]
 })
 export class UploadTasksComponent {
   files: any[] = [];
+  chapterId!: number
   totalSize: number = 0;
   totalSizePercent: number = 0;
   teacherId!: number
   userId: number = 1
   taskName!: string;
   academicLevelID!: number;
+  isBook: boolean = false
   academicLevelData: academicLevelDataModel[] = [];
   uploadedFiles: any[] = [];
   isPending: boolean = true
-
-  constructor(private config: PrimeNG, private messageService: MessageService, private tasksAndVideos: TasksAndVideosService) {
+  Chapters: any[] = [];
+  Filter!: ChapterModel
+  displayDialog = false;
+  selectedChapter!: ChapterModel;
+  
+  constructor(private config: PrimeNG, private messageService: MessageService, private tasksAndVideos: TasksAndVideosService,
+    private chapters: ChaptersService
+  ) {
     const teacherId = sessionStorage.getItem('teacherId');
     if (teacherId) {
       this.teacherId = +teacherId
     }
+
+    // const chapterId = sessionStorage.getItem('chapterId');
+    // if (chapterId) {
+    //   this.chapterId = +chapterId
+    // }
   }
   ngOnInit() {
-    this.getAcademicLevelFilter()
+
+    this.Filter =
+    {
+      teacherId: this.teacherId.toString(),
+      pageNumber: 1,
+      pageSize: 25
+    }
   }
 
   choose(event: any, callback: () => void): void {
@@ -78,11 +103,11 @@ export class UploadTasksComponent {
 
   uploadEvent(): void {
 
-    if (!this.taskName || !this.academicLevelID) {
+    if (!this.taskName || !this.chapterId) {
       this.messageService.add({
         severity: 'warn',
         summary: 'تنبيه',
-        detail: 'يرجى تحديد اسم التاسك ومرحلة الدراسة قبل الرفع.',
+        detail: 'يرجى تحديد اسم التاسك واسم الفصل قبل الرفع.',
       });
       return;
     }
@@ -97,8 +122,9 @@ export class UploadTasksComponent {
     formData.append('teacherId', this.teacherId.toString());
     formData.append('isAnswer', "false");
     formData.append('taskName', this.taskName);
-    formData.append('academicLevelID', this.academicLevelID.toString());
-
+    formData.append('chapterId', this.chapterId.toString());
+    // formData.append('academicLevelID', this.academicLevelID.toString());
+    formData.append('IsBook', this.isBook.toString());
 
     this.tasksAndVideos.uploadFile(formData).subscribe({
       next: (data) => {
@@ -159,5 +185,39 @@ export class UploadTasksComponent {
     });
 
   }
+
+  getChapterData() {
+
+    this.chapters.getAllChapters(this.Filter).subscribe({
+      next: (data) => {
+        this.Chapters = data.items;
+      },
+      error: (err) => {
+        console.error('Error fetching teachers:', err);
+      }
+    });
+  }
+
+  onFilterChange() {
+    this.getChapterData()
+  }
+
+  showDialog() {
+    this.getChapterData()
+    this.getAcademicLevelFilter()
+    this.displayDialog = true;
+  }
+
+  onRowSelect(event: any) {
+    this.chapterId = event.data.chapterID
+    this.messageService.add({ severity: 'info', summary: 'تم اختيار الفصل', detail: event.data.name });
+  }
+
+  // onRowUnselect(event: any) {
+  //   console.log("🚀 ~ UploadTasksComponent ~ onRowUnselect ~ event:", event.data)
+  //   this.messageService.add({ severity: 'info', summary: 'تم الغاء اختيار الفصل', detail: event.data.name });
+  // }
+
+
 
 }

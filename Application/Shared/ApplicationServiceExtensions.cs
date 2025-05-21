@@ -1,4 +1,4 @@
-﻿using Application.Features.Files.Queries;
+﻿using ApplicationContract.IChapter;
 using ApplicationContract.IFiles;
 using ApplicationContract.IStudent;
 using ApplicationContract.ITeacher;
@@ -23,6 +23,8 @@ namespace Application.Shared
             services.AddScoped<ITeacherRepository, TeacherRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<IFilesRepository, FilesRepository>();
+            services.AddScoped<IChapterRepository, ChapterRepository>();
+
             return services;
         }
     }

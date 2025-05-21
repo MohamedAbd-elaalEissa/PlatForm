@@ -12,21 +12,41 @@ export interface StudentAnswerFilterModel {
 }
 export interface TeacherFileModel {
     teacherId: number,
+    chapterId: number
     taskName?: string,
     academicLevelId?: number,
+    isBook?: boolean,
     pageNumber: number,
     pageSize: number,
 }
 
+export interface ChapterModel {
+    chapterID?: string,
+    teacherId: string,
+    academicLevelId?: number,
+    chapterName?: string,
+    pageNumber?: number,
+    pageSize?: number,
+}
+
+export interface ChapterUpdateModel {
+    chaptersID: string,
+    teacherId: string,
+    academicLevelId: number,
+    chapterName: string,
+}
+
 export interface academicLevelDataModel {
     academicLevelID: number,
-    academicLevelName?: string,
+    academicLevelName: string,
 }
 
 export interface TeachersVideosDataModel {
     teacherId: string,
+    chapterId: number,
     videoName?: number,
-    academicLevelId?: number, 
+    academicLevelId?: number,
+    isBook?: boolean,
     pageNumber: number,
     pageSize: number,
 }
@@ -34,12 +54,12 @@ export interface TeachersVideosDataModel {
 export interface RegisterModel {
     userName: string,
     email: string,
-    phoneNumber:string,
-    password:string,
-    isTeacher:boolean
+    phoneNumber: string,
+    password: string,
+    isTeacher: boolean
 }
 
 export interface LogInModel {
     email: string,
-    password:string
+    password: string
 }

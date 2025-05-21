@@ -57,6 +57,46 @@ namespace Infrastructure.Migrations
                     b.ToTable("AcademicLevels", "Relation");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Chapters", b =>
+                {
+                    b.Property<int>("ChapterID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChapterID"));
+
+                    b.Property<int>("AcademicLevelId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ChapterName")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("CreateBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UpdateBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ChapterID");
+
+                    b.HasIndex("AcademicLevelId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("Chapters", "Relation");
+                });
+
             modelBuilder.Entity("Domain.Entities.FileAnswers", b =>
                 {
                     b.Property<int>("FileAnswersID")
@@ -93,7 +133,7 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FilesID"));
 
-                    b.Property<int>("AcademicLevelID")
+                    b.Property<int?>("ChapterID")
                         .HasColumnType("int");
 
                     b.Property<int>("CreateBy")
@@ -106,6 +146,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsAnswer")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsBook")
                         .HasColumnType("bit");
 
                     b.Property<string>("TaskName")
@@ -125,7 +168,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("FilesID");
 
-                    b.HasIndex("AcademicLevelID");
+                    b.HasIndex("ChapterID");
 
                     b.HasIndex("FileName")
                         .IsUnique()
@@ -273,7 +316,7 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VideoID"));
 
-                    b.Property<int>("AcademicLevelID")
+                    b.Property<int?>("ChapterID")
                         .HasColumnType("int");
 
                     b.Property<int>("CreateBy")
@@ -299,7 +342,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("VideoID");
 
-                    b.HasIndex("AcademicLevelID");
+                    b.HasIndex("ChapterID");
 
                     b.HasIndex("TeacherID");
 
@@ -321,6 +364,25 @@ namespace Infrastructure.Migrations
                     b.ToTable("StudentsTeachers", "Relation");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Chapters", b =>
+                {
+                    b.HasOne("Domain.Entities.AcademicLevels", "AcademicLevel")
+                        .WithMany("Chapters")
+                        .HasForeignKey("AcademicLevelId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Teachers", "Teacher")
+                        .WithMany("Chapters")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AcademicLevel");
+
+                    b.Navigation("Teacher");
+                });
+
             modelBuilder.Entity("Domain.Entities.FileAnswers", b =>
                 {
                     b.HasOne("Domain.Entities.Files", "Files")
@@ -334,11 +396,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Files", b =>
                 {
-                    b.HasOne("Domain.Entities.AcademicLevels", "AcademicLevel")
+                    b.HasOne("Domain.Entities.Chapters", "Chapter")
                         .WithMany()
-                        .HasForeignKey("AcademicLevelID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ChapterID");
 
                     b.HasOne("Domain.Entities.Teachers", "Teacher")
                         .WithMany("Files")
@@ -346,18 +406,16 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AcademicLevel");
+                    b.Navigation("Chapter");
 
                     b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("Domain.Entities.Videos", b =>
                 {
-                    b.HasOne("Domain.Entities.AcademicLevels", "AcademicLevel")
+                    b.HasOne("Domain.Entities.Chapters", "Chapter")
                         .WithMany()
-                        .HasForeignKey("AcademicLevelID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ChapterID");
 
                     b.HasOne("Domain.Entities.Teachers", "Teacher")
                         .WithMany()
@@ -365,7 +423,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AcademicLevel");
+                    b.Navigation("Chapter");
 
                     b.Navigation("Teacher");
                 });
@@ -385,8 +443,15 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Entities.AcademicLevels", b =>
+                {
+                    b.Navigation("Chapters");
+                });
+
             modelBuilder.Entity("Domain.Entities.Teachers", b =>
                 {
+                    b.Navigation("Chapters");
+
                     b.Navigation("Files");
                 });
 #pragma warning restore 612, 618

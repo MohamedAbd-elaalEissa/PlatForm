@@ -14,5 +14,6 @@ namespace Domain.Entities
         public int AcademicLevelID { get; set; }
         public string AcademicLevelName { get; set; }
         public int? ParentID { get; set; }
+        public ICollection<Chapters> Chapters { get; set; }
     }
 }

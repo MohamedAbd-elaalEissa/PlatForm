@@ -87,9 +87,9 @@ namespace Infrastructure.Repositories
                             UserID = filePDF.userId,
                             FileName = fullFileName,
                             TeacherID = (int)filePDF.teacherId,
-                            AcademicLevelID = (int)filePDF.academicLevelID,
-                            TaskName = filePDF.taskName
-
+                            TaskName = filePDF.taskName,
+                            IsBook = filePDF.isBook,
+                            ChapterID = filePDF.ChapterId
                         };
                         _dbContext.Files.Add(files);
                     }
@@ -193,21 +193,16 @@ namespace Infrastructure.Repositories
         public async Task<PaginatedResult<Files>> GetTeachersFilesAsync(TeacherFileDTO teacherFile)
         {
             var query = _dbContext.Files.AsQueryable();
-            query = query.Where(f => f.TeacherID == teacherFile.TeacherId);
+            query = query.Where(f => f.ChapterID == teacherFile.ChapterId);
 
-            if (!string.IsNullOrWhiteSpace(teacherFile.TaskName) && teacherFile.AcademicLevelId.HasValue)
-            {
-                query = query.Where(f => f.TaskName.Contains(teacherFile.TaskName) && f.AcademicLevelID == teacherFile.AcademicLevelId.Value);
-            }
-
-            else if (!string.IsNullOrWhiteSpace(teacherFile.TaskName))
+             if (!string.IsNullOrWhiteSpace(teacherFile.TaskName))
             {
                 query = query.Where(f => f.TaskName.Contains(teacherFile.TaskName));
             }
 
-            else if (teacherFile.AcademicLevelId.HasValue)
+             if (teacherFile.IsBook.HasValue)
             {
-                query = query.Where(f => f.AcademicLevelID == teacherFile.AcademicLevelId.Value);
+                query = query.Where(f => f.IsBook == teacherFile.IsBook.Value);
             }
 
             var totalCount = await query.CountAsync();
@@ -326,7 +321,7 @@ namespace Infrastructure.Repositories
                             UserID = chunkDto.UserId,
                             VideoName = finalFileName,
                             TeacherID = chunkDto.TeacherId,
-                            AcademicLevelID = chunkDto.AcademicLevelID
+                            ChapterID= chunkDto.ChapterId
                         };
                         _dbContext.Videos.Add(newFile);
 
@@ -425,19 +420,9 @@ namespace Infrastructure.Repositories
             var query = _dbContext.Videos.AsQueryable();
             query = query.Where(f => f.TeacherID == teacherVideo.TeacherId);
 
-            if (!string.IsNullOrWhiteSpace(teacherVideo.VideoName) && teacherVideo.AcademicLevelId.HasValue)
-            {
-                query = query.Where(f => f.VideoName.Contains(teacherVideo.VideoName) && f.AcademicLevelID == teacherVideo.AcademicLevelId.Value);
-
-            }
-            else if (!string.IsNullOrWhiteSpace(teacherVideo.VideoName))
+            if (!string.IsNullOrWhiteSpace(teacherVideo.VideoName))
             {
                 query = query.Where(f => f.VideoName.Contains(teacherVideo.VideoName));
-            }
-
-            else if (teacherVideo.AcademicLevelId.HasValue)
-            {
-                query = query.Where(f => f.AcademicLevelID == teacherVideo.AcademicLevelId.Value);
             }
 
             var totalCount = await query.CountAsync();
@@ -459,7 +444,7 @@ namespace Infrastructure.Repositories
         {
             var query = _dbContext.FileAnswers
                                 .Include(f => f.Files)
-                                    .ThenInclude(f => f.AcademicLevel)
+                                    //.ThenInclude(f => f.AcademicLevel)
                                 //.Include(f => f.Student) 
                                 .Where(f => f.Files.TeacherID == StudentAnswerFile.TeacherId
                                          && f.Files.FilesID == StudentAnswerFile.FilesId)
@@ -475,10 +460,6 @@ namespace Infrastructure.Repositories
                 query = query.Where(f => f.AnswerName.Contains(StudentAnswerFile.AnswerName));
             }
 
-            if (!string.IsNullOrWhiteSpace(StudentAnswerFile.AcademicLevelName))
-            {
-                query = query.Where(f => f.Files.AcademicLevel.AcademicLevelName.Contains(StudentAnswerFile.AcademicLevelName));
-            }
 
             //if (!string.IsNullOrWhiteSpace(StudentAnswerFile.StudentName))
             //{
@@ -500,8 +481,8 @@ namespace Infrastructure.Repositories
                     f.Files.FilesID,
                     f.Files.TeacherID,
                     f.Files.TaskName,
-                    f.Files.AcademicLevel.AcademicLevelName,
-                    f.Files.AcademicLevel.AcademicLevelID
+                    //f.Files.AcademicLevel.AcademicLevelName,
+                    //f.Files.AcademicLevel.AcademicLevelID
                 })
                 .ToListAsync();
 
@@ -515,8 +496,8 @@ namespace Infrastructure.Repositories
                     //StudentName = x.StudentName, 
                     FileName = x.FileName,
                     TaskName = x.TaskName,
-                    AcademicLevelId = x.AcademicLevelID,
-                    AcademicLevelName = x.AcademicLevelName,
+                    //AcademicLevelId = x.AcademicLevelID,
+                    //AcademicLevelName = x.AcademicLevelName,
                     FilesId = x.FilesID,
                     TeacherId = x.TeacherID
                 }).ToList(),

@@ -48,8 +48,8 @@ namespace Infrastructure.Shared
                 };
             });
             //services.AddSingleton<TeacherConsumer>(); // For the First Solution For RabbitMq Consumer
-            services.AddHostedService<TeacherConsumerHostedService>();// For the Second Solution For RabbitMq Consumer
-            services.AddHostedService<StudentConsumerHostedService>();// For the Second Solution For RabbitMq Consumer
+            //services.AddHostedService<TeacherConsumerHostedService>();// For the Second Solution For RabbitMq Consumer
+            //services.AddHostedService<StudentConsumerHostedService>();// For the Second Solution For RabbitMq Consumer
             return services;
         }
     }

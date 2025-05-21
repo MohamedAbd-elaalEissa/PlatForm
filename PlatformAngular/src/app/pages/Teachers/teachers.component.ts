@@ -12,6 +12,7 @@ import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
   imports: [AnimateOnScrollModule, CardModule,CommonModule,RouterModule],
   templateUrl: './teachers.component.html',
   styleUrl: './teachers.component.scss',
+  standalone : true
 
 })
 
