@@ -1,17 +1,25 @@
 ﻿using ApplicationContract.IFiles;
-using ApplicationContract.IStudent;
 using ApplicationContract.ITeacher;
 using ApplicationContract.Models;
 using ApplicationContract.Models.File;
+using Azure;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
+using Docker.DotNet.Models;
 using Domain.Entities;
 using Infrastructure.Presistence;
 using Infrastructure.Repositories.SignalR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using System.Threading.Tasks;
-
+using Microsoft.Extensions.Logging;
+using Polly;
+using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 namespace Infrastructure.Repositories
 {
     public class FilesRepository : IFilesRepository
@@ -19,18 +27,30 @@ namespace Infrastructure.Repositories
         private readonly PlatFormDbContext _dbContext;
         private readonly ITeacherRepository _teacher;
         private readonly IHubContext<NotificationHub> _hub;
+        private readonly IMemoryCache _cache;
         private readonly IConfiguration _configuration;
         string FilePath;
         string VideoPath;
-
-        public FilesRepository(PlatFormDbContext dbContext, IConfiguration _configuration, ITeacherRepository teacher, IHubContext<NotificationHub> hub)
+        string ConnectionString;
+        string ContainerName;
+        private readonly BlobServiceClient _blobServiceClient;
+        private readonly ILogger<FilesRepository> _logger;
+        public FilesRepository(PlatFormDbContext dbContext, IConfiguration _configuration, ITeacherRepository teacher, IHubContext<NotificationHub> hub
+            , IMemoryCache cache, BlobServiceClient blobServiceClient,
+            ILogger<FilesRepository> logger)
         {
             _dbContext = dbContext;
             _teacher = teacher;
             _hub = hub;
+            _cache = cache;
             var appSettingsSection = _configuration.GetSection("AppConfiguration");
+            var azureSettingsSection = _configuration.GetSection("AzureStorage");
             FilePath = appSettingsSection["FilePath"];
             VideoPath = appSettingsSection["VideoPath"];
+            ConnectionString = azureSettingsSection["ConnectionString"];
+            ContainerName = azureSettingsSection["ContainerName"];
+            _blobServiceClient = blobServiceClient;
+            _logger = logger;
 
         }
 
@@ -224,144 +244,375 @@ namespace Infrastructure.Repositories
                 PageSize = teacherFile.PageSize
             };
         }
+
         public async Task<CommonResult> UploadFileChunk([FromForm] FileChunkDto chunkDto)
         {
             try
             {
-                // Validate required fields
+                // Validate input
                 if (chunkDto.Chunk == null || chunkDto.Chunk.Length == 0)
-                {
-                    return new CommonResult
-                    {
-                        IsValidTransaction = false,
-                        TransactionDetails = "No chunk data provided",
-                        TransactionHeaderMessage = "Upload failed"
-                    };
-                }
-
+                    return Error("No chunk data provided");
                 if (string.IsNullOrEmpty(chunkDto.FileName))
-                {
-                    return new CommonResult
-                    {
-                        IsValidTransaction = false,
-                        TransactionDetails = "FileName is required",
-                        TransactionHeaderMessage = "Upload failed"
-                    };
-                }
-
+                    return Error("FileName is required");
                 if (chunkDto.ChunkNumber <= 0 || chunkDto.TotalChunks <= 0)
+                    return Error("Invalid chunk numbers");
+
+                string blobName = $"{chunkDto.UserId}/{chunkDto.FileName}";
+
+                // Get the BlobServiceClient from DI instead of creating new one
+
+                var containerClient = _blobServiceClient.GetBlobContainerClient(ContainerName);
+
+                await containerClient.CreateIfNotExistsAsync();
+
+                var blockBlobClient = containerClient.GetBlockBlobClient(blobName);
+
+                // Generate a Base64 block ID with proper padding
+                string blockId = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{chunkDto.ChunkNumber:D6}"));
+
+                // Use cancellation token for better control
+                using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
+
+                using var stream = chunkDto.Chunk.OpenReadStream();
+
+                // Stage block with cancellation token only
+                try
                 {
-                    return new CommonResult
-                    {
-                        IsValidTransaction = false,
-                        TransactionDetails = "ChunkNumber and TotalChunks must be greater than 0",
-                        TransactionHeaderMessage = "Upload failed"
-                    };
+                    await blockBlobClient.StageBlockAsync(blockId, stream, cancellationToken: cts.Token);
+
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
                 }
 
-                // Define paths
-                string tempDir = Path.Combine(VideoPath, "temp", $"{chunkDto.FileName}_{chunkDto.UserId}");
-                string tempChunkPath = Path.Combine(tempDir, $"chunk_{chunkDto.ChunkNumber}");
-                string finalFilePath = Path.Combine(VideoPath, $"{chunkDto.FileName}");
+                // Store uploaded blockId to track
+                await StoreUploadedBlockIdAsync(chunkDto.UserId.ToString(), chunkDto.FileName, blockId);
 
-                //Console.WriteLine($"Receiving chunk {chunkDto.ChunkNumber} of {chunkDto.TotalChunks} for {chunkDto.FileName}");
-
-                // Ensure temp directory exists
-                Directory.CreateDirectory(tempDir);
-
-
-                var existingFile = await _dbContext.Videos
-                        .FirstOrDefaultAsync(f => f.TeacherID == chunkDto.TeacherId && f.VideoName == chunkDto.FileName);
-
-                string finalFileName = Path.GetFileName(finalFilePath);
-                if (existingFile != null)
+                if (await AllChunksUploadedAsync(chunkDto.UserId.ToString(), chunkDto.FileName, chunkDto.TotalChunks))
                 {
-                    //existingFile.VideoName = finalFileName;
-                    //_dbContext.Videos.Update(existingFile);
-                    return new CommonResult
+                    var blockIds = await GetBlockIdsAsync(chunkDto.UserId.ToString(), chunkDto.FileName);
+
+                    // Commit with cancellation token
+                    await blockBlobClient.CommitBlockListAsync(blockIds, cancellationToken: cts.Token);
+
+                    // Save metadata to DB
+                    _dbContext.Videos.Add(new Videos
                     {
-                        IsValidTransaction = false,
-                        TransactionDetails = "اسم الفديو موجود بالفعل",
-                        TransactionHeaderMessage = finalFilePath
-                    };
+                        UserID = chunkDto.UserId,
+                        VideoName = chunkDto.FileName,
+                        TeacherID = chunkDto.TeacherId,
+                        AcademicLevelID = chunkDto.AcademicLevelID
+                    });
+                    await _dbContext.SaveChangesAsync();
+
+                    // Clear cached blocks after successful commit
+                    _cache.Remove($"{chunkDto.UserId}_{chunkDto.FileName}");
+
+                    return Success("File uploaded and committed successfully");
                 }
-                else
-                {
-                    // Save the chunk
-                    using (var stream = new FileStream(tempChunkPath, FileMode.Create))
-                    {
-                        await chunkDto.Chunk.CopyToAsync(stream);
-                    }
 
-                    // Check if all chunks are uploaded
-                    int uploadedChunks = Directory.GetFiles(tempDir).Length;
-                    //Console.WriteLine($"Uploaded chunks: {uploadedChunks} / {chunkDto.TotalChunks}");
-
-                    if (uploadedChunks == chunkDto.TotalChunks)
-                    {
-                        Console.WriteLine("All chunks received, combining file...");
-                        // Combine all chunks into the final file
-                        using (var finalStream = new FileStream(finalFilePath, FileMode.Create))
-                        {
-                            for (int i = 1; i <= chunkDto.TotalChunks; i++)
-                            {
-                                string chunkPath = Path.Combine(tempDir, $"chunk_{i}");
-                                if (!File.Exists(chunkPath))
-                                {
-                                    return new CommonResult
-                                    {
-                                        IsValidTransaction = false,
-                                        TransactionDetails = $"Missing chunk {i}",
-                                        TransactionHeaderMessage = "Upload failed"
-                                    };
-                                }
-                                byte[] chunkBytes = await File.ReadAllBytesAsync(chunkPath);
-                                await finalStream.WriteAsync(chunkBytes, 0, chunkBytes.Length);
-                            }
-                        }
-                        // Clean up temp directory
-                        Directory.Delete(tempDir, true);
-                        var newFile = new Videos
-                        {
-                            UserID = chunkDto.UserId,
-                            VideoName = finalFileName,
-                            TeacherID = chunkDto.TeacherId,
-                            AcademicLevelID = chunkDto.AcademicLevelID
-                        };
-                        _dbContext.Videos.Add(newFile);
-
-                        await _dbContext.SaveChangesAsync();
-
-                        //Console.WriteLine("File upload completed successfully");
-                        return new CommonResult
-                        {
-                            IsValidTransaction = true,
-                            TransactionDetails = "File uploaded successfully",
-                            TransactionHeaderMessage = finalFilePath
-                        };
-                    }
-                }
-                // Return partial success for intermediate chunks
-                return new CommonResult
-                {
-                    IsValidTransaction = true,
-                    TransactionDetails = $"Chunk {chunkDto.ChunkNumber} of {chunkDto.TotalChunks} uploaded",
-                    TransactionHeaderMessage = "Chunk uploaded"
-                };
+                return Success($"Chunk {chunkDto.ChunkNumber} uploaded successfully");
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogError(ex, "Upload operation timed out for chunk {ChunkNumber} of file {FileName}",
+                    chunkDto.ChunkNumber, chunkDto.FileName);
+                return Error($"Upload operation timed out: {ex.Message}");
+            }
+            catch (RequestFailedException ex)
+            {
+                _logger.LogError(ex, "Azure storage error for chunk {ChunkNumber} of file {FileName}: {ErrorCode}",
+                    chunkDto.ChunkNumber, chunkDto.FileName, ex.ErrorCode);
+                return Error($"Azure storage error: {ex.ErrorCode} - {ex.Message}");
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"Error uploading chunk: {ex.Message}");
-                return new CommonResult
-                {
-                    IsValidTransaction = false,
-                    TransactionDetails = "An error occurred while uploading the chunk",
-                    TransactionHeaderMessage = "Upload failed"
-                };
+                _logger.LogError(ex, "Error uploading chunk {ChunkNumber} for file {FileName}",
+                    chunkDto.ChunkNumber, chunkDto.FileName);
+                return Error($"An error occurred while uploading the chunk: {ex.Message}");
             }
+
+            // Helper methods
+            CommonResult Success(string msg) => new() { IsValidTransaction = true, TransactionDetails = msg };
+            CommonResult Error(string msg) => new() { IsValidTransaction = false, TransactionDetails = msg };
+        }
+        private Task StoreUploadedBlockIdAsync(string userId, string fileName, string blockId)
+        {
+            string key = $"{userId}_{fileName}";
+            var blockIds = _cache.GetOrCreate(key, entry =>
+            {
+                // Increase expiration time for large uploads
+                entry.SlidingExpiration = TimeSpan.FromHours(2);
+                return new List<string>();
+            });
+
+            if (!blockIds.Contains(blockId)) // Avoid duplicates if retry happens
+            {
+                blockIds.Add(blockId);
+                _cache.Set(key, blockIds, new MemoryCacheEntryOptions
+                {
+                    SlidingExpiration = TimeSpan.FromHours(2)
+                });
+            }
+
+            return Task.CompletedTask;
         }
 
+        private Task<bool> AllChunksUploadedAsync(string userId, string fileName, int totalChunks)
+        {
+            string key = $"{userId}_{fileName}";
+            var blockIds = _cache.TryGetValue(key, out List<string> ids) ? ids : new List<string>();
 
+            // Log progress for debugging
+            _logger.LogInformation("Upload progress for {fileName}: {current}/{total} chunks",
+                fileName, ids.Count, totalChunks);
+
+            return Task.FromResult(ids.Count == totalChunks);
+        }
+
+        private Task<List<string>> GetBlockIdsAsync(string userId, string fileName)
+        {
+            string key = $"{userId}_{fileName}";
+            var blockIds = _cache.TryGetValue(key, out List<string> ids) ? ids : new List<string>();
+
+            // Sort blocks by their decoded numeric value to ensure correct assembly
+            return Task.FromResult(blockIds.OrderBy(x => x).ToList());
+        }
+
+        //public async Task<CommonResult> UploadFileChunk([FromForm] FileChunkDto chunkDto)
+        //{
+        //    try
+        //    {
+        //        // Input validation
+        //        if (chunkDto.Chunk == null || chunkDto.Chunk.Length == 0)
+        //            return Error("No chunk data provided");
+
+        //        if (string.IsNullOrEmpty(chunkDto.FileName))
+        //            return Error("FileName is required");
+
+        //        if (chunkDto.ChunkNumber <= 0 || chunkDto.TotalChunks <= 0)
+        //            return Error("Invalid chunk numbers");
+
+        //        if (chunkDto.ChunkNumber > chunkDto.TotalChunks)
+        //            return Error("Chunk number exceeds total chunks");
+
+        //        if (chunkDto.Chunk.Length > 5 * 1024 * 1024)
+        //            return Error("Chunk size exceeds 5 MB limit");
+
+        //        if (chunkDto.TotalChunks > 50000)
+        //            return Error("Total chunks exceed Azure's 50,000 block limit");
+
+        //        // Container and blob setup
+        //        string blobName = $"{chunkDto.UserId}/{chunkDto.FileName}";
+        //        var containerClient = _blobServiceClient.GetBlobContainerClient(ContainerName);
+        //        await containerClient.CreateIfNotExistsAsync();
+        //        var blockBlobClient = containerClient.GetBlockBlobClient(blobName);
+
+        //        // Generate base64 block ID
+        //        string plainBlockId = $"{chunkDto.ChunkNumber:D10}";
+        //        string blockId = Convert.ToBase64String(Encoding.UTF8.GetBytes(plainBlockId));
+
+        //        if (blockId.Length > 64)
+        //            return Error("Block ID exceeds Azure limit");
+
+        //        // Check for duplicate block
+        //        var existingIds = await GetBlockIdsAsync(chunkDto.UserId.ToString(), chunkDto.FileName);
+        //        if (existingIds.Contains(blockId))
+        //        {
+        //            return Success(new
+        //            {
+        //                Message = $"Chunk {chunkDto.ChunkNumber} already uploaded",
+        //                CurrentChunk = chunkDto.ChunkNumber,
+        //                TotalChunks = chunkDto.TotalChunks,
+        //                Progress = (double)existingIds.Count / chunkDto.TotalChunks * 100
+        //            });
+        //        }
+
+        //        // Retry policy
+        //        var retryPolicy = Policy
+        //            .Handle<RequestFailedException>(ex => ex.Status == 400 && ex.ErrorCode == "InvalidBlobOrBlock")
+        //            .WaitAndRetryAsync(3, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)));
+
+        //        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(30));
+
+        //        // Read bytes
+        //        byte[] chunkBytes;
+        //        using (var sourceStream = chunkDto.Chunk.OpenReadStream())
+        //        using (var memoryStream = new MemoryStream())
+        //        {
+        //            await sourceStream.CopyToAsync(memoryStream);
+        //            chunkBytes = memoryStream.ToArray();
+        //        }
+
+        //        if (chunkBytes == null || chunkBytes.Length == 0)
+        //            return Error("Chunk is empty or corrupted.");
+
+        //        // Upload block
+        //        using (var chunkStream = new MemoryStream(chunkBytes))
+        //        {
+        //            chunkStream.Position = 0;
+        //            await retryPolicy.ExecuteAsync(async () =>
+        //            {
+        //                await blockBlobClient.StageBlockAsync(
+        //                    blockId,
+        //                    chunkStream,
+        //                    cancellationToken: cts.Token);
+        //            });
+        //        }
+
+        //        // Store block ID
+        //        await StoreUploadedBlockIdAsync(chunkDto.UserId.ToString(), chunkDto.FileName, blockId);
+
+        //        // Commit if all chunks are uploaded
+        //        if (await AllChunksUploadedAsync(chunkDto.UserId.ToString(), chunkDto.FileName, chunkDto.TotalChunks))
+        //        {
+        //            var blockIds = await GetBlockIdsAsync(chunkDto.UserId.ToString(), chunkDto.FileName);
+        //            if (blockIds.Count != chunkDto.TotalChunks)
+        //                return Error("Mismatch in uploaded chunks");
+
+        //            var headers = new BlobHttpHeaders
+        //            {
+        //                ContentType = FileExtensions.GetContentType(chunkDto.FileName)
+        //            };
+
+        //            var metadata = new Dictionary<string, string>
+        //    {
+        //        { "OriginalFileName", chunkDto.FileName },
+        //        { "UploadedBy", chunkDto.UserId.ToString() },
+        //        { "TotalChunks", chunkDto.TotalChunks.ToString() }
+        //    };
+
+        //            await blockBlobClient.SetMetadataAsync(metadata);
+        //            await blockBlobClient.CommitBlockListAsync(blockIds, headers, cancellationToken: cts.Token);
+
+        //            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        //            try
+        //            {
+        //                _dbContext.Videos.Add(new Videos
+        //                {
+        //                    UserID = chunkDto.UserId,
+        //                    VideoName = chunkDto.FileName,
+        //                    TeacherID = chunkDto.TeacherId,
+        //                    AcademicLevelID = chunkDto.AcademicLevelID
+        //                });
+        //                await _dbContext.SaveChangesAsync();
+        //                await transaction.CommitAsync();
+        //            }
+        //            catch (Exception dbEx)
+        //            {
+        //                await transaction.RollbackAsync();
+        //                _logger.LogError(dbEx, "Failed to save video metadata");
+        //            }
+
+        //            _cache.Remove($"{chunkDto.UserId}_{chunkDto.FileName}");
+
+        //            return Success(new
+        //            {
+        //                Message = "File uploaded and committed successfully",
+        //                BlobName = blobName,
+        //                TotalChunks = chunkDto.TotalChunks,
+        //                UploadedChunks = blockIds.Count,
+        //                FileSize = blockIds.Count * chunkDto.Chunk.Length
+        //            });
+        //        }
+
+        //        int currentProgress = await GetUploadedChunkCountAsync(chunkDto.UserId.ToString(), chunkDto.FileName);
+        //        return Success(new
+        //        {
+        //            Message = $"Chunk {chunkDto.ChunkNumber} uploaded",
+        //            CurrentChunk = chunkDto.ChunkNumber,
+        //            TotalChunks = chunkDto.TotalChunks,
+        //            Progress = (double)currentProgress / chunkDto.TotalChunks * 100,
+        //            UploadedBytes = currentProgress * chunkDto.Chunk.Length
+        //        });
+        //    }
+        //    catch (RequestFailedException ex) when (ex.Status == 400 && ex.ErrorCode == "InvalidBlobOrBlock")
+        //    {
+        //        _logger.LogError(ex, "InvalidBlobOrBlock on chunk {ChunkNumber}", chunkDto.ChunkNumber);
+        //        return Error("Invalid block content. Verify integrity and retry.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Unhandled error on chunk {ChunkNumber}", chunkDto.ChunkNumber);
+        //        return Error("Upload failed: " + ex.Message);
+        //    }
+        //}
+
+        //// Helper methods with improved implementations
+        //private static CommonResult Success(object data) => new()
+        //{
+        //    IsValidTransaction = true,
+        //    TransactionDetails = data?.ToString()
+        //};
+
+        //private CommonResult Error(string msg) => new()
+        //{
+        //    IsValidTransaction = false,
+        //    TransactionDetails = msg
+        //};
+
+        //private async Task StoreUploadedBlockIdAsync(string userId, string fileName, string blockId)
+        //{
+        //    string key = $"{userId}_{fileName}";
+        //    var options = new MemoryCacheEntryOptions
+        //    {
+        //        SlidingExpiration = TimeSpan.FromHours(6),
+        //        Size = 1 // Track cache size
+        //    };
+
+        //    var blockIds = _cache.GetOrCreate(key, entry =>
+        //    {
+        //        entry.SetOptions(options);
+        //        return new List<string>();
+        //    });
+
+        //    lock (blockIds) // Thread-safe addition
+        //    {
+        //        if (!blockIds.Contains(blockId))
+        //        {
+        //            blockIds.Add(blockId);
+        //            _cache.Set(key, blockIds, options);
+        //        }
+        //    }
+        //}
+
+        //private async Task<bool> AllChunksUploadedAsync(string userId, string fileName, int totalChunks)
+        //{
+        //    string key = $"{userId}_{fileName}";
+        //    if (!_cache.TryGetValue(key, out List<string> ids))
+        //    {
+        //        return false;
+        //    }
+
+        //    _logger.LogInformation("Upload progress for {FileName}: {Current}/{Total} chunks",
+        //        fileName, ids.Count, totalChunks);
+
+        //    return ids.Count >= totalChunks;
+        //}
+
+        //private async Task<List<string>> GetBlockIdsAsync(string userId, string fileName)
+        //{
+        //    string key = $"{userId}_{fileName}";
+        //    if (!_cache.TryGetValue(key, out List<string> ids))
+        //    {
+        //        return new List<string>();
+        //    }
+
+        //    return ids
+        //        .OrderBy(x => Convert.ToInt32(Encoding.UTF8.GetString(Convert.FromBase64String(x))))
+        //        .ToList();
+        //}
+
+        //private async Task<int> GetUploadedChunkCountAsync(string userId, string fileName)
+        //{
+        //    string key = $"{userId}_{fileName}";
+        //    return _cache.TryGetValue(key, out List<string> ids) ? ids.Count : 0;
+        //}
+
+
+        /////////////////////////////////////////////////////////////////////////////////////
         public async Task<ChunkStatusDto> CheckUploadedChunks(int userId, string fileName)
         {
             try

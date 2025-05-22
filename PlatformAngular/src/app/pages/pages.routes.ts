@@ -9,7 +9,8 @@ export default [
     { path: 'documentation', component: Documentation },
     { path: 'crud', component: Crud },
     { path: 'empty', component: Empty },
-    { path: 'teachers', component: TeachersComponent,canActivate:[AuthGuard] },
+    //{ path: 'teachers', component: TeachersComponent,canActivate:[AuthGuard] },
+    { path: 'teachers', component: TeachersComponent},
     {
         path: 'teachers/videos-and-tasks',
         loadChildren: () => import('./VideosAndTasks/VideosAndTasks.routes')

@@ -28,16 +28,16 @@ namespace Application.Teacher.Features.Teachers.Validators
             .Matches(@"^01[0-2,5]{1}[0-9]{8}$").WithMessage("{PropertyName} must be a valid phone number (e.g., +1234567890)")
             .Length(7, 15).WithMessage("{PropertyName} must be between 7 and 15 characters");
 
-            RuleFor(n => n.Teacher.Brief)
-                .NotEmpty();
+            //RuleFor(n => n.Teacher.Brief)
+            //    .NotEmpty();
 
-            RuleFor(n => n.Teacher.StudySubject)
-                .NotEmpty();
+            //RuleFor(n => n.Teacher.StudySubject)
+            //    .NotEmpty();
 
-            //we need to descus ages of Teacher in our app
-            RuleFor(n => n.Teacher.Age)
-             .NotEmpty().WithMessage("{PropertyName} is required")
-             .InclusiveBetween(22, 60).WithMessage("{PropertyName} must be between 22 and 60 years old");
+            ////we need to descus ages of Teacher in our app
+            //RuleFor(n => n.Teacher.Age)
+            // .NotEmpty().WithMessage("{PropertyName} is required")
+            // .InclusiveBetween(22, 60).WithMessage("{PropertyName} must be between 22 and 60 years old");
         }
     }
 }

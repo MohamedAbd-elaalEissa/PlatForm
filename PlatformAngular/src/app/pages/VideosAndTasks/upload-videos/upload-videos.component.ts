@@ -29,7 +29,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 export class UploadVideosComponent {
 
   selectedVideo: File | null = null;
-  chunkSize = 10 * 1024 * 1024 // 150 M
+  chunkSize = 5 * 1024 * 1024 // 150 M
   uploadProgress = 0;
   userId = 1;
   teacherId!: string
@@ -129,6 +129,7 @@ export class UploadVideosComponent {
             }
           },
           error: () => {
+            debugger
             this.confirmationService.confirm({
               header: 'خطأ',
               message: 'فشل رفع الفيديو. قم بالضغط علي زرار الرفع مره اخري.',

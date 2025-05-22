@@ -12,6 +12,8 @@ import { AppFloatingConfigurator } from '../../../layout/component/app.floatingc
 import { RegisterModel } from '../../models/models';
 import { AuthService } from '../../service/auth.service';
 import { CommonModule } from '@angular/common';
+import { ErrorResponse } from '../../models/ErrorResponse';
+import { ErrorHandlerService } from '../../service/error-handler.service';
 
 @Component({
   selector: 'app-signup',
@@ -34,10 +36,14 @@ import { CommonModule } from '@angular/common';
 })
 export class SignupComponent {
   userRoles: any;
-  email: string;
-  constructor(private messageService: MessageService, private authService: AuthService, private router: Router) {
-    this.email = this.authService.getUserEmail();
-    this.GetUserRoles(this.email);
+  errorMessage: any;
+  constructor(private messageService: MessageService, private authService: AuthService, private router: Router, private errorHandler: ErrorHandlerService) {
+    var token = localStorage.getItem('token');
+    if (token != null) {
+      debugger
+      var email = this.authService.getUserEmail();
+      this.GetUserRoles(email);
+    }
   }
   registerModel: RegisterModel = {
     userName: '',
@@ -93,36 +99,17 @@ export class SignupComponent {
           this.router.navigate(['/auth/login']);
         }, 1500);
       },
-      error: (err) => {
-        debugger;
-        
-        // Initialize an empty array to hold all error messages
-        let errorMessages: string[] = [];
-        
-        // Check if errors exist in the response
-        if (err.error && err.error.errors) {
-          // Get all error keys (like 'Register.Password')
-          const errorKeys = Object.keys(err.error.errors);
-          
-          // Loop through each error key and extract messages
-          errorKeys.forEach(key => {
-            // Get the array of messages for this key
-            const messages = err.error.errors[key];
-            
-            // Add each message to our array
-            messages.forEach((message: string) => {
-              errorMessages.push(message);
-            });
-          });
-        }
-        
-        // Join all messages with line breaks or display them separately
-        const errorMessage = errorMessages.join('\n') || 'An unknown error occurred';
-        
+      error: (error: ErrorResponse) => {
+        debugger
+        this.errorHandler.handleError(error).subscribe({
+          error: (err) => {
+            this.errorMessage = err.userMessage;
+          }
+        });
         this.messageService.add({
           severity: 'error',
           summary: 'Register',
-          detail: errorMessage,
+          detail: this.errorMessage,
         });
       }
     });

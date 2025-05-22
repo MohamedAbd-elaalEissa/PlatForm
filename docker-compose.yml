@@ -1,0 +1,115 @@
+version: "3.4"
+
+services:
+  presentation:
+    image: ${DOCKER_REGISTRY-}presentation
+    container_name: presentation
+    build:
+      context: .
+      dockerfile: Presentation/Dockerfile
+    depends_on:
+      - rabbitmq
+      - Identity
+      - sqlserver
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:80;https://+:443"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "1998"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+      ASPNETCORE_DATA_PROTECTION__KEYS__REPOSITORY_TYPE: "FileSystem"
+      ASPNETCORE_DATA_PROTECTION__KEYS__PATH: "/app/keys"
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      Identity__ApiGateway: "http://apigateway:5000"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=PlatForm;User Id=sa;Password=Zamalek123@#$;MultipleActiveResultSets=True;TrustServerCertificate=True;"
+    volumes:
+      - "./aspnetapp.pfx:/https/aspnetapp.pfx:ro"
+      - "./key/storage:/app/keys"
+    networks:
+      - app-network
+
+  Identity:
+    image: ${DOCKER_REGISTRY-}identity-api
+    container_name: Identity
+    build:
+      context: ../Identity
+      dockerfile: Dockerfile.identity
+    depends_on:
+     apigateway:
+      condition: service_started
+     sqlserver:
+      condition: service_healthy
+    ports:
+      - "44392:443"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:80;https://+:443"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "1998"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+      ConnectionStrings__IdentityConnection: "Server=sqlserver,1433;Database=IdentitySSO;User Id=sa;Password=Zamalek123@#$;MultipleActiveResultSets=True;TrustServerCertificate=True;"
+    volumes:
+      - "./aspnetapp.pfx:/https/aspnetapp.pfx:ro"
+    networks:
+      - app-network
+
+  apigateway:
+    image: ${DOCKER_REGISTRY-}apigateway
+    container_name: apigateway
+    build:
+      context: ../Identity
+      dockerfile: Dockerfile.ocelot
+    ports:
+      - "5000:80"
+      - "5001:443"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:80;https://+:443"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "1998"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+    volumes:
+      - "./aspnetapp.pfx:/https/aspnetapp.pfx:ro"
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: "rabbitmq:management"
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    networks:
+      - app-network
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Zamalek123@#$
+      - MSSQL_PID=Express
+      # Enable SQL Server Agent
+      - MSSQL_AGENT_ENABLED=true
+    ports:
+      - "1433:1433"
+    networks:
+      - app-network
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./sql_backups:/var/opt/mssql/backup
+    healthcheck:
+        test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Zamalek123@#$", "-Q", "IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'IdentitySSO') BEGIN CREATE DATABASE IdentitySSO; END; SELECT 1"]
+        interval: 10s
+        retries: 10
+        start_period: 10s
+        timeout: 3s
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  sqlserver_data:
+    driver: local

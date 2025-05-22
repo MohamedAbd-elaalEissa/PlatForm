@@ -44,6 +44,9 @@ export const tokenInterceptor: HttpInterceptorFn = (
       if (error instanceof HttpErrorResponse && error.status === 401) {
         console.log('Handling 401 error'); // Debug log
         debugger
+        if (authReq.url.includes('Login')) {
+          return throwError(() => error); 
+        }
         return handle401Error(authReq, next, auth, router);
       }
       return throwError(() => error);
