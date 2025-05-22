@@ -147,7 +147,7 @@ export class ChaptersComponent {
       return;
     }
 
-    this.chapters.createChapter(this.newChapter).subscribe(
+    this.chapters.createChapter({chapter:this.newChapter}).subscribe(
       () => {
         this.messageService.add({
           severity: 'success',
