@@ -5,7 +5,7 @@ namespace Application.Features.Students.Validators
 {
     public class CreateStudentValidators : AbstractValidator<CreateStudentCommand>
     {
-        public CreateStudentValidators() 
+        public CreateStudentValidators()
         {
 
             //{PropertyName} =>mean getthe name of the property u focus on 
@@ -29,17 +29,18 @@ namespace Application.Features.Students.Validators
             .Matches(@"^01[0-2,5]{1}[0-9]{8}$").WithMessage("{PropertyName} must be a valid phone number (e.g., +1234567890)")
             .Length(7, 15).WithMessage("{PropertyName} must be between 7 and 15 characters");
 
-            RuleFor(n => n.Student.Brief)
-                .NotEmpty();
+            //RuleFor(n => n.Student.Brief)
+            //    .NotEmpty();
 
-            RuleFor(n => n.Student.StudySubject)
-                .NotEmpty();
+            //RuleFor(n => n.Student.StudySubject)
+            //    .NotEmpty();
 
             //we need to descus ages of Teacher in our app
-            RuleFor(n => n.Student.Age)
-             .NotEmpty().WithMessage("{PropertyName} is required")
-             .InclusiveBetween(10, 25).WithMessage("{PropertyName} must be between 10 and 25 years old");
-        }    
+            //RuleFor(n => n.Student.Age)
+            //        .InclusiveBetween(10, 25)
+            //        .When(n => n.Student.Age != null)  // or n.Student.Age.HasValue if Age is nullable
+            //        .WithMessage("{PropertyName} must be between 10 and 25 years old");
+        }
 
     }
 }

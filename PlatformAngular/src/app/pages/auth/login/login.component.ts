@@ -11,6 +11,8 @@ import { LogInModel } from '../../models/models';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../service/auth.service';
 import { ToastModule } from 'primeng/toast';
+import { ErrorResponse } from '../../models/ErrorResponse';
+import { ErrorHandlerService } from '../../service/error-handler.service';
 @Component({
   selector: 'app-login',
   imports: [ToastModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
@@ -27,8 +29,9 @@ export class LoginComponent {
   email: string = '';
   password: string = '';
   checked: boolean = false;
+  errorMessage: any;
 
-  constructor(private messageService: MessageService, private authService: AuthService, private router: Router) { }
+  constructor(private messageService: MessageService, private authService: AuthService, private router: Router,private errorHandler: ErrorHandlerService) { }
 
   signIn() {
     debugger
@@ -65,12 +68,16 @@ export class LoginComponent {
           this.router.navigate(['/pages/teachers']);
         }, 1500);
       },
-      error: (err) => {
-        debugger
+       error: (error:ErrorResponse) => {
+         this.errorHandler.handleError(error).subscribe({
+            error: (err) => {
+              this.errorMessage = err.userMessage;
+            }
+          });
         this.messageService.add({
           severity: 'error',
           summary: 'Login',
-          detail: err.error.message,
+          detail: this.errorMessage,
         });
       }
     });

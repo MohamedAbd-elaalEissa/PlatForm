@@ -10,7 +10,7 @@ namespace Presentation.Controllers
     {
         [HttpPost]
         [Route("CreateStudent")]
-        public async Task<IActionResult> CreateStudent(CreateStudentCommand command)
+        public async Task<IActionResult> CreateStudent([FromBody] CreateStudentCommand command)
         {
             var res = await Mediator.Send(command);
             return Ok(res);

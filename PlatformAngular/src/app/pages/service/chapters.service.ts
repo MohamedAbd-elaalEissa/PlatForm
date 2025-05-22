@@ -25,9 +25,9 @@ export class ChaptersService {
     return this.http.post(this.apiUrl + "UpdateChapter", chapter);
   }
 
-  createChapter(Obj: ChapterModel): Observable<any> {
-    console.log("🚀 ~ ChaptersService ~ createChapter ~ createChapter:", Obj)
-    return this.http.post(this.apiUrl + "CreateChapter", Obj);
+  createChapter(payload: { chapter: ChapterModel }): Observable<any> {
+    console.log("🚀 ~ ChaptersService ~ createChapter ~ createChapter:", payload)
+    return this.http.post(this.apiUrl + "CreateChapter", payload);
   }
 
 

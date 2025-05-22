@@ -88,8 +88,10 @@ namespace Infrastructure.Repositories.RabbitMQ
         {
             var factory = new ConnectionFactory()
             {
-                HostName = "localhost",
-                Port = 5672
+                //HostName = "localhost",
+                //Port = 5672
+                Uri = new Uri("amqps://uhulsxor:8v1BskBvaS1_MOpp6K-qyTghk5PX5ibT@woodpecker.rmq.cloudamqp.com/uhulsxor"),
+
             };
 
             _connection = await factory.CreateConnectionAsync();

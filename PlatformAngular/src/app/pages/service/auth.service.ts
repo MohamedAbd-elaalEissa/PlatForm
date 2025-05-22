@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { LogInModel, RegisterModel } from '../models/models';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { ErrorResponse } from '../models/ErrorResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -14,11 +15,11 @@ export class AuthService {
   private accessTokenSubject = new BehaviorSubject<object | null>(null);
   private isRefreshing = false;
 
-  constructor(private http: HttpClient, private router: Router,private jwtHelper: JwtHelperService) { }
+  constructor(private http: HttpClient, private router: Router, private jwtHelper: JwtHelperService) { }
 
   Register(payload: { register: RegisterModel }): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, payload,
-      { responseType: 'text' } );
+      { responseType: 'text' });
   }
 
   signIn(payload: { Login: LogInModel }): Observable<any> {
@@ -29,7 +30,7 @@ export class AuthService {
         this.accessTokenSubject.next(tokens);
         this.getAccessToken();
       }),
-      catchError(err => throwError(() => err))
+      catchError(this.handleError)
     );
   }
 
@@ -79,17 +80,23 @@ export class AuthService {
   }
 
   getRefreshToken(): string | null {
-     
-    const tokenObj = JSON.parse(localStorage.getItem('token') || 'null');
-    return tokenObj.refreshToken;
-  }
+    const token = localStorage.getItem('token');
+    if (!token) return null;
 
+    try {
+      const tokenObj = JSON.parse(token);
+      return tokenObj?.refreshToken || null;
+    } catch (error) {
+      console.error('Invalid token format', error);
+      return null;
+    }
+  }
   getAccessTokenSubject(): BehaviorSubject<object | null> {
     return this.accessTokenSubject;
   }
 
-  GetUserRoles(email:string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/GetUserRoles?email=`+ email);
+  GetUserRoles(email: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/GetUserRoles?email=` + email);
   }
 
   getUserEmail(): string {
@@ -97,10 +104,31 @@ export class AuthService {
     const token = localStorage.getItem('token');
     if (token) {
       const tokenObj = JSON.parse(token);
-        const decodedToken = this.jwtHelper.decodeToken(tokenObj.token);
-        return decodedToken?.email;
+      const decodedToken = this.jwtHelper.decodeToken(tokenObj.token);
+      return decodedToken?.email;
     }
     return '';
-}
-  
+  }
+private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorResponse: ErrorResponse = {
+      type: 'UnknownError',
+      message: 'An unexpected error occurred',
+      status: error.status || 500,
+      errors: null,
+      timestamp: new Date().toISOString()
+    };
+
+    if (error.error && typeof error.error === 'object') {
+      errorResponse = {
+        type: error.error.type || 'UnknownError',
+        message: error.error.message || 'An error occurred',
+        status: error.error.statusCode || error.status,
+        errors: error.error.errors || null,
+        stackTrace: error.error.stackTrace || null,
+        timestamp: error.error.timestamp || new Date().toISOString()
+      };
+    }
+
+    return throwError(() => errorResponse);
+  }
 }

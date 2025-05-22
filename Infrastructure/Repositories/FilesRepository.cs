@@ -195,12 +195,12 @@ namespace Infrastructure.Repositories
             var query = _dbContext.Files.AsQueryable();
             query = query.Where(f => f.ChapterID == teacherFile.ChapterId);
 
-             if (!string.IsNullOrWhiteSpace(teacherFile.TaskName))
+            if (!string.IsNullOrWhiteSpace(teacherFile.TaskName))
             {
                 query = query.Where(f => f.TaskName.Contains(teacherFile.TaskName));
             }
 
-             if (teacherFile.IsBook.HasValue)
+            if (teacherFile.IsBook.HasValue)
             {
                 query = query.Where(f => f.IsBook == teacherFile.IsBook.Value);
             }
@@ -321,7 +321,7 @@ namespace Infrastructure.Repositories
                             UserID = chunkDto.UserId,
                             VideoName = finalFileName,
                             TeacherID = chunkDto.TeacherId,
-                            ChapterID= chunkDto.ChapterId
+                            ChapterID = chunkDto.ChapterId
                         };
                         _dbContext.Videos.Add(newFile);
 
@@ -444,7 +444,7 @@ namespace Infrastructure.Repositories
         {
             var query = _dbContext.FileAnswers
                                 .Include(f => f.Files)
-                                    //.ThenInclude(f => f.AcademicLevel)
+                                //.ThenInclude(f => f.AcademicLevel)
                                 //.Include(f => f.Student) 
                                 .Where(f => f.Files.TeacherID == StudentAnswerFile.TeacherId
                                          && f.Files.FilesID == StudentAnswerFile.FilesId)
