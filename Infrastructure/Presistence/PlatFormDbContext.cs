@@ -40,6 +40,7 @@ namespace Infrastructure.Presistence
         public DbSet<AcademicLevels> AcademicLevels { get; set; }
         public DbSet<FileAnswers> FileAnswers { get; set; }
         public DbSet<OfflineMessage> OfflineMessage { get; set; }
+        public DbSet<Chapters> Chapters { get; set; }
 
     }
 }

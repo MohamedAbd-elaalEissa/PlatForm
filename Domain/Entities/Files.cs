@@ -12,8 +12,9 @@ namespace Domain.Entities
         public string TaskName { get; set; }
         public bool IsAnswer { get; set; }
         public int TeacherID { get; set; }
+        public bool IsBook { get; set; } 
+        public int? ChapterID { get; set; }
         public Teachers Teacher { get; set; }
-        public int AcademicLevelID { get; set; }
-        public AcademicLevels AcademicLevel { get; set; }
+        public Chapters Chapter { get; set; }
     }
 }

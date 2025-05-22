@@ -24,6 +24,7 @@ namespace Domain.Entities
         //public int StudentID { get; set; }
         public ICollection<Students> Student { get; set; }
         public ICollection<Files> Files { get; set; }
+        public ICollection<Chapters> Chapters { get; set; }
 
     }
 }

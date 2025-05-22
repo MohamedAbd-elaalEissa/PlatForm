@@ -23,9 +23,9 @@ import { Router } from '@angular/router';
         FormsModule,
         FloatLabelModule,
         InputIconModule,
-        DropdownModule, 
+        DropdownModule,
         InputTextModule
-        
+
     ],
     providers: [ProductService],
 })
@@ -37,11 +37,17 @@ export class VideosComponent {
     teacherId!: string
     academicLevelId: number = 4
     videosData: any[] = [];
+    chapterId!: number
 
-    constructor(private tasksAndVideos: TasksAndVideosService, private productService: ProductService ,private router: Router) {
+
+    constructor(private tasksAndVideos: TasksAndVideosService, private productService: ProductService, private router: Router) {
         const teacherId = sessionStorage.getItem('teacherId');
         if (teacherId) {
             this.teacherId = teacherId
+        }
+        const chapterId = sessionStorage.getItem('chapterId');
+        if (chapterId) {
+            this.chapterId = +chapterId
         }
     }
 
@@ -50,6 +56,7 @@ export class VideosComponent {
         this.Filter =
         {
             teacherId: this.teacherId,
+            chapterId: this.chapterId,
             academicLevelId: this.academicLevelId,
             pageNumber: 1,
             pageSize: 25
@@ -83,10 +90,9 @@ export class VideosComponent {
     }
 
 
-    viewVideo(videoName :string)
-    {
-    sessionStorage.setItem("videoName",videoName)
-    this.router.navigate(["/pages/teachers/videos-and-tasks/VideoPlayer"]);
+    viewVideo(videoName: string) {
+        sessionStorage.setItem("videoName", videoName)
+        this.router.navigate(["/pages/teachers/videos-and-tasks/VideoPlayer"]);
     }
 
 }

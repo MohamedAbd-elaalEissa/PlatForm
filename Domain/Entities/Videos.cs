@@ -15,8 +15,8 @@ namespace Domain.Entities
         public int? UserID { get; set; }
         public string VideoName { get; set; }
         public int TeacherID { get; set; }
+        public int? ChapterID { get; set; }
         public Teachers Teacher { get; set; }
-        public int AcademicLevelID { get; set; }
-        public AcademicLevels AcademicLevel { get; set; }
+        public Chapters Chapter { get; set; }
     }
 }

@@ -1,0 +1,124 @@
+<p-toast />
+<p-confirmDialog></p-confirmDialog>
+<div class="card">
+
+    <p-button (click)="showDialog()" label="إضافة فصل" icon="pi pi-plus" class="add-chapter-btn" />
+
+
+    <div class="filters-container">
+        <p-floatlabel variant="on" class="filter-item">
+            <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.chapterName"
+                (ngModelChange)="onFilterChange()" autocomplete="off" />
+            <label for="taskName" style="font-size: large;">
+                <p-inputicon class="pi pi-search" /> اسم الفصل
+            </label>
+        </p-floatlabel>
+
+        <p-floatlabel class="w-full md:w-56 filter-item" variant="on">
+            <p-dropdown [(ngModel)]="Filter.academicLevelId" inputId="academicLevel" [options]="academicLevelData"
+                optionLabel="academicLevelName" optionValue="academicLevelID" styleClass="w-full"
+                (ngModelChange)="onFilterChange()">
+            </p-dropdown>
+            <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
+        </p-floatlabel>
+    </div>
+
+
+
+    <p-table [value]="Chapters" dataKey="chaptersID" editMode="row" [tableStyle]="{'min-width': '50rem'}">
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width:33%">اسم الفصل</th>
+                <th style="width:33%">المرحلة الدراسية</th>
+                <th style="width:17%"></th>
+                <th style="width:17%"></th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-Chapter let-editing="editing" let-ri="rowIndex">
+            <tr [pEditableRow]="Chapter">
+                <!-- اسم الفصل -->
+                <td>
+                    <p-cellEditor>
+                        <ng-template pTemplate="input">
+                            <input pInputText type="text" [(ngModel)]="Chapter.chapterName" />
+                        </ng-template>
+                        <ng-template pTemplate="output">
+                            {{Chapter.chapterName}}
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+
+                <!-- المرحلة الدراسية -->
+                <td>
+                    <p-cellEditor>
+                        <ng-template pTemplate="input">
+                            <p-dropdown [(ngModel)]="Chapter.academicLevelId" [options]="academicLevelData"
+                                optionLabel="academicLevelName" optionValue="academicLevelID" inputId="academicLevel"
+                                appendTo="body" [style]="{ 'width': '100%' }">
+                            </p-dropdown>
+                        </ng-template>
+                        <ng-template pTemplate="output">
+                            <p-tag [value]="getAcademicLevelName(Chapter.academicLevelId)"></p-tag>
+                        </ng-template>
+                    </p-cellEditor>
+                </td>
+
+                <td>
+                    <div class="flex items-center justify-center gap-2">
+                        <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
+                            (click)="onRowEditInit(Chapter)" text rounded severity="secondary"></button>
+
+                        <button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                            (click)="onRowEditSave(Chapter)" text rounded severity="success"></button>
+
+                        <button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                            (click)="onRowEditCancel(Chapter, ri)" text rounded severity="danger"></button>
+                    </div>
+                </td>
+
+                <!-- حذف -->
+                <td>
+                    <div class="flex items-center justify-center gap-2">
+                        <button pButton pRipple type="button" icon="pi pi-trash" (click)="confirmDelete(Chapter)" text
+                            rounded severity="danger">
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<div *ngIf="visible">
+    <p-dialog header="اضافه فصل" [modal]="true" [(visible)]="visible" [style]="{width: '600px', height: '400px'}">
+
+      <ng-template pTemplate="header">
+        <div class="custom-header">اضافه فصل</div>
+    </ng-template>
+
+        <div class="flex items-center gap-4 mb-4 mt-4" >
+
+            <p-floatlabel class="w-full md:w-56 filter-item" variant="on" style="margin-top: 10px;">
+                <p-dropdown [(ngModel)]="newChapter.academicLevelId" inputId="academicLevel" [options]="academicLevelData"
+                    optionLabel="academicLevelName" optionValue="academicLevelID" styleClass="w-full">
+                </p-dropdown>
+                <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="on" class="filter-item" style="margin-top: 10px;">
+                <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="newChapter.chapterName"
+                     autocomplete="off" />
+                <label for="taskName" style="font-size: large;">
+                     اسم الفصل
+                </label>
+            </p-floatlabel>
+        </div>
+
+        <div class="flex justify-end gap-2" style="margin-top: 200px;">
+            <p-button label="Cancel" severity="secondary" (click)="visible = false" />
+            <p-button label="Save" (click)="createChapter()" severity="success" />
+        </div>
+    </p-dialog> 
+</div>
+

@@ -9,6 +9,25 @@ namespace Presentation.Controllers
     
     public class FileController : GeneralController
     {
+
+        [HttpPost]
+        [Route("GetTeachersFiles")]
+        public async Task<IActionResult> GetTeachersFiles(TeacherFileDTO teacherFile)
+        {
+            GetTeachersFilesQuery query = new GetTeachersFilesQuery(teacherFile);
+            var res = await Mediator.Send(query);
+            return Ok(res);
+        }
+
+        [HttpPost]
+        [Route("GetTeachersVideos")]
+        public async Task<IActionResult> GetTeachersVideos(TeacherVideoDTO teacherVideo)
+        {
+            GetTeachersVideoQuery query = new GetTeachersVideoQuery(teacherVideo);
+            var res = await Mediator.Send(query);
+            return Ok(res);
+        }
+
         [HttpPost]
         [Route("UploadFilePDF")]
         public async Task<IActionResult> UploadFilePDF([FromForm] FilePdfDTO file)
@@ -26,15 +45,6 @@ namespace Presentation.Controllers
         {
             UploadFilesChunkCommand command = new UploadFilesChunkCommand(chunkDto);
             var res = await Mediator.Send(command);
-            return Ok(res);
-        }
-
-        [HttpPost]
-        [Route("GetTeachersFiles")]
-        public async Task<IActionResult> GetTeachersFiles(TeacherFileDTO teacherFile)
-        {
-            GetTeachersFilesQuery query = new GetTeachersFilesQuery(teacherFile);
-            var res = await Mediator.Send(query);
             return Ok(res);
         }
 
@@ -56,14 +66,7 @@ namespace Presentation.Controllers
             return File(fileDto.Content, fileDto.ContentType, fileDto.FileName);
         }
 
-        [HttpPost]
-        [Route("GetTeachersVideos")]
-        public async Task<IActionResult> GetTeachersVideos(TeacherVideoDTO teacherVideo)
-        {
-            GetTeachersVideoQuery query = new GetTeachersVideoQuery(teacherVideo);
-            var res = await Mediator.Send(query);
-            return Ok(res);
-        }
+        
 
         [HttpGet]
         [Route("GetAllAcademicLevels")]

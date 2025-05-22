@@ -13,6 +13,8 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputIconModule } from 'primeng/inputicon';
 import { DropdownModule } from 'primeng/dropdown';
+import { CheckboxModule } from 'primeng/checkbox';
+
 
 @Component({
   selector: 'app-tasks',
@@ -24,7 +26,7 @@ import { DropdownModule } from 'primeng/dropdown';
     ToastModule, RouterModule,
     InputIconModule,
     FloatLabelModule, InputTextModule,
-    DropdownModule
+    DropdownModule,CheckboxModule
   ],
   standalone: true,
   templateUrl: './tasks.component.html',
@@ -36,6 +38,7 @@ export class TasksComponent {
   //شوف هتستخدم ال user id ولا الstudent id and academicLevelId
 
   teacherId!: number
+  chapterId!: number
   tasksFiles: any[] = [];
   studentId: number = 3
   academicLevelId: number = 4
@@ -53,6 +56,10 @@ export class TasksComponent {
     if (teacherId) {
       this.teacherId = +teacherId
     }
+    const chapterId = sessionStorage.getItem('chapterId');
+    if (chapterId) {
+      this.chapterId = +chapterId
+    }
   }
 
 
@@ -60,6 +67,7 @@ export class TasksComponent {
     this.Filter =
     {
       teacherId: this.teacherId,
+      chapterId : this.chapterId ,
       academicLevelId: this.academicLevelId,
       pageNumber: 1,
       pageSize: 25
@@ -71,7 +79,6 @@ export class TasksComponent {
   }
 
   getPDFiles() {
-
     this.tasksAndVideos.getTeachersFiles(this.Filter).subscribe({
       next: (data) => {
         this.tasksFiles = data.items;

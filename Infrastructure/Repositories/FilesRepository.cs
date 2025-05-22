@@ -107,9 +107,9 @@ namespace Infrastructure.Repositories
                             UserID = filePDF.userId,
                             FileName = fullFileName,
                             TeacherID = (int)filePDF.teacherId,
-                            AcademicLevelID = (int)filePDF.academicLevelID,
-                            TaskName = filePDF.taskName
-
+                            TaskName = filePDF.taskName,
+                            IsBook = filePDF.isBook,
+                            ChapterID = filePDF.ChapterId
                         };
                         _dbContext.Files.Add(files);
                     }
@@ -213,21 +213,16 @@ namespace Infrastructure.Repositories
         public async Task<PaginatedResult<Files>> GetTeachersFilesAsync(TeacherFileDTO teacherFile)
         {
             var query = _dbContext.Files.AsQueryable();
-            query = query.Where(f => f.TeacherID == teacherFile.TeacherId);
+            query = query.Where(f => f.ChapterID == teacherFile.ChapterId);
 
-            if (!string.IsNullOrWhiteSpace(teacherFile.TaskName) && teacherFile.AcademicLevelId.HasValue)
-            {
-                query = query.Where(f => f.TaskName.Contains(teacherFile.TaskName) && f.AcademicLevelID == teacherFile.AcademicLevelId.Value);
-            }
-
-            else if (!string.IsNullOrWhiteSpace(teacherFile.TaskName))
+             if (!string.IsNullOrWhiteSpace(teacherFile.TaskName))
             {
                 query = query.Where(f => f.TaskName.Contains(teacherFile.TaskName));
             }
 
-            else if (teacherFile.AcademicLevelId.HasValue)
+             if (teacherFile.IsBook.HasValue)
             {
-                query = query.Where(f => f.AcademicLevelID == teacherFile.AcademicLevelId.Value);
+                query = query.Where(f => f.IsBook == teacherFile.IsBook.Value);
             }
 
             var totalCount = await query.CountAsync();
@@ -290,63 +285,38 @@ namespace Infrastructure.Repositories
                 // Store uploaded blockId to track
                 await StoreUploadedBlockIdAsync(chunkDto.UserId.ToString(), chunkDto.FileName, blockId);
 
-                if (await AllChunksUploadedAsync(chunkDto.UserId.ToString(), chunkDto.FileName, chunkDto.TotalChunks))
-                {
-                    var blockIds = await GetBlockIdsAsync(chunkDto.UserId.ToString(), chunkDto.FileName);
-
-                    // Commit with cancellation token
-                    await blockBlobClient.CommitBlockListAsync(blockIds, cancellationToken: cts.Token);
-
-                    // Save metadata to DB
-                    _dbContext.Videos.Add(new Videos
+                    if (uploadedChunks == chunkDto.TotalChunks)
                     {
-                        UserID = chunkDto.UserId,
-                        VideoName = chunkDto.FileName,
-                        TeacherID = chunkDto.TeacherId,
-                        AcademicLevelID = chunkDto.AcademicLevelID
-                    });
-                    await _dbContext.SaveChangesAsync();
-
-                    // Clear cached blocks after successful commit
-                    _cache.Remove($"{chunkDto.UserId}_{chunkDto.FileName}");
-
-                    return Success("File uploaded and committed successfully");
-                }
-
-                return Success($"Chunk {chunkDto.ChunkNumber} uploaded successfully");
-            }
-            catch (TaskCanceledException ex)
-            {
-                _logger.LogError(ex, "Upload operation timed out for chunk {ChunkNumber} of file {FileName}",
-                    chunkDto.ChunkNumber, chunkDto.FileName);
-                return Error($"Upload operation timed out: {ex.Message}");
-            }
-            catch (RequestFailedException ex)
-            {
-                _logger.LogError(ex, "Azure storage error for chunk {ChunkNumber} of file {FileName}: {ErrorCode}",
-                    chunkDto.ChunkNumber, chunkDto.FileName, ex.ErrorCode);
-                return Error($"Azure storage error: {ex.ErrorCode} - {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error uploading chunk {ChunkNumber} for file {FileName}",
-                    chunkDto.ChunkNumber, chunkDto.FileName);
-                return Error($"An error occurred while uploading the chunk: {ex.Message}");
-            }
-
-            // Helper methods
-            CommonResult Success(string msg) => new() { IsValidTransaction = true, TransactionDetails = msg };
-            CommonResult Error(string msg) => new() { IsValidTransaction = false, TransactionDetails = msg };
-        }
-        private Task StoreUploadedBlockIdAsync(string userId, string fileName, string blockId)
-        {
-            string key = $"{userId}_{fileName}";
-            var blockIds = _cache.GetOrCreate(key, entry =>
-            {
-                // Increase expiration time for large uploads
-                entry.SlidingExpiration = TimeSpan.FromHours(2);
-                return new List<string>();
-            });
+                        Console.WriteLine("All chunks received, combining file...");
+                        // Combine all chunks into the final file
+                        using (var finalStream = new FileStream(finalFilePath, FileMode.Create))
+                        {
+                            for (int i = 1; i <= chunkDto.TotalChunks; i++)
+                            {
+                                string chunkPath = Path.Combine(tempDir, $"chunk_{i}");
+                                if (!File.Exists(chunkPath))
+                                {
+                                    return new CommonResult
+                                    {
+                                        IsValidTransaction = false,
+                                        TransactionDetails = $"Missing chunk {i}",
+                                        TransactionHeaderMessage = "Upload failed"
+                                    };
+                                }
+                                byte[] chunkBytes = await File.ReadAllBytesAsync(chunkPath);
+                                await finalStream.WriteAsync(chunkBytes, 0, chunkBytes.Length);
+                            }
+                        }
+                        // Clean up temp directory
+                        Directory.Delete(tempDir, true);
+                        var newFile = new Videos
+                        {
+                            UserID = chunkDto.UserId,
+                            VideoName = finalFileName,
+                            TeacherID = chunkDto.TeacherId,
+                            ChapterID= chunkDto.ChapterId
+                        };
+                        _dbContext.Videos.Add(newFile);
 
             if (!blockIds.Contains(blockId)) // Avoid duplicates if retry happens
             {
@@ -676,19 +646,9 @@ namespace Infrastructure.Repositories
             var query = _dbContext.Videos.AsQueryable();
             query = query.Where(f => f.TeacherID == teacherVideo.TeacherId);
 
-            if (!string.IsNullOrWhiteSpace(teacherVideo.VideoName) && teacherVideo.AcademicLevelId.HasValue)
-            {
-                query = query.Where(f => f.VideoName.Contains(teacherVideo.VideoName) && f.AcademicLevelID == teacherVideo.AcademicLevelId.Value);
-
-            }
-            else if (!string.IsNullOrWhiteSpace(teacherVideo.VideoName))
+            if (!string.IsNullOrWhiteSpace(teacherVideo.VideoName))
             {
                 query = query.Where(f => f.VideoName.Contains(teacherVideo.VideoName));
-            }
-
-            else if (teacherVideo.AcademicLevelId.HasValue)
-            {
-                query = query.Where(f => f.AcademicLevelID == teacherVideo.AcademicLevelId.Value);
             }
 
             var totalCount = await query.CountAsync();
@@ -710,7 +670,7 @@ namespace Infrastructure.Repositories
         {
             var query = _dbContext.FileAnswers
                                 .Include(f => f.Files)
-                                    .ThenInclude(f => f.AcademicLevel)
+                                    //.ThenInclude(f => f.AcademicLevel)
                                 //.Include(f => f.Student) 
                                 .Where(f => f.Files.TeacherID == StudentAnswerFile.TeacherId
                                          && f.Files.FilesID == StudentAnswerFile.FilesId)
@@ -726,10 +686,6 @@ namespace Infrastructure.Repositories
                 query = query.Where(f => f.AnswerName.Contains(StudentAnswerFile.AnswerName));
             }
 
-            if (!string.IsNullOrWhiteSpace(StudentAnswerFile.AcademicLevelName))
-            {
-                query = query.Where(f => f.Files.AcademicLevel.AcademicLevelName.Contains(StudentAnswerFile.AcademicLevelName));
-            }
 
             //if (!string.IsNullOrWhiteSpace(StudentAnswerFile.StudentName))
             //{
@@ -751,8 +707,8 @@ namespace Infrastructure.Repositories
                     f.Files.FilesID,
                     f.Files.TeacherID,
                     f.Files.TaskName,
-                    f.Files.AcademicLevel.AcademicLevelName,
-                    f.Files.AcademicLevel.AcademicLevelID
+                    //f.Files.AcademicLevel.AcademicLevelName,
+                    //f.Files.AcademicLevel.AcademicLevelID
                 })
                 .ToListAsync();
 
@@ -766,8 +722,8 @@ namespace Infrastructure.Repositories
                     //StudentName = x.StudentName, 
                     FileName = x.FileName,
                     TaskName = x.TaskName,
-                    AcademicLevelId = x.AcademicLevelID,
-                    AcademicLevelName = x.AcademicLevelName,
+                    //AcademicLevelId = x.AcademicLevelID,
+                    //AcademicLevelName = x.AcademicLevelName,
                     FilesId = x.FilesID,
                     TeacherId = x.TeacherID
                 }).ToList(),

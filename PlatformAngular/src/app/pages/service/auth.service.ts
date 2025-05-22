@@ -25,8 +25,7 @@ export class AuthService {
   signIn(payload: { Login: LogInModel }): Observable<any> {
     return this.http.post(`${this.apiUrl}/Login`, payload).pipe(
       tap(tokens => {
-        debugger
-        console.log('tokens',tokens)
+        
         this.setTokens(tokens);
         this.accessTokenSubject.next(tokens);
         this.getAccessToken();
@@ -36,7 +35,7 @@ export class AuthService {
   }
 
   refreshToken(): Observable<any> {
-    debugger
+    
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
       this.logout();
@@ -44,12 +43,12 @@ export class AuthService {
     }
     return this.http.post<any>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
       tap(tokens => {
-        debugger
+         
         this.setTokens(tokens);
         this.accessTokenSubject.next(tokens);
       }),
       catchError(err => {
-        debugger
+         
         console.error('Refresh token API error:', err); // Debug log
         this.logout();
         this.router.navigate(['/auth/login']);
@@ -67,7 +66,7 @@ export class AuthService {
   }
 
   getAccessToken(): string | null {
-    debugger
+     
     try {
       const tokenItem = localStorage.getItem('token');
       if (!tokenItem) return null;
@@ -101,7 +100,7 @@ export class AuthService {
   }
 
   getUserEmail(): string {
-    debugger
+     
     const token = localStorage.getItem('token');
     if (token) {
       const tokenObj = JSON.parse(token);

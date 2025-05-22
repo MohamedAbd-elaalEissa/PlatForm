@@ -10,6 +10,7 @@ namespace ApplicationContract.Models.File
     public class FilePdfDTO
     {
         public int? fileID { get; set; }
+        public int ChapterId { get; set; }
         public IFormFile file { get; set; } // The chunk data
         public int userId { get; set; }
         public int? studentId { get; set; }
@@ -18,6 +19,6 @@ namespace ApplicationContract.Models.File
         public int? academicLevelID { get; set; }
         public string? taskName { get; set; }
         public string? answerName { get; set; }
-
+        public bool isBook { get; set; } = false;
     }
 }

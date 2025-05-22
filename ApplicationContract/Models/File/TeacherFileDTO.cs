@@ -11,6 +11,8 @@ namespace ApplicationContract.Models.File
         public int TeacherId { get; set; }
         public string TaskName { get; set; }
         public int? AcademicLevelId { get; set; }
+        public bool? IsBook { get; set; }
+        public int ChapterId { get; set; }
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 25;
     }

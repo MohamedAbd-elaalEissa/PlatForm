@@ -14,8 +14,8 @@ namespace ApplicationContract.Models.File
         public string FileName { get; set; } // Original file name
         public IFormFile Chunk { get; set; } // The chunk data
         public int UserId { get; set; }
+        public int ChapterId { get; set; }
         public int TeacherId { get; set; }
-        public int AcademicLevelID { get; set; }
 
     }
 }
