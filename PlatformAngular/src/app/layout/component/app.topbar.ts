@@ -1,6 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
@@ -61,7 +61,7 @@ import { MatBadgeModule } from '@angular/material/badge';
                         <i class="pi pi-bell"></i>
                     </button>
                     <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-user"></i>
+                        <i class="pi pi-user" (click)="goToProfile()"></i>
                         <span>Profile</span>
                     </button>
                 </div>
@@ -131,14 +131,15 @@ export class AppTopbar {
     constructor(
         public layoutService: LayoutService,
         private signalRService: SignalrService,
-        private toastService: MessageService
-    ) {}
+        private toastService: MessageService,
+        private router: Router
+    ) { }
 
     ngOnInit(): void {
         this.signalRService.message$.subscribe((message) => {
             this.latestMessage = message;
-            if(this.latestMessage)
-            this.notificationCount++;
+            if (this.latestMessage)
+                this.notificationCount++;
             this.messages.push(message);
             if (this.latestMessage) {
                 this.toastService.add({
@@ -154,9 +155,9 @@ export class AppTopbar {
     onClick(event: MouseEvent) {
         const messagesModal = document.querySelector('.messages-modal');
         const notificationsButton = document.querySelector('[matbadge]');
-        
-        if (this.showMessages && 
-            !notificationsButton?.contains(event.target as Node) && 
+
+        if (this.showMessages &&
+            !notificationsButton?.contains(event.target as Node) &&
             !messagesModal?.contains(event.target as Node)) {
             this.showMessages = false;
         }
@@ -172,5 +173,9 @@ export class AppTopbar {
         if (this.showMessages) {
             this.notificationCount = 0; // Reset the count when viewing notifications
         }
+    }
+
+    goToProfile() {
+        this.router.navigate(['/profile']);
     }
 }
