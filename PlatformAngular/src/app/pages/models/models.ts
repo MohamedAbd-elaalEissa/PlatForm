@@ -30,7 +30,7 @@ export interface ChapterModel {
 }
 
 export interface ChapterUpdateModel {
-    chaptersID: string,
+    ChapterID: string,
     teacherId: string,
     academicLevelId: number,
     chapterName: string,

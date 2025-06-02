@@ -11,11 +11,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputIconModule } from 'primeng/inputicon';
-import { TasksAndVideosService } from '../../service/tasks-and-videos.service';
-import { academicLevelDataModel, ChapterModel, ChapterUpdateModel } from '../../models/models';
+import { TasksAndVideosService } from '../service/tasks-and-videos.service';
+import { academicLevelDataModel, ChapterModel, ChapterUpdateModel } from '../models/models';
 import { DropdownModule } from 'primeng/dropdown';
-import { ChaptersService } from '../../service/chapters.service';
+import { ChaptersService } from '../service/chapters.service';
 import { DialogModule } from 'primeng/dialog';
+
 
 @Component({
   selector: 'app-chapters',
@@ -87,16 +88,19 @@ export class ChaptersComponent {
   }
 
   onRowEditSave(chapter: ChapterModel) {
+    console.log("🚀 ~ ChaptersComponent ~ onRowEditSave ~ chapter:", chapter)
+    
     if (chapter.chapterName && chapter.chapterID && chapter.academicLevelId) {
       let obj: ChapterUpdateModel = {
-        chaptersID: chapter.chapterID,
+        ChapterID: chapter.chapterID,
         teacherId: chapter.teacherId,
         academicLevelId: chapter.academicLevelId,
         chapterName: chapter.chapterName
       };
 
-      this.chapters.updateChapter(obj).subscribe({
+      this.chapters.updateChapter({chapter:obj}).subscribe({
         next: () => {
+
           this.messageService.add({ severity: 'success', summary: 'تم التحديث', detail: 'تم تعديل الفصل بنجاح' });
           delete this.clonedChapter[chapter.chapterID as string];
         },
