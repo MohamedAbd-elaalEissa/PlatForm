@@ -35,8 +35,9 @@ export class VideoPlayerComponent {
 
   getVideoFile() {
     this.tasksAndVideosService.getVideoFile(this.videoName).subscribe({
-      next: (data) => {
-        this.videoUrl = URL.createObjectURL(data);
+      next: (response) => {
+        debugger
+        this.videoUrl = response.url;
         console.log("🚀 ~ VideoPlayerComponent ~ this.tasksAndVideosService.getVideoById ~ this.videoUrl:", this.videoUrl)
       }
     });

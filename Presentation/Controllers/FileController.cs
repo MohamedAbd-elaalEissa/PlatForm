@@ -2,11 +2,12 @@
 using Application.Features.Files.Queries;
 using ApplicationContract.Models.File;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
-    
+
     public class FileController : GeneralController
     {
 
@@ -38,6 +39,7 @@ namespace Presentation.Controllers
         }
 
         [DisableRequestSizeLimit]
+        [RequestTimeout(1800000000)]
         [RequestFormLimits(MultipartBodyLengthLimit = 3221225472)]
         [HttpPost]
         [Route("UploadFileChunk")]
@@ -66,7 +68,7 @@ namespace Presentation.Controllers
             return File(fileDto.Content, fileDto.ContentType, fileDto.FileName);
         }
 
-        
+
 
         [HttpGet]
         [Route("GetAllAcademicLevels")]
@@ -79,7 +81,7 @@ namespace Presentation.Controllers
 
         [HttpPost]
         [Route("GetStudentAnswer")]
-        public async Task<IActionResult>GetStudentAnswer(StudentAnswerFilesDTO studentAnswerFiles)
+        public async Task<IActionResult> GetStudentAnswer(StudentAnswerFilesDTO studentAnswerFiles)
         {
             StudentAnswerFilesQuery query = new StudentAnswerFilesQuery(studentAnswerFiles);
             var res = await Mediator.Send(query);
@@ -90,8 +92,22 @@ namespace Presentation.Controllers
         [Route("GetVideoFile")]
         public async Task<IActionResult> GetVideoFile(string fileName)
         {
-            var fileStreamResult = await Mediator.Send(new GetVideoFileQuery(fileName));
-            return fileStreamResult;
+            try
+            {
+                var fileStreamResult = await Mediator.Send(new GetVideoFileQuery(fileName));
+                return Ok(new { url = fileStreamResult });
+            }
+            catch (FileNotFoundException)
+            {
+                return NotFound("الفيديو غير موجود");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
+
+
     }
 }

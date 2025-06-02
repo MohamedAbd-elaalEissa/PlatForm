@@ -130,7 +130,7 @@ export class UploadVideosComponent {
             currentChunk++;
             this.uploadProgress = Math.round((currentChunk / totalChunks) * 100);
 
-            if (data.isValidTransaction) {
+            if (data?.isValidTransaction) {
               uploadChunk();
             } else {
               this.messageService.add({

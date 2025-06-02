@@ -45,8 +45,6 @@ namespace Presentation.Shared
             });
 
             services.AddSignalR();
-            services.AddSingleton<B2Uploader>();
-            services.AddHttpClient("B2Client").ConfigureHttpClient(c => c.Timeout = TimeSpan.FromMinutes(5));
             return services;
         }
     }

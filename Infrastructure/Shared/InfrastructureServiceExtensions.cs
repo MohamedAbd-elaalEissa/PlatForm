@@ -19,6 +19,12 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Http.Timeouts;
+using Amazon.S3;
+using Amazon;
+using Amazon.Runtime;
 
 namespace Infrastructure.Shared
 {
@@ -70,38 +76,51 @@ namespace Infrastructure.Shared
             //{
             //    client.Timeout = TimeSpan.FromMinutes(30); // Set a longer timeout for large file uploads
             //});
-            services.AddMemoryCache();
-            services.AddSingleton(x =>
+            services.Configure<FormOptions>(options =>
             {
-                var config = x.GetRequiredService<IConfiguration>();
-                return new BlobServiceClient(config["AzureStorage:ConnectionString"]);
+                options.ValueLengthLimit = int.MaxValue;
+                options.MultipartBodyLengthLimit = 5L * 1024L * 1024L * 1024L; // 5 GB
+                options.MultipartHeadersLengthLimit = int.MaxValue;
+                options.BufferBody = false; // Don't buffer the entire body in memory
+                options.BufferBodyLengthLimit = 1024 * 1024; // 1MB buffer
             });
-
-            services.Configure<AzureStorageSettings>(confegeration.GetSection("AzureStorage"));
-            services.AddSingleton(x =>
-            {
-                var blobClientOptions = new BlobClientOptions
+            services.AddResponseCompression();
+            services.AddHttpClient<IS3Service, S3Service>()
+                .ConfigureHttpClient(client =>
                 {
-                    Retry =
-                    {
-                        MaxRetries = 5,
-                        Delay = TimeSpan.FromSeconds(3),
-                        MaxDelay = TimeSpan.FromMinutes(5), // Increased max delay
-                        NetworkTimeout = TimeSpan.FromMinutes(30), // Increased to 30 minutes
-                        Mode = RetryMode.Exponential
-                    },
-                    Transport = new HttpClientTransport(new HttpClient(new HttpClientHandler
-                    {
-                        UseProxy = false,
-                        MaxConnectionsPerServer = 50 // Increase connection pool for parallel uploads
-                    })
-                    {
-                        Timeout = TimeSpan.FromMinutes(60) // Increased to 60 minutes
-                    })
+                    client.Timeout = TimeSpan.FromMinutes(60); // 60 minutes timeout
+                });
+            services.AddSingleton<IAmazonS3>(provider =>
+            {
+                var config = provider.GetRequiredService<IConfiguration>();
+                var clientConfig = new AmazonS3Config
+                {
+                    RegionEndpoint = RegionEndpoint.GetBySystemName(config["AWS:Region"]),
+                    Timeout = TimeSpan.FromMinutes(60), // 60 minutes timeout  
+                    MaxErrorRetry = 3,
+                    RetryMode = RequestRetryMode.Adaptive
                 };
 
-                return new BlobServiceClient(confegeration["AzureStorage:ConnectionString"], blobClientOptions);
+                return new AmazonS3Client(
+                    config["AWS:AccessKey"],
+                    config["AWS:SecretKey"],
+                    clientConfig
+                );
             });
+            services.AddScoped<IS3Service, S3Service>();
+            //services.AddDefaultAWSOptions(confegeration.GetAWSOptions());
+            //services.AddAWSService<IAmazonS3>();
+
+            services.AddRequestTimeouts(configure =>
+            {
+                configure.DefaultPolicy = new RequestTimeoutPolicy
+                {
+                    Timeout = TimeSpan.FromMinutes(45) // 45 minutes default timeout
+                };
+
+                configure.AddPolicy("FileUpload", TimeSpan.FromMinutes(60)); // 60 minutes for file uploads
+            });
+
             return services;
         }
     }

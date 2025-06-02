@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Files.Queries
 {
-    public record GetVideoFileQuery(string FileName) : IRequest<FileStreamResult>;
+    public record GetVideoFileQuery(string FileName) : IRequest<string>;
 
-    public class GetVideoFileQueryHandler : IRequestHandler<GetVideoFileQuery, FileStreamResult>
+    public class GetVideoFileQueryHandler : IRequestHandler<GetVideoFileQuery, string>
     {
         private readonly IFilesRepository _filesRepository;
 
@@ -22,11 +22,11 @@ namespace Application.Features.Files.Queries
             _filesRepository = videoService;
         }
 
-        public async Task<FileStreamResult> Handle(GetVideoFileQuery request, CancellationToken cancellationToken)
+        public async Task<string> Handle(GetVideoFileQuery request, CancellationToken cancellationToken)
         {
             var stream = await _filesRepository.GetVideoFileStreamAsync(request.FileName);
 
-            return new FileStreamResult(stream, "video/mp4");//تحديد نوع الفديو ايلي راجه
+            return stream;//تحديد نوع الفديو ايلي راجه
         }
     }
 
