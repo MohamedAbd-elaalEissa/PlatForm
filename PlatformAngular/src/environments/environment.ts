@@ -17,3 +17,5 @@ export const environment = {
   production: false,
   apiUrl: 'https://orginalplatform-001-site1.mtempurl.com/api/'  // put the domain here 
 };
+
+///ng build --configuration production
