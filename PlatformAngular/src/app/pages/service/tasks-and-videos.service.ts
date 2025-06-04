@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders, HttpRequest, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { catchError, map, Observable, retry, throwError, timeout, timer } from 'rxjs';
+import { catchError, delay, filter, map, Observable, retry, retryWhen, scan, throwError, timeout, timer } from 'rxjs';
 import { StudentAnswerFilterModel, TeacherFileModel, TeachersVideosDataModel } from '../models/models';
 
 
@@ -36,33 +36,9 @@ export class TasksAndVideosService {
     return this.http.get(this.apiUrl + "getAllAcademicLevels");
   }
 
-  // uploadFileChunk(formData: FormData): Observable<any> {
-  //   return this.http.post(this.apiUrl + 'UploadFileChunk', formData);
-  // }
-  // uploadFileChunk(formData: FormData, timeoutMs: number = 4*3600000): Observable<any> {
-  //   const headers = new HttpHeaders({
-  //     // Don't set Content-Type header when using FormData
-  //     // The browser will set it automatically with the boundary
-  //   });
-
-  //   const options = {
-  //     headers: headers,
-  //     reportProgress: true, // Enable progress reporting if needed
-  //     observe: 'body' as const,
-  //     // Note: Angular HttpClient doesn't have a direct timeout option
-  //     // We'll use the RxJS timeout operator in the pipe
-  //   };
-
-  //   return this.http.post<any>(this.apiUrl + 'UploadFileChunk', formData, options)
-  //     .pipe(
-  //       timeout(timeoutMs), // Apply timeout using RxJS operator
-  //       catchError(this.handleError)
-  //     );
-  // }
-
 uploadFileChunk(chunkData: FormData, onProgress?: (progress: number) => void): Observable<any> {
   const headers = new HttpHeaders();
-  
+
   // Create HTTP request with progress reporting
   const req = new HttpRequest('POST', `${this.apiUrl}UploadFileChunk`, chunkData, {
     headers: headers,
@@ -77,24 +53,17 @@ uploadFileChunk(chunkData: FormData, onProgress?: (progress: number) => void): O
         if (onProgress) {
           onProgress(progress);
         }
-        return { type: 'progress', progress };
+        return null; // Return null for progress events
       } else if (event.type === HttpEventType.Response) {
-        return event.body;
+        return event.body; // Return the actual server response
       }
-      return event;
+      return null;
     }),
-    retry({
-      count: 3,
-      delay: (error, retryCount) => {
-        console.log(`Upload attempt ${retryCount} failed:`, error);
-        // Exponential backoff: 2s, 4s, 8s
-        return timer(Math.pow(2, retryCount) * 1000);
-      },
-      resetOnSuccess: true
-    }),
+    filter((response) => response !== null), // Only emit non-null responses
+    // Remove retry logic for uploads to avoid complications
     catchError((error: HttpErrorResponse) => {
       console.error('Upload Error:', error);
-      
+
       if (error.status === 503) {
         return throwError(() => new Error('Server timeout. Please try uploading with smaller chunk size or check your internet connection.'));
       } else if (error.status === 0) {

@@ -17,6 +17,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
 import { ChaptersService } from '../../service/chapters.service';
+import { catchError, EMPTY, Observable, switchMap, tap } from 'rxjs';
 @Component({
   selector: 'app-upload-videos',
   standalone: true,
@@ -62,7 +63,7 @@ export class UploadVideosComponent {
       pageNumber: 1,
       pageSize: 25
     }
-  
+
     this.getAcademicLevelFilter()
   }
 
@@ -98,7 +99,7 @@ export class UploadVideosComponent {
       const uploadedChunks = await this.checkUploadedChunks(fileName, this.userId);
       let currentChunk = uploadedChunks.length;
 
-      const uploadChunk = () => {
+      const uploadChunk = (retryCount = 0) => {
         if (currentChunk >= totalChunks) {
           this.messageService.add({
             severity: 'success',
@@ -110,7 +111,7 @@ export class UploadVideosComponent {
           this.uploadProgress = 100;
           return;
         }
-
+        this.isPending = 1
         const start = currentChunk * this.chunkSize;
         const end = Math.min(start + this.chunkSize, this.selectedVideo!.size);
         const chunk = this.selectedVideo!.slice(start, end);
@@ -123,37 +124,59 @@ export class UploadVideosComponent {
         formData.append('UserId', this.userId.toString());
         formData.append('TeacherId', this.teacherId);
         formData.append('chapterId', this.chapterId.toString());
-        // formData.append('AcademicLevelId', this.academicLevelID.toString());
 
         this.tasksAndVideosService.uploadFileChunk(formData).subscribe({
           next: (data) => {
+            debugger
+            console.log('Server response:', data);
             currentChunk++;
             this.uploadProgress = Math.round((currentChunk / totalChunks) * 100);
 
             if (data?.isValidTransaction) {
-              uploadChunk();
+              uploadChunk(); // Continue with next chunk (reset retry count)
             } else {
               this.messageService.add({
                 severity: 'error',
                 summary: 'خطأ',
                 detail: data.transactionDetails,
               });
-              this.uploadProgress = 0
-              this.isPending = 3
+              this.uploadProgress = 0;
+              this.isPending = 3;
               return;
             }
           },
-          error: () => {
+          error: (error) => {
             debugger
-            this.confirmationService.confirm({
-              header: 'خطأ',
-              message: 'فشل رفع الفيديو. قم بالضغط علي زرار الرفع مره اخري.',
-              icon: 'pi pi-exclamation-triangle text-red-500 text-5xl',
-              acceptVisible: false,
-              rejectVisible: false,
-              closeOnEscape: true,
-              closable: true
-            });
+            console.error('Upload error:', error);
+
+            // Retry logic - only retry on network errors, timeouts, or server errors
+            const shouldRetry = (
+              error.status === 0 || // Network error
+              error.status === 408 || // Timeout
+              error.status >= 500 || // Server error
+              retryCount < 3
+            );
+
+            if (shouldRetry && retryCount < 3) {
+              console.log(`Retrying chunk ${currentChunk + 1}, attempt ${retryCount + 1}`);
+              // Exponential backoff delay
+              setTimeout(() => {
+                uploadChunk(retryCount + 1);
+              }, Math.pow(2, retryCount) * 1000); // 1s, 2s, 4s
+            } else {
+              // Max retries reached or non-retryable error
+              this.confirmationService.confirm({
+                header: 'خطأ',
+                message: 'فشل رفع الفيديو. قم بالضغط علي زرار الرفع مره اخري.',
+                icon: 'pi pi-exclamation-triangle text-red-500 text-5xl',
+                acceptVisible: false,
+                rejectVisible: false,
+                closeOnEscape: true,
+                closable: true
+              });
+              this.uploadProgress = 0;
+              this.isPending = 3;
+            }
           }
         });
       };

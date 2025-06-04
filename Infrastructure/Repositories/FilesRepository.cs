@@ -670,16 +670,17 @@ namespace Infrastructure.Repositories
                         ContentType = "application/octet-stream",
                         ServerSideEncryptionMethod = ServerSideEncryptionMethod.AES256
                     };
-                    try
-                    {
-                        await _s3Client.PutObjectAsync(putRequest);
-                    }
-                    catch (Exception ex)
-                    {
+                    var result = await _s3Client.PutObjectAsync(putRequest); // make sure it's awaited
 
-                        throw;
+                    if (result.HttpStatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        return new CommonResult
+                        {
+                            IsValidTransaction = false,
+                            TransactionDetails = "S3 upload failed.",
+                            TransactionHeaderMessage = "Upload failed"
+                        };
                     }
-                    
                 }
 
                 // Check if all chunks are uploaded
