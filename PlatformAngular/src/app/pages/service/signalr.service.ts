@@ -17,7 +17,8 @@ export class SignalrService {
     debugger
     this.hubConnection = new signalR.HubConnectionBuilder()
 
-      .withUrl(`https://localhost:44305/notificationHub?email=${email}`, {
+      .withUrl(`https://orginalplatform-001-site1.mtempurl.com/notificationHub?email=${email}`, {
+      //.withUrl(`https://localhost:44305/notificationHub?email=${email}`, {
         withCredentials: true // this matches the CORS settings on the server
       })
       .build();
