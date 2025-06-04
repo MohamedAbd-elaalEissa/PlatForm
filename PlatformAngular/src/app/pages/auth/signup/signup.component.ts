@@ -115,6 +115,9 @@ export class SignupComponent {
     });
   }
 
+
+
+
   GetUserRoles(email: string) {
     this.authService.GetUserRoles(email).subscribe((res) => {
       this.userRoles = res;

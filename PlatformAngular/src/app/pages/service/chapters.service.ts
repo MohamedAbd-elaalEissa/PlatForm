@@ -20,13 +20,11 @@ export class ChaptersService {
     return this.http.get(this.apiUrl + "DeleteChapter?id="+id);
   }
 
-  updateChapter(chapter: ChapterUpdateModel): Observable<any> {
-    console.log("🚀 ~ ChaptersService ~ updateChapter ~ Obj:", chapter)
-    return this.http.post(this.apiUrl + "UpdateChapter", chapter);
+  updateChapter(payload :{chapter: ChapterUpdateModel}): Observable<any> {
+    return this.http.post(this.apiUrl + "UpdateChapter", payload);
   }
 
   createChapter(payload: { chapter: ChapterModel }): Observable<any> {
-    console.log("🚀 ~ ChaptersService ~ createChapter ~ createChapter:", payload)
     return this.http.post(this.apiUrl + "CreateChapter", payload);
   }
 

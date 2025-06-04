@@ -6,7 +6,7 @@ import { UploadTasksComponent } from './upload-tasks/upload-tasks.component';
 import { StudentTasksDashboardComponent } from './student-tasks-dashboard/student-tasks-dashboard.component';
 import { UploadVideosComponent } from './upload-videos/upload-videos.component';
 import { VideoPlayerComponent } from './video-player/video-player.component';
-import { ChaptersComponent } from './chapters/chapters.component';
+import { ChaptersComponent } from '../chapters/chapters.component';
 
 export default [
     {
@@ -18,8 +18,6 @@ export default [
             { path: 'videos', component: VideosComponent },
             { path: 'uploadTasks', component: UploadTasksComponent },
             { path: 'uploadVideos', component: UploadVideosComponent },
-            { path: 'chapters', component: ChaptersComponent },
-
         ],
     },
     { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent },

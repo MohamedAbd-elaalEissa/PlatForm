@@ -11,10 +11,12 @@ import { InputIconModule } from 'primeng/inputicon';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+
 
 @Component({
   selector: 'app-chapters-dashboard',
-  imports: [AnimateOnScrollModule, CardModule, CommonModule, RouterModule, FloatLabelModule, InputIconModule, DropdownModule, FormsModule, InputTextModule],
+  imports: [AnimateOnScrollModule, CardModule, CommonModule, RouterModule, FloatLabelModule, InputIconModule, DropdownModule, FormsModule, InputTextModule,ButtonModule],
   templateUrl: './chapters-dashboard.component.html',
   styleUrl: './chapters-dashboard.component.scss',
   standalone: true

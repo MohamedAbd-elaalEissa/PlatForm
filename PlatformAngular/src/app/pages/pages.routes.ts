@@ -5,6 +5,7 @@ import { Empty } from './empty/empty';
 import { TeachersComponent } from './Teachers/teachers.component';
 import { AuthGuard } from './auth/authguard';
 import { ChaptersDashboardComponent } from './chapters-dashboard/chapters-dashboard.component';
+import { ChaptersComponent } from './chapters/chapters.component';
 
 export default [
     { path: 'documentation', component: Documentation },
@@ -12,6 +13,7 @@ export default [
     { path: 'empty', component: Empty },
     { path: 'teachers', component: TeachersComponent,canActivate:[AuthGuard] },
     { path: 'chaptersDashboard', component: ChaptersDashboardComponent,canActivate:[AuthGuard] },
+    { path: 'createNewChapter', component: ChaptersComponent,canActivate:[AuthGuard] },
 
     {
         path: 'teachers/videos-and-tasks',
