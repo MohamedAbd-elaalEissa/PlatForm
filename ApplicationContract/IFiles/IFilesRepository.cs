@@ -22,7 +22,7 @@ namespace ApplicationContract.IFiles
         Task<CommonResult> UploadFileChunk([FromForm] Models.File.FileChunkDto chunkDto);
         Task<PaginatedResult<Files>> GetTeachersFilesAsync(TeacherFileDTO teacherFile);
         Task<ChunkStatusDto> CheckUploadedChunks(int userId, string fileName);
-        Task<FileDto> GetFileAsync(string fileName);
+        Task<FileDto> GetFileAsync(string fileName, bool isBook);
         Task<PaginatedResult<Videos>> GetTeachersVideoAsync(TeacherVideoDTO teacherVideo);
         Task<IEnumerable<AcademicLevels>> GetAllAcademicLevelsAsync();
         Task<PaginatedResult<StudentAnswerFilesDTO>> GetStudentAnswerAsync(StudentAnswerFilesDTO StudentAnswerFile);

@@ -69,6 +69,7 @@ export class TasksComponent {
       teacherId: this.teacherId,
       chapterId : this.chapterId ,
       academicLevelId: this.academicLevelId,
+      isBook:false,
       pageNumber: 1,
       pageSize: 25
     }
@@ -99,7 +100,7 @@ export class TasksComponent {
   }
 
   downloadTask(fileName: string) {
-    this.tasksAndVideos.downloadFile(fileName).subscribe({
+    this.tasksAndVideos.downloadFile(fileName,this.Filter.isBook).subscribe({
       next: (response) => {
         const blob = new Blob([response.body!], { type: response.body?.type });
 
@@ -134,7 +135,7 @@ export class TasksComponent {
     formData.append('studentId', studentId ? studentId.toString() : '');
     formData.append('teacherId', teacherID.toString());
     formData.append('isAnswer', isAnswer.toString());
-    formData.append('academicLevelID', academicLevelID.toString());
+    // formData.append('academicLevelID', academicLevelID.toString());
     formData.append('taskName', taskName);
     formData.append('answerName', taskNameAnswer);
 
@@ -155,6 +156,7 @@ export class TasksComponent {
   }
 
   onFilterChange() {
+    debugger
     this.getPDFiles()
   }
 }

@@ -82,7 +82,7 @@
 
                             <div class="flex flex-row-reverse gap-2 pb-4">
                                 <button pButton icon="pi pi-check-circle" [outlined]="!itemGrid.isAnswer"
-                                    [routerLink]="['/pages/teachers/videos-and-tasks/studentTasksDashboard']"></button>
+                                    (click)="navigateWithFileId(itemGrid.filesID)"></button>
                             </div>
 
                             <div class="flex flex-row gap-2">

@@ -11,6 +11,7 @@ namespace ApplicationContract.Models.File
         public int TeacherId { get; set; }
         public int FilesId { get; set; }
         public int? StudentId { get; set; }
+        public string StudentName { get; set; }
         public string TaskName { get; set; }
         public string AnswerName { get; set; }
         public string FileName { get; set; }

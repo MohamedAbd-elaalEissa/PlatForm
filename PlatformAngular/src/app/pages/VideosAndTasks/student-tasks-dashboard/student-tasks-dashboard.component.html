@@ -48,11 +48,11 @@
             <tr>
                 <td class="text-center">{{ rowIndex +1 }}</td>
                 <td class="text-center">{{ rowData.answerName }}</td>
-                <td class="text-center">{{ rowData.studentId }}</td>
+                <td class="text-center">{{ rowData.studentName }}</td>
                 <td class="text-center">{{ rowData.academicLevelName }}</td>
                 <td class="text-center">
                     <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded flex items-center gap-2"
-                        (click)="downloadTask(rowData.fileName)">
+                        (click)="downloadTask(rowData.answerName)">
                         <i class="pi pi-clipboard"></i>
                         Download
                     </button>

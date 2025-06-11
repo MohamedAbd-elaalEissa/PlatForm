@@ -58,6 +58,7 @@ namespace Infrastructure.Repositories
         {
             try
             {
+                // Validate required fields
                 if (filePDF.file == null || filePDF.file.Length == 0)
                 {
                     return new CommonResult
@@ -67,32 +68,74 @@ namespace Infrastructure.Repositories
                         TransactionHeaderMessage = "No file uploaded"
                     };
                 }
+
                 string fileName = Path.GetFileNameWithoutExtension(filePDF.file.FileName);
                 string fileExtension = Path.GetExtension(filePDF.file.FileName);
                 string fullFileName = fileName + fileExtension;
-
-                string filePath = Path.Combine(FilePath, fullFileName);
-
-                // Delete existing file if it exists
-                string[] existingFiles = Directory.GetFiles(Path.GetDirectoryName(filePath), Path.GetFileName(filePath));
-                foreach (string existingFile in existingFiles)
+                string s3FileKey;
+                // S3 key for the file (organized in folders)
+                if (filePDF.isBook==false)
                 {
-                    try { File.Delete(existingFile); }
-                    catch (Exception ex) { Console.WriteLine($"Failed to delete file: {existingFile}. Error: {ex.Message}"); }
+                     s3FileKey = $"pdf-files/{fullFileName}";
+                }
+                else
+                {
+                     s3FileKey = $"pdf-book/{fullFileName}";
+                }
+                
+
+                Console.WriteLine($"Uploading PDF file: {fullFileName}");
+
+                // Check if file already exists in database
+                if (filePDF.isAnswer == false)
+                {
+                    var existingFile = await _dbContext.Files
+                        .FirstOrDefaultAsync(f => f.TeacherID == filePDF.teacherId && f.FileName == fullFileName);
+
+                    if (existingFile != null && filePDF.fileID == null)
+                    {
+                        return new CommonResult
+                        {
+                            IsValidTransaction = false,
+                            TransactionDetails = "اسم الملف موجود بالفعل",
+                            TransactionHeaderMessage = "File already exists"
+                        };
+                    }
                 }
 
-                // Save the new file
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                // Upload file to S3
+                using (var stream = filePDF.file.OpenReadStream())
                 {
-                    await filePDF.file.CopyToAsync(stream);
+                    var putRequest = new PutObjectRequest
+                    {
+                        BucketName = _bucketName,
+                        Key = s3FileKey,
+                        InputStream = stream,
+                        ContentType = filePDF.file.ContentType ?? "application/pdf",
+                        ServerSideEncryptionMethod = ServerSideEncryptionMethod.AES256
+                    };
+
+                    var result = await _s3Client.PutObjectAsync(putRequest);
+
+                    if (result.HttpStatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        return new CommonResult
+                        {
+                            IsValidTransaction = false,
+                            TransactionDetails = "S3 upload failed.",
+                            TransactionHeaderMessage = "Upload failed"
+                        };
+                    }
                 }
+
                 Files files = null;
 
-                //// Save to database via EF Core
+                // Save to database via EF Core
                 if (filePDF.isAnswer == false)
                 {
                     files = await _dbContext.Files
-                  .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID);
+                        .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID);
+
                     if (files != null)
                     {
                         // Update existing
@@ -117,7 +160,8 @@ namespace Infrastructure.Repositories
                 else
                 {
                     var filesAnswer = await _dbContext.FileAnswers
-                    .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID && c.StudentID == filePDF.studentId);
+                        .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID && c.StudentID == filePDF.studentId);
+
                     if (filesAnswer != null)
                     {
                         // Update existing
@@ -132,11 +176,10 @@ namespace Infrastructure.Repositories
                             StudentID = filePDF.studentId,
                             AnswerName = filePDF.answerName,
                             FilesID = (int)filePDF.fileID,
-
                         };
 
                         var filessolved = await _dbContext.Files
-                        .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID);
+                            .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID);
 
                         if (filessolved != null)
                         {
@@ -149,6 +192,8 @@ namespace Infrastructure.Repositories
                 }
 
                 await _dbContext.SaveChangesAsync();
+
+                // Send notifications to students (only if not a student answer)
                 if (filePDF.studentId is null)
                 {
                     var res = await _teacher.GetTeacherWithInclude(filePDF.userId);
@@ -171,28 +216,31 @@ namespace Infrastructure.Repositories
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine(ex.Message, $"Failed to send notification to student {item.Email}");
-                        }                       // await _hub.Clients.All.SendAsync("ReceiveNotification", $"{filePDF.userId} من {filePDF.taskName}تم اضافه  ");
+                            Console.WriteLine($"Failed to send notification to student {item.Email}: {ex.Message}");
+                        }
                     }
                 }
 
+                Console.WriteLine("PDF file upload completed successfully");
                 return new CommonResult
                 {
                     IsValidTransaction = true,
-                    TransactionDetails = "Upload Successfully",
-                    TransactionHeaderMessage = filePath
+                    TransactionDetails = "File uploaded successfully",
+                    TransactionHeaderMessage = $"s3://{_bucketName}/{s3FileKey}"
                 };
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Error uploading PDF file: {ex.Message}");
                 return new CommonResult
                 {
                     IsValidTransaction = false,
-                    TransactionDetails = "اسم الملف موجود بالفعل",
-                    TransactionHeaderMessage = ex.Message
+                    TransactionDetails = $"An error occurred while uploading the file: {ex.Message}",
+                    TransactionHeaderMessage = "Upload failed"
                 };
             }
         }
+        ////////////////////////////////////////////////////////////////////////
         public async Task DeleteAsync(int ID)
         {
             var _old = await GetAsync(ID);
@@ -239,200 +287,75 @@ namespace Infrastructure.Repositories
                 PageSize = teacherFile.PageSize
             };
         }
-        //public async Task<CommonResult> UploadFileChunk([FromForm] FileChunkDto chunkDto)
-        //{
-        //    try
-        //    {
-        //        // Validate required fields
-        //        if (chunkDto.Chunk == null || chunkDto.Chunk.Length == 0)
-        //        {
-        //            return new CommonResult
-        //            {
-        //                IsValidTransaction = false,
-        //                TransactionDetails = "No chunk data provided",
-        //                TransactionHeaderMessage = "Upload failed"
-        //            };
-        //        }
 
-        //        if (string.IsNullOrEmpty(chunkDto.FileName))
-        //        {
-        //            return new CommonResult
-        //            {
-        //                IsValidTransaction = false,
-        //                TransactionDetails = "FileName is required",
-        //                TransactionHeaderMessage = "Upload failed"
-        //            };
-        //        }
-
-        //        if (chunkDto.ChunkNumber <= 0 || chunkDto.TotalChunks <= 0)
-        //        {
-        //            return new CommonResult
-        //            {
-        //                IsValidTransaction = false,
-        //                TransactionDetails = "ChunkNumber and TotalChunks must be greater than 0",
-        //                TransactionHeaderMessage = "Upload failed"
-        //            };
-        //        }
-
-        //        // Define paths
-        //        string tempDir = Path.Combine(VideoPath, "temp", $"{chunkDto.FileName}_{chunkDto.UserId}");
-        //        string tempChunkPath = Path.Combine(tempDir, $"chunk_{chunkDto.ChunkNumber}");
-        //        string finalFilePath = Path.Combine(VideoPath, $"{chunkDto.FileName}");
-
-        //        //Console.WriteLine($"Receiving chunk {chunkDto.ChunkNumber} of {chunkDto.TotalChunks} for {chunkDto.FileName}");
-
-        //        // Ensure temp directory exists
-        //        Directory.CreateDirectory(tempDir);
-
-
-        //        var existingFile = await _dbContext.Videos
-        //                .FirstOrDefaultAsync(f => f.TeacherID == chunkDto.TeacherId && f.VideoName == chunkDto.FileName);
-
-        //        string finalFileName = Path.GetFileName(finalFilePath);
-        //        if (existingFile != null)
-        //        {
-        //            //existingFile.VideoName = finalFileName;
-        //            //_dbContext.Videos.Update(existingFile);
-        //            return new CommonResult
-        //            {
-        //                IsValidTransaction = false,
-        //                TransactionDetails = "اسم الفديو موجود بالفعل",
-        //                TransactionHeaderMessage = finalFilePath
-        //            };
-        //        }
-        //        else
-        //        {
-        //            // Save the chunk
-        //            using (var stream = new FileStream(tempChunkPath, FileMode.Create))
-        //            {
-        //                await chunkDto.Chunk.CopyToAsync(stream);
-        //            }
-
-        //            // Check if all chunks are uploaded
-        //            int uploadedChunks = Directory.GetFiles(tempDir).Length;
-        //            //Console.WriteLine($"Uploaded chunks: {uploadedChunks} / {chunkDto.TotalChunks}");
-
-        //            if (uploadedChunks == chunkDto.TotalChunks)
-        //            {
-        //                Console.WriteLine("All chunks received, combining file...");
-        //                // Combine all chunks into the final file
-        //                using (var finalStream = new FileStream(finalFilePath, FileMode.Create))
-        //                {
-        //                    for (int i = 1; i <= chunkDto.TotalChunks; i++)
-        //                    {
-        //                        string chunkPath = Path.Combine(tempDir, $"chunk_{i}");
-        //                        if (!File.Exists(chunkPath))
-        //                        {
-        //                            return new CommonResult
-        //                            {
-        //                                IsValidTransaction = false,
-        //                                TransactionDetails = $"Missing chunk {i}",
-        //                                TransactionHeaderMessage = "Upload failed"
-        //                            };
-        //                        }
-        //                        byte[] chunkBytes = await File.ReadAllBytesAsync(chunkPath);
-        //                        await finalStream.WriteAsync(chunkBytes, 0, chunkBytes.Length);
-        //                    }
-        //                }
-        //                // Clean up temp directory
-        //                Directory.Delete(tempDir, true);
-        //                var newFile = new Videos
-        //                {
-        //                    UserID = chunkDto.UserId,
-        //                    VideoName = finalFileName,
-        //                    TeacherID = chunkDto.TeacherId,
-        //                    ChapterID = chunkDto.ChapterId
-        //                };
-        //                _dbContext.Videos.Add(newFile);
-
-        //                await _dbContext.SaveChangesAsync();
-
-        //                //Console.WriteLine("File upload completed successfully");
-        //                return new CommonResult
-        //                {
-        //                    IsValidTransaction = true,
-        //                    TransactionDetails = "File uploaded successfully",
-        //                    TransactionHeaderMessage = finalFilePath
-        //                };
-        //            }
-        //        }
-        //        // Return partial success for intermediate chunks
-        //        return new CommonResult
-        //        {
-        //            IsValidTransaction = true,
-        //            TransactionDetails = $"Chunk {chunkDto.ChunkNumber} of {chunkDto.TotalChunks} uploaded",
-        //            TransactionHeaderMessage = "Chunk uploaded"
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        //Console.WriteLine($"Error uploading chunk: {ex.Message}");
-        //        return new CommonResult
-        //        {
-        //            IsValidTransaction = false,
-        //            TransactionDetails = "An error occurred while uploading the chunk",
-        //            TransactionHeaderMessage = "Upload failed"
-        //        };
-        //    }
-        //}
-
-
-        //public async Task<ChunkStatusDto> CheckUploadedChunks(int userId, string fileName)
-        //{
-        //    try
-        //    {
-        //        string tempDir = Path.Combine(VideoPath, "temp", $"{fileName}_{userId}");
-        //        if (!Directory.Exists(tempDir))
-        //        {
-        //            return new ChunkStatusDto
-        //            {
-        //                FileName = fileName,
-        //                UserId = userId,
-        //                UploadedChunkNumbers = new List<int>()
-        //            };
-        //        }
-
-        //        var uploadedChunks = Directory.GetFiles(tempDir)
-        //            .Select(file => int.Parse(Path.GetFileName(file).Replace("chunk_", "")))
-        //            .OrderBy(num => num)
-        //            .ToList();
-
-        //        return new ChunkStatusDto
-        //        {
-        //            FileName = fileName,
-        //            UserId = userId,
-        //            UploadedChunkNumbers = uploadedChunks
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Console.WriteLine($"Error checking chunks: {ex.Message}");
-        //        return new ChunkStatusDto
-        //        {
-        //            FileName = fileName,
-        //            UserId = userId,
-        //            UploadedChunkNumbers = new List<int>(),
-        //            ErrorMessage = "An error occurred while checking uploaded chunks."
-        //        };
-        //    }
-        //}
-
-        public async Task<FileDto> GetFileAsync(string fileName)
+        public async Task<FileDto> GetFileAsync(string fileName, bool isBook)
         {
-            var path = Path.Combine(FilePath, fileName);
-
-            if (!File.Exists(path))
-                throw new FileNotFoundException($"File '{fileName}' not found.");
-
-            var bytes = await File.ReadAllBytesAsync(path);
-            var contentType = MimeMapping.MimeUtility.GetMimeMapping(fileName);
-
-            return new FileDto
+            try
             {
-                Content = bytes,
-                ContentType = contentType,
-                FileName = fileName
-            };
+                // S3 key for the file (matching the upload folder structure)
+                string s3FileKey;
+                if (isBook)
+                {
+                    s3FileKey = $"pdf-book/{fileName}";
+                }
+                else
+                {
+                    s3FileKey = $"pdf-files/{fileName}";
+                }
+                Console.WriteLine($"Downloading file from S3: {s3FileKey}");
+
+                // Create request to get object from S3
+                var getObjectRequest = new GetObjectRequest
+                {
+                    BucketName = _bucketName,
+                    Key = s3FileKey
+                };
+
+                // Get the object from S3
+                using (var response = await _s3Client.GetObjectAsync(getObjectRequest))
+                {
+                    // Check if the response is successful
+                    if (response.HttpStatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        throw new FileNotFoundException($"File '{fileName}' not found in S3.");
+                    }
+
+                    // Read the content from S3 response stream
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await response.ResponseStream.CopyToAsync(memoryStream);
+                        var bytes = memoryStream.ToArray();
+
+                        // Get content type from S3 metadata or determine from file extension
+                        var contentType = response.Headers.ContentType ?? MimeMapping.MimeUtility.GetMimeMapping(fileName);
+
+                        Console.WriteLine($"File downloaded successfully: {fileName}, Size: {bytes.Length} bytes");
+
+                        return new FileDto
+                        {
+                            Content = bytes,
+                            ContentType = contentType,
+                            FileName = fileName
+                        };
+                    }
+                }
+            }
+            catch (AmazonS3Exception s3Ex)
+            {
+                Console.WriteLine($"S3 Error downloading file '{fileName}': {s3Ex.Message}");
+
+                if (s3Ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new FileNotFoundException($"File '{fileName}' not found in S3.");
+                }
+
+                throw new Exception($"Error downloading file from S3: {s3Ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error downloading file '{fileName}': {ex.Message}");
+                throw new Exception($"An error occurred while downloading the file: {ex.Message}");
+            }
         }
 
         public async Task<PaginatedResult<Videos>> GetTeachersVideoAsync(TeacherVideoDTO teacherVideo)
@@ -465,7 +388,7 @@ namespace Infrastructure.Repositories
             var query = _dbContext.FileAnswers
                                 .Include(f => f.Files)
                                 //.ThenInclude(f => f.AcademicLevel)
-                                //.Include(f => f.Student) 
+                                .Include(f => f.Student) 
                                 .Where(f => f.Files.TeacherID == StudentAnswerFile.TeacherId
                                          && f.Files.FilesID == StudentAnswerFile.FilesId)
                                 .AsQueryable();
@@ -495,7 +418,7 @@ namespace Infrastructure.Repositories
                 {
                     f.FileAnswersID,
                     f.AnswerName,
-                    f.StudentID,
+                    StudentName = f.Student.FirstName +" " + f.Student.LastName,
                     //f.Student.StudentName, 
                     f.Files.FileName,
                     f.Files.FilesID,
@@ -512,7 +435,7 @@ namespace Infrastructure.Repositories
                 {
                     FileAnswersID = x.FileAnswersID,
                     AnswerName = x.AnswerName,
-                    StudentId = x.StudentID,
+                    StudentName = x.StudentName,
                     //StudentName = x.StudentName, 
                     FileName = x.FileName,
                     TaskName = x.TaskName,
@@ -526,30 +449,6 @@ namespace Infrastructure.Repositories
                 PageSize = StudentAnswerFile.PageSize
             };
         }
-
-        ////// Local //////
-
-
-        //public async Task<FileStream> GetVideoFileStreamAsync(string fileName)
-        //{
-        //    if (string.IsNullOrWhiteSpace(fileName) ||
-        //        fileName.Contains("..") ||
-        //        fileName.Contains("/") ||
-        //        fileName.Contains("\\"))
-        //    {
-        //        throw new ArgumentException("Invalid file name.");
-        //    }
-
-        //    var videoPath = Path.Combine(VideoPath, fileName);
-
-        //    if (!File.Exists(videoPath))
-        //    {
-        //        throw new FileNotFoundException("الملف غير موجود", fileName);
-        //    }
-
-        //    var stream = new FileStream(videoPath, FileMode.Open, FileAccess.Read);
-        //    return stream;
-        //}
 
         public async Task<string> GetVideoFileStreamAsync(string fileName)
         {

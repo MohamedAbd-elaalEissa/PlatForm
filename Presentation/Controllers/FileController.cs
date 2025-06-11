@@ -61,9 +61,9 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [Route("DownloadFile")]
-        public async Task<IActionResult> Download(string fileName)
+        public async Task<IActionResult> Download(string fileName,bool isBook=false)
         {
-            var fileDto = await Mediator.Send(new DownloadFileQuery(fileName));
+            var fileDto = await Mediator.Send(new DownloadFileQuery(fileName,isBook));
 
             return File(fileDto.Content, fileDto.ContentType, fileDto.FileName);
         }

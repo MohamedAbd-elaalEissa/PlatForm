@@ -13,5 +13,6 @@ namespace Domain.Entities
         public int? StudentID { get; set; }
         public int FilesID { get; set; }
         public Files Files { get; set; }
+        public Students Student { get; set; }
     }
 }

@@ -96,9 +96,10 @@ export class UploadTasksComponent {
   }
 
   onSelectedFiles(event: any): void {
+    debugger
     this.files = event.currentFiles || [];
     this.totalSize = this.files.reduce((sum, file) => sum + file.size, 0);
-    this.totalSizePercent = this.totalSize / 10;
+    
   }
 
   uploadEvent(): void {
@@ -136,6 +137,7 @@ export class UploadTasksComponent {
           });
           this.files = []
           this.isPending = false
+          this.totalSizePercent = this.totalSize / 10;
         }
         else {
           this.messageService.add({

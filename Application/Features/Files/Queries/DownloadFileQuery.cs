@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Files.Queries
 {
-    public record DownloadFileQuery(string FileName) : IRequest<FileDto>;
+    public record DownloadFileQuery(string FileName, bool isBook) : IRequest<FileDto>;
     public class DownloadFileQueryHandler : IRequestHandler<DownloadFileQuery, FileDto>
     {
         private readonly IFilesRepository _repository;
@@ -21,7 +21,7 @@ namespace Application.Features.Files.Queries
 
         public async Task<FileDto> Handle(DownloadFileQuery request, CancellationToken cancellationToken)
         {
-            return await _repository.GetFileAsync(request.FileName);
+            return await _repository.GetFileAsync(request.FileName,request.isBook);
         }
     }
 
