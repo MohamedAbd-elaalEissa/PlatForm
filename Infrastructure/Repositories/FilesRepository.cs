@@ -129,12 +129,16 @@ namespace Infrastructure.Repositories
                 }
 
                 Files files = null;
-
+                int userId = 0;
+                int studentId= 0;
                 // Save to database via EF Core
                 if (filePDF.isAnswer == false)
                 {
                     files = await _dbContext.Files
                         .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID);
+                    userId=await _dbContext.Teachers.Where(t=>t.Email == filePDF.userEmail)
+                                                        .Select(u=>u.TeacherID)
+                                                        .FirstOrDefaultAsync();
 
                     if (files != null)
                     {
@@ -147,7 +151,7 @@ namespace Infrastructure.Repositories
                         // Create new if it doesn't exist
                         files = new Files
                         {
-                            UserID = filePDF.userId,
+                            UserID = userId,
                             FileName = fullFileName,
                             TeacherID = (int)filePDF.teacherId,
                             TaskName = filePDF.taskName,
@@ -159,9 +163,12 @@ namespace Infrastructure.Repositories
                 }
                 else
                 {
+                    studentId = await _dbContext.Students.Where(t => t.Email == filePDF.userEmail)
+                                                       .Select(u => u.StudentID)
+                                                       .FirstOrDefaultAsync();
                     var filesAnswer = await _dbContext.FileAnswers
-                        .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID && c.StudentID == filePDF.studentId);
-
+                        .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID && c.StudentID == studentId);
+                   
                     if (filesAnswer != null)
                     {
                         // Update existing
@@ -173,7 +180,7 @@ namespace Infrastructure.Repositories
                         // Create new if it doesn't exist
                         filesAnswer = new FileAnswers
                         {
-                            StudentID = filePDF.studentId,
+                            StudentID = studentId,
                             AnswerName = filePDF.answerName,
                             FilesID = (int)filePDF.fileID,
                         };
@@ -194,9 +201,9 @@ namespace Infrastructure.Repositories
                 await _dbContext.SaveChangesAsync();
 
                 // Send notifications to students (only if not a student answer)
-                if (filePDF.studentId is null)
+                if (studentId ==0)
                 {
-                    var res = await _teacher.GetTeacherWithInclude(filePDF.userId);
+                    var res = await _teacher.GetTeacherWithInclude(userId);
                     foreach (var item in res.Students)
                     {
                         try

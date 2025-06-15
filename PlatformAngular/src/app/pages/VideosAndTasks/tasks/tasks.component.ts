@@ -14,6 +14,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputIconModule } from 'primeng/inputicon';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
+import { AuthService } from '../../service/auth.service';
 
 
 @Component({
@@ -48,8 +49,9 @@ export class TasksComponent {
   layout: 'list' | 'grid' = 'list';
 
   options = ['list', 'grid'];
+  studentEmail: string;
 
-  constructor(private tasksAndVideos: TasksAndVideosService, private route: ActivatedRoute, private messageService: MessageService, private router: Router) {
+  constructor(private tasksAndVideos: TasksAndVideosService, private route: ActivatedRoute, private messageService: MessageService, private router: Router,private authService: AuthService) {
     //Get student id here 
 
     const teacherId = sessionStorage.getItem('teacherId');
@@ -60,6 +62,8 @@ export class TasksComponent {
     if (chapterId) {
       this.chapterId = +chapterId
     }
+    this.studentEmail = this.authService.getUserEmail();
+
   }
 
 
@@ -126,13 +130,13 @@ export class TasksComponent {
       }
     });
   }
-  uploadTask(event: any, filesID: number, studentId: number, teacherID: number, isAnswer: boolean, academicLevelID: number, taskName: string, taskNameAnswer: string) {
+  uploadTask(event: any, filesID: number, teacherID: number, isAnswer: boolean, academicLevelID: number, taskName: string, taskNameAnswer: string) {
 
     const file = event.files[0];
     const formData = new FormData();
     formData.append('file', file);
     formData.append('fileID', filesID.toString());
-    formData.append('studentId', studentId ? studentId.toString() : '');
+    formData.append('studentEmail', this.studentEmail);
     formData.append('teacherId', teacherID.toString());
     formData.append('isAnswer', isAnswer.toString());
     // formData.append('academicLevelID', academicLevelID.toString());

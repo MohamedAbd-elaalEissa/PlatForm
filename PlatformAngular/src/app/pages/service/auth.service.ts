@@ -100,7 +100,6 @@ export class AuthService {
   }
 
   getUserEmail(): string {
-     
     const token = localStorage.getItem('token');
     if (token) {
       const tokenObj = JSON.parse(token);
@@ -109,6 +108,7 @@ export class AuthService {
     }
     return '';
   }
+
 private handleError(error: HttpErrorResponse): Observable<never> {
     let errorResponse: ErrorResponse = {
       type: 'UnknownError',

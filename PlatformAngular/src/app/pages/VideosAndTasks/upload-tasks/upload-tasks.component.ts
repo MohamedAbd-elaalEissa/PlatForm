@@ -19,6 +19,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ChaptersService } from '../../service/chapters.service';
 import { DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
+import { AuthService } from '../../service/auth.service';
 
 
 @Component({
@@ -37,7 +38,7 @@ export class UploadTasksComponent {
   totalSize: number = 0;
   totalSizePercent: number = 0;
   teacherId!: number
-  userId: number = 1
+  userEmail: string;
   taskName!: string;
   academicLevelID!: number;
   isBook: boolean = false
@@ -50,13 +51,14 @@ export class UploadTasksComponent {
   selectedChapter!: ChapterModel;
   
   constructor(private config: PrimeNG, private messageService: MessageService, private tasksAndVideos: TasksAndVideosService,
-    private chapters: ChaptersService
+    private chapters: ChaptersService,private authService: AuthService
   ) {
     const teacherId = sessionStorage.getItem('teacherId');
     if (teacherId) {
       this.teacherId = +teacherId
     }
-
+    debugger
+    this.userEmail = this.authService.getUserEmail();
     // const chapterId = sessionStorage.getItem('chapterId');
     // if (chapterId) {
     //   this.chapterId = +chapterId
@@ -119,7 +121,7 @@ export class UploadTasksComponent {
     const formData = new FormData();
 
     formData.append('file', file);
-    formData.append('userId', this.userId.toString());
+    formData.append('userEmail', this.userEmail.toString());
     formData.append('teacherId', this.teacherId.toString());
     formData.append('isAnswer', "false");
     formData.append('taskName', this.taskName);

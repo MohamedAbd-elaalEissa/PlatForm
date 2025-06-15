@@ -92,7 +92,7 @@
                                 </button>
                                 <div class="flex-1">
                                     <p-fileUpload name="file" customUpload="true"
-                                        (uploadHandler)="uploadTask($event, itemGrid.filesID, studentId, itemGrid.teacherID, true, itemGrid.academicLevelID, itemGrid.taskName, itemGrid.taskName + 'Answer')"
+                                        (uploadHandler)="uploadTask($event, itemGrid.filesID, itemGrid.teacherID, true, itemGrid.academicLevelID, itemGrid.taskName, itemGrid.taskName + 'Answer')"
                                         mode="basic" [auto]="true" chooseLabel="Upload Solving" [disabled]="false"
                                         [accept]="'application/pdf'" chooseIcon="pi pi-file-check"
                                         class="whitespace-nowrap" [style]="{ width: '100%' , height: '100%'  }">
