@@ -1,0 +1,23 @@
+<!-- physics-background.component.html -->
+<div class="physics-container">
+  <canvas #physicsCanvas class="physics-canvas"></canvas>
+
+  <!-- Overlay Content -->
+  <div class="content-overlay">
+    <div class="physics-title">
+      <!-- <h1 class="title-text">PHYSICS</h1> -->
+      <div class="title-glow"></div>
+    </div>
+
+    <!-- Slot for nested content -->
+    <div class="physics-slot">
+      <ng-content></ng-content>
+    </div>
+  </div>
+
+  <!-- Enhanced gradient overlays -->
+  <div class="gradient-overlay top"></div>
+  <div class="gradient-overlay bottom"></div>
+  <div class="gradient-overlay left"></div>
+  <div class="gradient-overlay right"></div>
+</div>

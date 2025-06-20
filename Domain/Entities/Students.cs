@@ -17,7 +17,6 @@ namespace Domain.Entities
         public int? Age { get; set; }
         [Phone]
         public string PhoneNumber { get; set; }
-        public string StudySubject { get; set; }
         [EmailAddress]
         public string Email { get; set; }
         //public int TeacherID { get; set; }

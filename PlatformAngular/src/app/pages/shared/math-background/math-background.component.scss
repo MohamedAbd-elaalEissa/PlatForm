@@ -1,0 +1,134 @@
+.math-container {
+  position: relative;
+  width: 100%;
+  height: 100vh; /* Ensure full viewport height */
+  min-height: 500px; /* Minimum height fallback */
+  overflow: hidden;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(120, 199, 255, 0.3) 0%, transparent 50%);
+    z-index: 1;
+  }
+}
+
+// Light mode styles
+:host-context(.app-light) .math-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
+  &::before {
+    background: 
+      radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, rgba(255, 154, 0, 0.2) 0%, transparent 50%);
+  }
+}
+
+.math-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+.content-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  
+  * {
+    pointer-events: auto;
+  }
+}
+
+.math-title {
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  
+  h1 {
+    font-size: 4rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 3px;
+    margin: 0;
+    font-family: 'Times New Roman', serif;
+  }
+}
+
+// Light mode title
+:host-context(.app-light) .math-title h1 {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.math-slot {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    45deg,
+    rgba(65, 105, 225, 0.1) 0%,
+    transparent 50%,
+    rgba(50, 205, 50, 0.1) 100%
+  );
+  z-index: 4;
+  pointer-events: none;
+}
+
+// Light mode gradient overlay
+:host-context(.app-light) .gradient-overlay {
+  background: linear-gradient(
+    45deg,
+    rgba(46, 94, 170, 0.15) 0%,
+    transparent 50%,
+    rgba(34, 139, 34, 0.15) 100%
+  );
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .math-title {
+    top: 20px;
+    left: 20px;
+    
+    h1 {
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .math-title h1 {
+    font-size: 2rem;
+    letter-spacing: 1px;
+  }
+}

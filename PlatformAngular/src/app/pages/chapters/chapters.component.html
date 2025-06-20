@@ -93,24 +93,25 @@
 <div *ngIf="visible">
     <p-dialog header="اضافه فصل" [modal]="true" [(visible)]="visible" [style]="{width: '600px', height: '400px'}">
 
-      <ng-template pTemplate="header">
-        <div class="custom-header">اضافه فصل</div>
-    </ng-template>
+        <ng-template pTemplate="header">
+            <div class="custom-header">اضافه فصل</div>
+        </ng-template>
 
-        <div class="flex items-center gap-4 mb-4 mt-4" >
+        <div class="flex items-center gap-4 mb-4 mt-4">
 
             <p-floatlabel class="w-full md:w-56 filter-item" variant="on" style="margin-top: 10px;">
-                <p-dropdown [(ngModel)]="newChapter.academicLevelId" inputId="academicLevel" [options]="academicLevelData"
-                    optionLabel="academicLevelName" optionValue="academicLevelID" styleClass="w-full">
+                <p-dropdown [(ngModel)]="newChapter.academicLevelId" inputId="academicLevel"
+                    [options]="academicLevelData" optionLabel="academicLevelName" optionValue="academicLevelID"
+                    styleClass="w-full">
                 </p-dropdown>
                 <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
             </p-floatlabel>
 
             <p-floatlabel variant="on" class="filter-item" style="margin-top: 10px;">
                 <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="newChapter.chapterName"
-                     autocomplete="off" />
+                    autocomplete="off" />
                 <label for="taskName" style="font-size: large;">
-                     اسم الفصل
+                    اسم الفصل
                 </label>
             </p-floatlabel>
         </div>
@@ -119,6 +120,5 @@
             <p-button label="Cancel" severity="secondary" (click)="visible = false" />
             <p-button label="Save" (click)="createChapter()" severity="success" />
         </div>
-    </p-dialog> 
+    </p-dialog>
 </div>
-

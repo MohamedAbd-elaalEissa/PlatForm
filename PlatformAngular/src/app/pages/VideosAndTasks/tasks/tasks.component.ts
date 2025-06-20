@@ -15,6 +15,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AuthService } from '../../service/auth.service';
+import { ChemistryBackgroundComponent } from '../../shared/chemistry-background/chemistry-background.component';
 
 
 @Component({

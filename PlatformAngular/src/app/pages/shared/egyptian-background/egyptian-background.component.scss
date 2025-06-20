@@ -1,0 +1,213 @@
+// egyptian-background.component.scss
+.egyptian-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, #8B4513 0%, #D2691E 50%, #F4A460 100%);
+  
+  // Dark mode desert colors
+  :host-context(.app-dark) & {
+    background: linear-gradient(135deg, #2F1B14 0%, #4A2C2A 50%, #654321 100%);
+  }
+}
+
+.egyptian-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.content-overlay {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.egyptian-title {
+  position: relative;
+  margin-bottom: 2rem;
+  
+  .title-text {
+    font-size: 4rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    text-align: center;
+    margin: 0;
+    background: linear-gradient(45deg, #FFD700, #FFA500, #FF8C00);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    animation: egyptianGlow 3s ease-in-out infinite alternate;
+    
+    :host-context(.app-dark) & {
+      background: linear-gradient(45deg, #FFD700, #FFFF00, #FFA500);
+      text-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+    }
+  }
+  
+  .title-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: egyptianPulse 4s ease-in-out infinite;
+    
+    :host-context(.app-dark) & {
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.5) 0%, transparent 70%);
+    }
+  }
+}
+
+.egyptian-slot {
+  width: 100%;
+  max-width: 1200px;
+  position: relative;
+  z-index: 2;
+}
+
+.gradient-overlay {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  
+  &.top {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, 
+      rgba(139, 69, 19, 0.8) 0%, 
+      rgba(139, 69, 19, 0.4) 50%, 
+      transparent 100%);
+    
+    :host-context(.app-dark) & {
+      background: linear-gradient(to bottom, 
+        rgba(47, 27, 20, 0.9) 0%, 
+        rgba(47, 27, 20, 0.5) 50%, 
+        transparent 100%);
+    }
+  }
+  
+  &.bottom {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to top, 
+      rgba(139, 69, 19, 0.8) 0%, 
+      rgba(139, 69, 19, 0.4) 50%, 
+      transparent 100%);
+    
+    :host-context(.app-dark) & {
+      background: linear-gradient(to top, 
+        rgba(47, 27, 20, 0.9) 0%, 
+        rgba(47, 27, 20, 0.5) 50%, 
+        transparent 100%);
+    }
+  }
+  
+  &.left {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 100px;
+    background: linear-gradient(to right, 
+      rgba(139, 69, 19, 0.6) 0%, 
+      rgba(139, 69, 19, 0.3) 50%, 
+      transparent 100%);
+    
+    :host-context(.app-dark) & {
+      background: linear-gradient(to right, 
+        rgba(47, 27, 20, 0.8) 0%, 
+        rgba(47, 27, 20, 0.4) 50%, 
+        transparent 100%);
+    }
+  }
+  
+  &.right {
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 100px;
+    background: linear-gradient(to left, 
+      rgba(139, 69, 19, 0.6) 0%, 
+      rgba(139, 69, 19, 0.3) 50%, 
+      transparent 100%);
+    
+    :host-context(.app-dark) & {
+      background: linear-gradient(to left, 
+        rgba(47, 27, 20, 0.8) 0%, 
+        rgba(47, 27, 20, 0.4) 50%, 
+        transparent 100%);
+    }
+  }
+}
+
+// Animations
+@keyframes egyptianGlow {
+  0% {
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.5),
+                 0 0 60px rgba(255, 165, 0, 0.3);
+  }
+  100% {
+    text-shadow: 0 0 40px rgba(255, 215, 0, 0.8),
+                 0 0 80px rgba(255, 165, 0, 0.5),
+                 0 0 120px rgba(255, 140, 0, 0.3);
+  }
+}
+
+@keyframes egyptianPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.9;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .egyptian-title .title-text {
+    font-size: 2.5rem;
+    letter-spacing: 0.1em;
+  }
+  
+  .content-overlay {
+    padding: 1rem;
+  }
+  
+  .gradient-overlay {
+    &.top, &.bottom {
+      height: 60px;
+    }
+    
+    &.left, &.right {
+      width: 60px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .egyptian-title .title-text {
+    font-size: 2rem;
+  }
+}

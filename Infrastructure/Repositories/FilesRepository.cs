@@ -163,7 +163,7 @@ namespace Infrastructure.Repositories
                 }
                 else
                 {
-                    studentId = await _dbContext.Students.Where(t => t.Email == filePDF.userEmail)
+                    studentId = await _dbContext.Students.Where(t => t.Email == filePDF.studentEmail)
                                                        .Select(u => u.StudentID)
                                                        .FirstOrDefaultAsync();
                     var filesAnswer = await _dbContext.FileAnswers
@@ -181,7 +181,7 @@ namespace Infrastructure.Repositories
                         filesAnswer = new FileAnswers
                         {
                             StudentID = studentId,
-                            AnswerName = filePDF.answerName,
+                            AnswerName = fullFileName,
                             FilesID = (int)filePDF.fileID,
                         };
 

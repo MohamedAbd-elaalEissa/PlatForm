@@ -12,11 +12,18 @@ import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
+import { ChemistryBackgroundComponent } from '../shared/chemistry-background/chemistry-background.component';
+import { PhysicsBackgroundComponent } from '../shared/physics-background/physics-background.component';
+import { EgyptianBackgroundComponent } from '../shared/egyptian-background/egyptian-background.component';
+import { BiologyBackgroundComponent } from '../shared/biology-background/biology-background.component';
+import { MathBackgroundComponent } from '../shared/math-background/math-background.component';
 
 
 @Component({
   selector: 'app-chapters-dashboard',
-  imports: [AnimateOnScrollModule, CardModule, CommonModule, RouterModule, FloatLabelModule, InputIconModule, DropdownModule, FormsModule, InputTextModule,ButtonModule],
+  imports: [AnimateOnScrollModule, CardModule, CommonModule, RouterModule, FloatLabelModule, InputIconModule, 
+    DropdownModule, FormsModule, InputTextModule,ButtonModule,PhysicsBackgroundComponent
+    ,ChemistryBackgroundComponent,EgyptianBackgroundComponent,BiologyBackgroundComponent,MathBackgroundComponent],
   templateUrl: './chapters-dashboard.component.html',
   styleUrl: './chapters-dashboard.component.scss',
   standalone: true
@@ -27,9 +34,11 @@ export class ChaptersDashboardComponent {
   Filter!: ChapterModel
   Chapters: any[] = [];
   academicLevelData: academicLevelDataModel[] = [];
-
+  subject:number
   constructor(private tasksAndVideos: TasksAndVideosService, private chaptersService: ChaptersService,) {
+    debugger
     const teacherId = sessionStorage.getItem('teacherId');
+    this.subject = Number(sessionStorage.getItem('subjectId'));
     if (teacherId) {
       this.teacherId = teacherId
     }

@@ -1,0 +1,337 @@
+// physics-background.component.scss
+
+.physics-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a0a1a 100%);
+  
+  // Light mode background
+  :host-context(.app-light) & {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
+  }
+}
+
+.physics-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.content-overlay {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.physics-title {
+  position: relative;
+  margin-bottom: 2rem;
+  
+  .title-text {
+    font-size: clamp(2rem, 5vw, 5rem);
+    font-weight: 500;
+    letter-spacing: 0.5em;
+    margin: 0;
+    background: linear-gradient(
+      45deg,
+      #00ffff 0%,
+      #ff00ff 25%,
+      #ffff00 50%,
+      #00ff00 75%,
+      #00ffff 100%
+    );
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 4s ease-in-out infinite;
+    text-shadow: 
+      0 0 20px rgba(0, 255, 255, 0.5),
+      0 0 40px rgba(255, 0, 255, 0.3),
+      0 0 60px rgba(255, 255, 0, 0.2);
+    
+    // Light mode adjustments
+    :host-context(.app-light) & {
+      background: linear-gradient(
+        45deg,
+        #0088cc 0%,
+        #cc0088 25%,
+        #cc8800 50%,
+        #008800 75%,
+        #0088cc 100%
+      );
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 
+        0 0 20px rgba(0, 136, 204, 0.4),
+        0 0 40px rgba(204, 0, 136, 0.3),
+        0 0 60px rgba(204, 136, 0, 0.2);
+    }
+  }
+  
+  .title-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(0, 255, 255, 0.1) 0%,
+      rgba(255, 0, 255, 0.05) 50%,
+      transparent 100%
+    );
+    animation: pulse-glow 3s ease-in-out infinite alternate;
+    z-index: -1;
+    
+    :host-context(.app-light) & {
+      background: radial-gradient(
+        ellipse at center,
+        rgba(0, 136, 204, 0.08) 0%,
+        rgba(204, 0, 136, 0.04) 50%,
+        transparent 100%
+      );
+    }
+  }
+}
+
+.physics-slot {
+  position: relative;
+  z-index: 5;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  :host-context(.app-light) & {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+}
+
+.gradient-overlay {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  
+  &.top {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 20%;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(0, 0, 0, 0.4) 50%,
+      transparent 100%
+    );
+    
+    :host-context(.app-light) & {
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        transparent 100%
+      );
+    }
+  }
+  
+  &.bottom {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20%;
+    background: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(0, 0, 0, 0.4) 50%,
+      transparent 100%
+    );
+    
+    :host-context(.app-light) & {
+      background: linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        transparent 100%
+      );
+    }
+  }
+  
+  &.left {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 15%;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(0, 0, 0, 0.3) 50%,
+      transparent 100%
+    );
+    
+    :host-context(.app-light) & {
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.7) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+      );
+    }
+  }
+  
+  &.right {
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 15%;
+    background: linear-gradient(
+      270deg,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(0, 0, 0, 0.3) 50%,
+      transparent 100%
+    );
+    
+    :host-context(.app-light) & {
+      background: linear-gradient(
+        270deg,
+        rgba(255, 255, 255, 0.7) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+      );
+    }
+  }
+}
+
+// Animations
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes pulse-glow {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.6;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .physics-title {
+    margin-bottom: 1rem;
+    
+    .title-text {
+      font-size: clamp(2rem, 12vw, 4rem);
+      letter-spacing: 0.3em;
+    }
+  }
+  
+  .physics-slot {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .physics-slot {
+    margin: 0.5rem;
+    padding: 1rem;
+    border-radius: 15px;
+  }
+}
+
+// Performance optimizations
+.physics-container {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.physics-canvas {
+  will-change: transform;
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  .title-text {
+    animation: none;
+  }
+  
+  .title-glow {
+    animation: none;
+  }
+  
+  .physics-canvas {
+    opacity: 0.3;
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .physics-title .title-text {
+    background: white;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    
+    :host-context(.app-light) & {
+      background: black;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+  
+  .physics-slot {
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid white;
+    
+    :host-context(.app-light) & {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid black;
+    }
+  }
+}
+.physics-canvas {
+  touch-action: none; // Prevent scrolling when touching canvas
+  -webkit-tap-highlight-color: transparent; // Remove tap highlights
+}
+
+// For better mobile performance
+@media (max-width: 768px) {
+  .physics-container {
+    will-change: auto; // Remove will-change on mobile if needed
+  }
+}

@@ -21,7 +21,8 @@ import { DialogModule } from 'primeng/dialog';
 @Component({
   selector: 'app-chapters',
   imports: [TableModule, ToastModule, CommonModule, TagModule, SelectModule,
-    ButtonModule, InputTextModule, FormsModule, FloatLabelModule, InputIconModule, DropdownModule, ConfirmDialogModule, DialogModule],
+    ButtonModule, InputTextModule, FormsModule, FloatLabelModule, InputIconModule, DropdownModule, 
+    ConfirmDialogModule, DialogModule],
   templateUrl: './chapters.component.html',
   standalone: true,
   styleUrl: './chapters.component.scss',

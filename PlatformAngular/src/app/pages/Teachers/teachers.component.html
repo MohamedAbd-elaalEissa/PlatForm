@@ -3,7 +3,7 @@
     <div class="h-[100%]">
         <div class="flex flex-wrap justify-center gap-8">
             <div *ngFor="let teacher of teachers" 
-                pAnimateOnScroll (click)="saveInLocalStorage(teacher.teacherID)"
+                pAnimateOnScroll (click)="saveInLocalStorage(teacher.teacherID,teacher.subjectId)"
                 enterClass="animate-enter fade-in-10 slide-in-from-t-20 animate-duration-1000"
                 leaveClass="animate-leave fade-out-0" 
                 class="flex flex-col border border-primary-200 shadow-xl justify-center items-center max-w-lg rounded-3xl p-12 gap-6 cursor-pointer"
@@ -18,7 +18,7 @@
                 </span>
 
                 <span class="text-primary-600 text-xl font-semibold dark:text-primary-400">
-                    {{ teacher.studySubject }}
+                    {{ teacher?.subject?.subject }}
                 </span>
 
                 <span class="text-muted-color text-lg text-center text-gray-700 dark:text-gray-300">

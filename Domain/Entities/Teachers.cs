@@ -17,7 +17,8 @@ namespace Domain.Entities
         public int? Age { get; set; }
         [Phone]
         public string PhoneNumber { get; set; }
-        public string StudySubject { get; set; }
+        public int? SubjectId { get; set; }
+        public Subjects Subject { get; set; }
         public string ImagesUrl { get; set; }
         [EmailAddress]
         public string Email { get; set; }

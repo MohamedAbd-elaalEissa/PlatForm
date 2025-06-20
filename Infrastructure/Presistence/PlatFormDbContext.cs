@@ -41,6 +41,7 @@ namespace Infrastructure.Presistence
         public DbSet<FileAnswers> FileAnswers { get; set; }
         public DbSet<OfflineMessage> OfflineMessage { get; set; }
         public DbSet<Chapters> Chapters { get; set; }
+        public DbSet<Subjects> Subjects { get; set; }
 
     }
 }

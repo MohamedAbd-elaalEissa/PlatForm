@@ -32,6 +32,7 @@ export class TeachersComponent {
   getAllTeacher() {
     this.teachersService.getAllTeachers().subscribe({
       next: (data) => {
+        debugger
         this.teachers = data; 
       },
       error: (err) => {
@@ -40,8 +41,9 @@ export class TeachersComponent {
     });
   }
 
-  saveInLocalStorage(teacherId : string)
+  saveInLocalStorage(teacherId : string,subjectId:any)
   {
     sessionStorage.setItem('teacherId', teacherId);
+    sessionStorage.setItem('subjectId', subjectId);
   }
 }

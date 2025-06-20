@@ -14,7 +14,7 @@ export class TeachersService {
   constructor(private http: HttpClient) {}
 
   getAllTeachers(): Observable<any> {
-    return this.http.get<any>(this.apiUrl+"GetAllTeachers");
+    return this.http.get<any>(this.apiUrl+"GetTeacherWithStudents");
   }
 
 }
