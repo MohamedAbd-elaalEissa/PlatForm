@@ -24,9 +24,9 @@ import { IncludesRolePipe } from '../Pipe/includes-role.pipe';
 
 @Component({
   selector: 'app-chapters-dashboard',
-  imports: [AnimateOnScrollModule, CardModule, CommonModule, RouterModule, FloatLabelModule, InputIconModule, 
-    DropdownModule, FormsModule, InputTextModule,ButtonModule,PhysicsBackgroundComponent
-    ,ChemistryBackgroundComponent,EgyptianBackgroundComponent,BiologyBackgroundComponent,MathBackgroundComponent,IncludesRolePipe],
+  imports: [AnimateOnScrollModule, CardModule, CommonModule, RouterModule, FloatLabelModule, InputIconModule,
+    DropdownModule, FormsModule, InputTextModule, ButtonModule, PhysicsBackgroundComponent
+    , ChemistryBackgroundComponent, EgyptianBackgroundComponent, BiologyBackgroundComponent, MathBackgroundComponent, IncludesRolePipe],
   templateUrl: './chapters-dashboard.component.html',
   styleUrl: './chapters-dashboard.component.scss',
   standalone: true
@@ -37,28 +37,23 @@ export class ChaptersDashboardComponent {
   Filter!: ChapterModel
   Chapters: any[] = [];
   academicLevelData: academicLevelDataModel[] = [];
-  subject:number
-  roles: string[]=[];
+  subject: number
+  roles: string[] = [];
   email: any;
   studentLevel: any;
-  constructor(private tasksAndVideos: TasksAndVideosService, private chaptersService: ChaptersService,
-    private authService:AuthService,private studentService:StudentService) {
-    debugger
+  constructor(private tasksAndVideos: TasksAndVideosService, private chaptersService: ChaptersService, private authService: AuthService, private studentService: StudentService) {
     const teacherId = sessionStorage.getItem('teacherId');
     this.subject = Number(sessionStorage.getItem('subjectId'));
     if (teacherId) {
       this.teacherId = teacherId
     }
-    debugger
-    this.roles=this.authService.getUserTokenRoles();
+    this.roles = this.authService.getUserTokenRoles();
     const rolesArray = Array.isArray(this.roles) ? this.roles : [this.roles];
     if (rolesArray.some(role => role.includes('Student'))) {
-  debugger;
-  this.email = this.authService.getUserEmail();
-  this.GetStudentWithEmail();
-}
-
-   
+      debugger;
+      this.email = this.authService.getUserEmail();
+      this.GetStudentWithEmail();
+    }
   }
 
   ngOnInit(): void {
@@ -67,7 +62,7 @@ export class ChaptersDashboardComponent {
       teacherId: this.teacherId,
       pageNumber: 1,
       pageSize: 25,
-      academicLevelId:(this.studentLevel??null)
+      academicLevelId: (this.studentLevel ?? null)
     }
 
     this.getChapterData()
@@ -97,7 +92,7 @@ export class ChaptersDashboardComponent {
 
   saveInSessionStorage(chaptersID: string) {
     sessionStorage.setItem('chapterId', chaptersID);
-    
+
   }
 
   getChapterAcademyLevel(academicLevelId: number) {
