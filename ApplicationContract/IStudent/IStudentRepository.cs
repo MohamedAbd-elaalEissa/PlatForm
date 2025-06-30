@@ -11,5 +11,6 @@ namespace ApplicationContract.IStudent
     public interface IStudentRepository:IGenericRepository<Students>
     {
         Task<IEnumerable<Students>> GetAllStudentWithInclude();
+        Task<Students> GetStudentWithEmail(string email);
     }
 }

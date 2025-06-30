@@ -109,6 +109,14 @@ export class AuthService {
     return '';
   }
 
+    getUserTokenRoles(): any {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const tokenObj = JSON.parse(token);
+      const decodedToken = this.jwtHelper.decodeToken(tokenObj.token);
+      return decodedToken?.role;
+    }
+  }
 private handleError(error: HttpErrorResponse): Observable<never> {
     let errorResponse: ErrorResponse = {
       type: 'UnknownError',

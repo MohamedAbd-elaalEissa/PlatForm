@@ -16,5 +16,9 @@ namespace Infrastructure.Repositories
         public async Task<IEnumerable<Students>> GetAllStudentWithInclude()
          => await _dbContext.Students.AsNoTracking().Include(t => t.Teacher).ToListAsync();
 
+        public Task<Students> GetStudentWithEmail(string email)
+            =>_dbContext.Students
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Email == email);
     }
 }
