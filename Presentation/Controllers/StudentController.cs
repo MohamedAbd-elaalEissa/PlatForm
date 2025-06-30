@@ -50,5 +50,14 @@ namespace Presentation.Controllers
             var res = await Mediator.Send(query);
             return Ok(res);
         }
+
+        [HttpGet]
+        [Route("GetStudentWithEmail")]
+        public async Task<IActionResult> GetStudentWithEmailQueries(string email)
+        {
+            GetStudentWithEmailQueries query = new GetStudentWithEmailQueries(email);
+            var res = await Mediator.Send(query);
+            return Ok(res);
+        }
     }
 }

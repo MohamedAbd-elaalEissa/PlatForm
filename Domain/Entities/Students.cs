@@ -21,6 +21,8 @@ namespace Domain.Entities
         public string Email { get; set; }
         //public int TeacherID { get; set; }
         public ICollection<Teachers> Teacher { get; set; }
+        public int? AcademicLevelId { get; set; }
+        public AcademicLevels AcademicLevel { get; set; }
 
     }
 }
