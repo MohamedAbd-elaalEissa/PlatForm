@@ -3,6 +3,7 @@ using ApplicationContract.Models;
 using Domain.Entities;
 using Infrastructure.Presistence;
 using Microsoft.EntityFrameworkCore;
+using Polly;
 
 namespace Infrastructure.Repositories
 {
@@ -29,5 +30,15 @@ namespace Infrastructure.Repositories
                     Email = s.Email
                 }).ToList()
             }).FirstOrDefaultAsync();
+
+        public async Task<Teachers> GetTeacherWithStudentsByEmailAsync(string email)
+        {
+            return await _dbContext.Teachers.FirstOrDefaultAsync(t => t.Email == email);
+        }
+
+        public async Task<IEnumerable<Subjects>> GetAllStudySubjectsAsync()
+        {
+            return await _dbContext.Subjects.ToListAsync(); 
+        }
     }
 }

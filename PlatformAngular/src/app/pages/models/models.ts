@@ -63,3 +63,10 @@ export interface LogInModel {
     email: string,
     password: string
 }
+
+export interface StudySubject {
+    Subject: string,
+    SubjectId: number
+}
+
+

@@ -36,9 +36,6 @@ namespace Application.Teacher.Features.Teachers.Validators
             RuleFor(n => n.Teacher.Brief)
                 .NotEmpty();
 
-            RuleFor(n => n.Teacher.StudySubject)
-                .NotEmpty();
-
             //we need to descus ages of Teacher in our app
             RuleFor(n => n.Teacher.Age)
              .NotEmpty().WithMessage("{PropertyName} is required")

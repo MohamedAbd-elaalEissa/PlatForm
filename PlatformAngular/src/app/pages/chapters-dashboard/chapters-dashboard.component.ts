@@ -36,7 +36,6 @@ export class ChaptersDashboardComponent {
   academicLevelData: academicLevelDataModel[] = [];
   subject:number
   constructor(private tasksAndVideos: TasksAndVideosService, private chaptersService: ChaptersService,) {
-    debugger
     const teacherId = sessionStorage.getItem('teacherId');
     this.subject = Number(sessionStorage.getItem('subjectId'));
     if (teacherId) {

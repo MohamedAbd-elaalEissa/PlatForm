@@ -43,6 +43,8 @@ export class TeachersComponent {
 
   saveInLocalStorage(teacherId : string,subjectId:any)
   {
+  console.log("🚀 ~ TeachersComponent ~ subjectId:", subjectId)
+    
     sessionStorage.setItem('teacherId', teacherId);
     sessionStorage.setItem('subjectId', subjectId);
   }

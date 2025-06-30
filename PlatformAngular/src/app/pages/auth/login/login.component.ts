@@ -13,6 +13,7 @@ import { AuthService } from '../../service/auth.service';
 import { ToastModule } from 'primeng/toast';
 import { ErrorResponse } from '../../models/ErrorResponse';
 import { ErrorHandlerService } from '../../service/error-handler.service';
+import { TeachersService } from '../../service/teachers.service';
 @Component({
   selector: 'app-login',
   imports: [ToastModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
@@ -31,14 +32,11 @@ export class LoginComponent {
   checked: boolean = false;
   errorMessage: any;
 
-  constructor(private messageService: MessageService, private authService: AuthService, private router: Router,private errorHandler: ErrorHandlerService) { }
+  constructor(private messageService: MessageService, private teachersService: TeachersService, private authService: AuthService, private router: Router, private errorHandler: ErrorHandlerService) { }
 
-  signIn() {
-    debugger
-    if (
-      !this.logInModel.email ||
-      !this.logInModel.password
-    ) {
+  async signIn() {
+    debugger;
+    if (!this.logInModel.email || !this.logInModel.password) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
@@ -55,31 +53,56 @@ export class LoginComponent {
       });
       return;
     }
-    debugger
+
     this.authService.signIn({ Login: this.logInModel }).subscribe({
-      next: (data) => {
+      next: async (data) => {
         this.messageService.add({
           severity: 'success',
           summary: 'Login',
           detail: 'Login Successfully',
         });
-        console.log(data)
-        setTimeout(() => {
-          this.router.navigate(['/pages/teachers']);
+
+        setTimeout(async () => {
+          const teacherData = await this.teachersService.getTeacherByEmail(this.logInModel.email).toPromise();
+          const isComplete =
+            teacherData.age !== 0 ||
+            (teacherData.brief && teacherData.brief.trim() !== "") ||
+            (teacherData.imagesUrl && teacherData.imagesUrl.trim() !== "") ||
+            teacherData.subjectId !== null;
+          if (isComplete) {
+            this.router.navigate(['/pages/teachers']);
+          } else {
+            localStorage.setItem('teacherProfile', JSON.stringify(teacherData));
+            this.router.navigate(['/profile']);
+          }
         }, 1500);
       },
-       error: (error:ErrorResponse) => {
-         this.errorHandler.handleError(error).subscribe({
-            error: (err) => {
-              this.errorMessage = err.userMessage;
-            }
-          });
+      error: (error: ErrorResponse) => {
+        this.errorHandler.handleError(error).subscribe({
+          error: (err) => {
+            this.errorMessage = err.userMessage;
+          }
+        });
+
         this.messageService.add({
           severity: 'error',
           summary: 'Login',
           detail: this.errorMessage,
         });
       }
+    });
+  }
+
+  checkProfileData(email: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.teachersService.getTeacherByEmail(email).subscribe({
+        next: (res) => {
+          resolve(res);
+        },
+        error: () => {
+          resolve(false);
+        }
+      });
     });
   }
 }

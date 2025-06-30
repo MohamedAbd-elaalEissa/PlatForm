@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Threading.Tasks;
+using Polly;
 
 namespace Infrastructure.Repositories
 {

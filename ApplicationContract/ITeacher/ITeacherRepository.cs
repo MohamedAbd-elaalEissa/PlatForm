@@ -13,6 +13,9 @@ namespace ApplicationContract.ITeacher
     {
         Task<IEnumerable<Teachers>> GetAllTeacherWithInclude();
         Task<TeacherStudentDTO> GetTeacherWithInclude(int teacherID);
+        Task<Teachers> GetTeacherWithStudentsByEmailAsync(string email);
+        Task<IEnumerable<Subjects>> GetAllStudySubjectsAsync();
+
 
     }
 }
