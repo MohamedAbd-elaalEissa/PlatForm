@@ -9,11 +9,16 @@ import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { AppFloatingConfigurator } from '../../../layout/component/app.floatingconfigurator';
-import { RegisterModel } from '../../models/models';
+import { academicLevelDataModel, RegisterModel, StudySubject } from '../../models/models';
 import { AuthService } from '../../service/auth.service';
 import { CommonModule } from '@angular/common';
 import { ErrorResponse } from '../../models/ErrorResponse';
 import { ErrorHandlerService } from '../../service/error-handler.service';
+import { TeachersService } from '../../service/teachers.service';
+import { TasksAndVideosService } from '../../service/tasks-and-videos.service';
+import { DropdownModule } from 'primeng/dropdown';
+import { IncludesRolePipe } from '../../Pipe/includes-role.pipe';
+import { FloatLabelModule } from 'primeng/floatlabel';
 
 @Component({
   selector: 'app-signup',
@@ -27,7 +32,10 @@ import { ErrorHandlerService } from '../../service/error-handler.service';
     PasswordModule,
     RouterModule,
     RippleModule,
-    CommonModule
+    CommonModule,
+    DropdownModule,
+    IncludesRolePipe,
+    FloatLabelModule
     // AppFloatingConfigurator,
   ],
   templateUrl: './signup.component.html',
@@ -37,12 +45,23 @@ import { ErrorHandlerService } from '../../service/error-handler.service';
 export class SignupComponent {
   userRoles: any;
   errorMessage: any;
-  constructor(private messageService: MessageService, private authService: AuthService, private router: Router, private errorHandler: ErrorHandlerService) {
+  SubjectData: StudySubject[] = [];
+  academicLevelData: academicLevelDataModel[] = [];
+  roles: any;
+  academicId:any
+  constructor(private messageService: MessageService,private tasksAndVideos: TasksAndVideosService, private authService: AuthService, private router: Router, private errorHandler: ErrorHandlerService) {
     var token = localStorage.getItem('token');
     if (token != null) {
       debugger
       var email = this.authService.getUserEmail();
       this.GetUserRoles(email);
+      this.roles = this.authService.getUserTokenRoles();
+      const rolesArray = Array.isArray(this.roles) ? this.roles : [this.roles];
+    // if (rolesArray.some(role => role.includes('Student'))) {
+    //   debugger;
+    // }
+    this.getAcademicLevelFilter();
+
     }
   }
   registerModel: RegisterModel = {
@@ -86,7 +105,7 @@ export class SignupComponent {
       });
       return;
     }
-
+debugger
     this.authService.Register({ register: this.registerModel }).subscribe({
       next: (data) => {
         this.messageService.add({
@@ -115,12 +134,25 @@ export class SignupComponent {
     });
   }
 
-
-
-
   GetUserRoles(email: string) {
     this.authService.GetUserRoles(email).subscribe((res) => {
       this.userRoles = res;
     })
   }
+
+
+  getAcademicLevelFilter() {
+    this.tasksAndVideos.getAllAcademicLevels().subscribe({
+      next: (data) => {
+        this.academicLevelData = data
+console.log('this.academicLevelData',this.academicLevelData)
+      }
+    });
+  }
+  onAcademicLevelChange(event: any) {
+    debugger
+    console.log('Selected value:', event.value);
+    console.log('Academic ID:', this.registerModel.academicLevelId);
+    console.log('Available options:', this.academicLevelData);
+}
 }

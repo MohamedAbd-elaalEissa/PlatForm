@@ -32,6 +32,16 @@
                         Number</label>
                     <input pInputText id="phone" type="tel" [(ngModel)]="registerModel.phoneNumber" name="phone"
                         class="w-full md:w-[30rem] mb-5" placeholder="Phone Number" />
+                    <div [hidden]="roles | includesRole :['Teacher']" >
+                        <p-floatlabel class="w-full md:w-56 filter-item"
+                            variant="on">
+                            <p-dropdown [(ngModel)]="registerModel.academicLevelId" inputId="academicLevel" [ngModelOptions]="{standalone: true}"
+                                [options]="academicLevelData" optionLabel="academicLevelName"
+                                optionValue="academicLevelID" styleClass="w-full" (onChange)="onAcademicLevelChange($event)">
+                            </p-dropdown>
+                            <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
+                        </p-floatlabel>
+                    </div>
 
                     <label for="password"
                         class="block text-surface-900 dark:text-white text-xl font-medium mb-2">Password</label>
@@ -45,7 +55,7 @@
                         placeholder="Confirm Password" [toggleMask]="true" [feedback]="false" class="mb-6"
                         inputStyleClass="w-full" styleClass="w-full"></p-password>
 
-                    <div *ngIf="userRoles == 'PLT_Admin'">
+                    <div *ngIf="roles | includesRole :['PLT_Admin']">
                         <div class="flex items-center mb-5 mt-1">
                             <p-checkbox name="IsTeacher" inputId="IsTeacher" [(ngModel)]="registerModel.isTeacher"
                                 binary="true" class="mr-2">
