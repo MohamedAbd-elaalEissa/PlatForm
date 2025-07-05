@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { AnimateOnScrollModule } from 'primeng/animateonscroll';
 import { CardModule } from 'primeng/card';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ChaptersService } from '../service/chapters.service';
 import { academicLevelDataModel, ChapterModel } from '../models/models';
 import { TasksAndVideosService } from '../service/tasks-and-videos.service';
@@ -41,13 +41,19 @@ export class ChaptersDashboardComponent {
   roles: string[] = [];
   email: any;
   studentLevel: any;
-  constructor(private tasksAndVideos: TasksAndVideosService, private chaptersService: ChaptersService, private authService: AuthService, private studentService: StudentService) {
+  constructor(private tasksAndVideos: TasksAndVideosService, private chaptersService: ChaptersService, private authService: AuthService,
+     private studentService: StudentService,private router:Router) {
     const teacherId = sessionStorage.getItem('teacherId');
     this.subject = Number(sessionStorage.getItem('subjectId'));
     if (teacherId) {
       this.teacherId = teacherId
     }
     this.roles = this.authService.getUserTokenRoles();
+    if(!this.roles)
+    {
+      this.router.navigate(['/notfound']);
+
+    }
     const rolesArray = Array.isArray(this.roles) ? this.roles : [this.roles];
     if (rolesArray.some(role => role.includes('Student'))) {
       debugger;

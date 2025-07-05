@@ -21,7 +21,7 @@
 </div>
 <ng-container [ngSwitch]="subject">
 <app-physics-background *ngSwitchCase="1" >
-        <div *ngIf="roles | includesRole :['Teacher','Student']"  class="h-[100%]">
+        <div *ngIf="roles | includesRole :['Teacher','Physics_Student']"  class="h-[100%]">
             <div class="flex flex-wrap justify-center gap-8">
                 <div *ngFor="let chapter of Chapters" pAnimateOnScroll (click)="saveInSessionStorage(chapter.chapterID)"
                     enterClass="animate-enter fade-in-10 slide-in-from-t-20 animate-duration-1000"
@@ -45,7 +45,7 @@
 </app-physics-background>
 
 <app-chemistry-background  *ngSwitchCase="2">
-        <div *ngIf="roles?.includes('Chemistry_Teacher')" class="h-[100%]">
+        <div *ngIf="roles | includesRole :['Teacher','Chemistry_Student']" class="h-[100%]">
             <div class="flex flex-wrap justify-center gap-8">
                 <div *ngFor="let chapter of Chapters" pAnimateOnScroll (click)="saveInSessionStorage(chapter.chapterID)"
                     enterClass="animate-enter fade-in-10 slide-in-from-t-20 animate-duration-1000"

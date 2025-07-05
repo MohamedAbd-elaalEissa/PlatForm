@@ -56,7 +56,8 @@ export interface RegisterModel {
     email: string,
     phoneNumber: string,
     password: string,
-    isTeacher: boolean
+    isTeacher: boolean,
+    academicLevelId?:number
 }
 
 export interface LogInModel {

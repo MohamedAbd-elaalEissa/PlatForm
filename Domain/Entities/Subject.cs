@@ -13,5 +13,6 @@ namespace Domain.Entities
         [Key]
         public int SubjectId { get; set; }
         public string Subject { get; set; }
+        public string SubjectAR { get; set; }
     }
 }
