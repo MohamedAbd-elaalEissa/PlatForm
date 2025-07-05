@@ -8,14 +8,14 @@ import { ProfileComponent } from './app/layout/component/profile/profile.compone
 
 export const appRoutes: Routes = [
     {
-        path: '', component: AppLayout,
+        path: '',
+        component: AppLayout,
         children: [
-            { path: '', component: Dashboard },
+            { path: '', redirectTo: '/pages/teachers', pathMatch: 'full' },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
             { path: 'profile', component: ProfileComponent },
-
         ]
     },
     { path: 'landing', component: Landing },

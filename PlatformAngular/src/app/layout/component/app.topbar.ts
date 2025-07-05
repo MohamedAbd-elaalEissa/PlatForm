@@ -8,7 +8,7 @@ import { LayoutService } from '../service/layout.service';
 import { SignalrService } from '../../pages/service/signalr.service';
 import { ToastModule } from 'primeng/toast';
 import { MatBadgeModule } from '@angular/material/badge';
-
+import { Location } from '@angular/common';
 @Component({
     selector: 'app-topbar',
     standalone: true,
@@ -17,17 +17,34 @@ import { MatBadgeModule } from '@angular/material/badge';
     template: `
     <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
-            <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
+          
+           <!-- زر الرجوع -->
+            <button
+                type="button"
+                class="layout-topbar-action back-button"
+                (click)="goBack()"
+                pTooltip="رجوع"
+                tooltipPosition="bottom"
+            >
+                <i class="pi pi-arrow-left"></i>
+            </button>
+            
+            <!-- <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
                 <i class="pi pi-bars"></i>
             </button>
-            <a class="layout-topbar-logo" routerLink="/">
+             -->
+
+            <a class="layout-topbar-logo" routerLink="/pages/teachers">
                 <!-- <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 </svg> -->
                 <span style="width: max-content;">What Ever U want ⚡💪</span>
             </a>
+             
         </div>
 
         <div class="layout-topbar-actions">
+            
+
             <div class="layout-config-menu">
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
@@ -60,7 +77,7 @@ import { MatBadgeModule } from '@angular/material/badge';
                         <i class="pi pi-bell"></i>
                     </button>
                     <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-user" (click)="goToProfile()"></i>
+                        <i class="pi pi-user" routerLink="/profile"></i>
                         <span>Profile</span>
                     </button>
                 </div>
@@ -76,6 +93,22 @@ import { MatBadgeModule } from '@angular/material/badge';
     `,
     styles: [
         `
+        .back-button {
+    margin-right: 1.5rem;
+    background-color: var(--primary-color, #2563eb);
+    color: white;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.back-button:hover {
+    background-color: var(--primary-color-hover, #1d4ed8);
+}
         .pill-notification {
             position: absolute;
             top: -5px;
@@ -131,7 +164,7 @@ export class AppTopbar {
         public layoutService: LayoutService,
         private signalRService: SignalrService,
         private toastService: MessageService,
-        private router: Router
+        private location: Location
     ) { }
 
     ngOnInit(): void {
@@ -174,7 +207,7 @@ export class AppTopbar {
         }
     }
 
-    goToProfile() {
-        this.router.navigate(['/profile']);
+    goBack() {
+        this.location.back();
     }
 }

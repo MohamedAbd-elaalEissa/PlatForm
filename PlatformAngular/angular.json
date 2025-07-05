@@ -30,7 +30,6 @@
                         ],
                         "styles": [
                             "@angular/material/prebuilt-themes/rose-red.css",
-                            "node_modules/plyr/dist/plyr.css",
                             "src/styles.scss"
                         ],
                         "scripts": []
@@ -91,7 +90,6 @@
                         ],
                         "styles": [
                             "@angular/material/prebuilt-themes/rose-red.css",
-                            "node_modules/plyr/dist/plyr.css",
                             "src/styles.scss"
                         ],
                         "scripts": []

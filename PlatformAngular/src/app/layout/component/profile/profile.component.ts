@@ -235,8 +235,7 @@ export class ProfileComponent {
       imagesUrl: this.profile.ImagesUrl,
       subjectId: this.profile.SubjectId
     };
-      console.log("🚀 ~ ProfileComponent ~ this.teacherService.updateTeacher ~ teacherToUpdate:", teacherToUpdate)
-
+    
     this.teacherService.updateTeacher(teacherToUpdate).subscribe({
       next: () => {
         this.messageService.add({

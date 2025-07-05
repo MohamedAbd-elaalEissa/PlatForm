@@ -1,7 +1,6 @@
-﻿using Amazon.S3.Model;
-using Amazon.S3;
+﻿using Amazon.S3;
+using Amazon.S3.Model;
 using ApplicationContract.IFiles;
-using ApplicationContract.IStudent;
 using ApplicationContract.ITeacher;
 using ApplicationContract.Models;
 using ApplicationContract.Models.File;
@@ -13,8 +12,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Net;
-using System.Threading.Tasks;
-using Polly;
 
 namespace Infrastructure.Repositories
 {
@@ -75,17 +72,14 @@ namespace Infrastructure.Repositories
                 string fullFileName = fileName + fileExtension;
                 string s3FileKey;
                 // S3 key for the file (organized in folders)
-                if (filePDF.isBook==false)
+                if (filePDF.isBook == false)
                 {
-                     s3FileKey = $"pdf-files/{fullFileName}";
+                    s3FileKey = $"pdf-files/{fullFileName}";
                 }
                 else
                 {
-                     s3FileKey = $"pdf-book/{fullFileName}";
+                    s3FileKey = $"pdf-book/{fullFileName}";
                 }
-                
-
-                Console.WriteLine($"Uploading PDF file: {fullFileName}");
 
                 // Check if file already exists in database
                 if (filePDF.isAnswer == false)
@@ -103,42 +97,45 @@ namespace Infrastructure.Repositories
                         };
                     }
                 }
-
                 // Upload file to S3
-                using (var stream = filePDF.file.OpenReadStream())
+                using (var pdfStream = filePDF.file.OpenReadStream())
                 {
-                    var putRequest = new PutObjectRequest
-                    {
-                        BucketName = _bucketName,
-                        Key = s3FileKey,
-                        InputStream = stream,
-                        ContentType = filePDF.file.ContentType ?? "application/pdf",
-                        ServerSideEncryptionMethod = ServerSideEncryptionMethod.AES256
-                    };
+                    var watermarkedBytes = PdfWatermarkHelper.AddTextWatermark(pdfStream, "Knowledge Galaxy");
 
-                    var result = await _s3Client.PutObjectAsync(putRequest);
-
-                    if (result.HttpStatusCode != System.Net.HttpStatusCode.OK)
+                    using (var ms = new MemoryStream(watermarkedBytes))
                     {
-                        return new CommonResult
+                        var putRequest = new PutObjectRequest
                         {
-                            IsValidTransaction = false,
-                            TransactionDetails = "S3 upload failed.",
-                            TransactionHeaderMessage = "Upload failed"
+                            BucketName = _bucketName,
+                            Key = s3FileKey,
+                            InputStream = ms,
+                            ContentType = "application/pdf",
+                            ServerSideEncryptionMethod = ServerSideEncryptionMethod.AES256
                         };
+
+                        var result = await _s3Client.PutObjectAsync(putRequest);
+
+                        if (result.HttpStatusCode != System.Net.HttpStatusCode.OK)
+                        {
+                            return new CommonResult
+                            {
+                                IsValidTransaction = false,
+                                TransactionDetails = "S3 upload failed.",
+                                TransactionHeaderMessage = "Upload failed"
+                            };
+                        }
                     }
                 }
-
                 Files files = null;
                 int userId = 0;
-                int studentId= 0;
+                int studentId = 0;
                 // Save to database via EF Core
                 if (filePDF.isAnswer == false)
                 {
                     files = await _dbContext.Files
                         .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID);
-                    userId=await _dbContext.Teachers.Where(t=>t.Email == filePDF.userEmail)
-                                                        .Select(u=>u.TeacherID)
+                    userId = await _dbContext.Teachers.Where(t => t.Email == filePDF.userEmail)
+                                                        .Select(u => u.TeacherID)
                                                         .FirstOrDefaultAsync();
 
                     if (files != null)
@@ -169,7 +166,7 @@ namespace Infrastructure.Repositories
                                                        .FirstOrDefaultAsync();
                     var filesAnswer = await _dbContext.FileAnswers
                         .FirstOrDefaultAsync(c => c.FilesID == filePDF.fileID && c.StudentID == studentId);
-                   
+
                     if (filesAnswer != null)
                     {
                         // Update existing
@@ -202,7 +199,7 @@ namespace Infrastructure.Repositories
                 await _dbContext.SaveChangesAsync();
 
                 // Send notifications to students (only if not a student answer)
-                if (studentId ==0)
+                if (studentId == 0)
                 {
                     var res = await _teacher.GetTeacherWithInclude(userId);
                     foreach (var item in res.Students)
@@ -396,7 +393,7 @@ namespace Infrastructure.Repositories
             var query = _dbContext.FileAnswers
                                 .Include(f => f.Files)
                                 //.ThenInclude(f => f.AcademicLevel)
-                                .Include(f => f.Student) 
+                                .Include(f => f.Student)
                                 .Where(f => f.Files.TeacherID == StudentAnswerFile.TeacherId
                                          && f.Files.FilesID == StudentAnswerFile.FilesId)
                                 .AsQueryable();
@@ -426,7 +423,7 @@ namespace Infrastructure.Repositories
                 {
                     f.FileAnswersID,
                     f.AnswerName,
-                    StudentName = f.Student.FirstName +" " + f.Student.LastName,
+                    StudentName = f.Student.FirstName + " " + f.Student.LastName,
                     //f.Student.StudentName, 
                     f.Files.FileName,
                     f.Files.FilesID,
