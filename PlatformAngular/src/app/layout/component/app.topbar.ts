@@ -21,10 +21,9 @@ import { MatBadgeModule } from '@angular/material/badge';
                 <i class="pi pi-bars"></i>
             </button>
             <a class="layout-topbar-logo" routerLink="/">
-                <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- SVG content remains unchanged -->
-                </svg>
-                <span style="width: max-content;">What </span>
+                <!-- <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                </svg> -->
+                <span style="width: max-content;">What Ever U want ⚡💪</span>
             </a>
         </div>
 

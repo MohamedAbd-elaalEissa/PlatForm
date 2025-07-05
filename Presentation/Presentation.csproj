@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\assets\Teacher\" />
     <Folder Include="wwwroot\browser\assets\Teacher\" />
   </ItemGroup>
 
