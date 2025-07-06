@@ -24,7 +24,7 @@ import { MatBadgeModule } from '@angular/material/badge';
                 <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <!-- SVG content remains unchanged -->
                 </svg>
-                <span style="width: max-content;">What </span>
+                <span style="width: max-content;"></span>
             </a>
         </div>
 
@@ -49,22 +49,26 @@ import { MatBadgeModule } from '@angular/material/badge';
                 </div>
             </div>
 
-            <div class="layout-topbar-menu hidden lg:block">
-                <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-calendar"></i>
-                        <span>Calendar</span>
-                    </button>
-                    <button #notificationsButton type="button"
-                     mat-raised-button matBadgeSize="medium" [matBadge]="notificationCount" 
-                     [matBadgeHidden]="notificationCount === 0" (click)="toggleNotifications($event)">
-                        <i class="pi pi-bell"></i>
-                    </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-user" (click)="goToProfile()"></i>
-                        <span>Profile</span>
-                    </button>
-                </div>
+           <div class="flex items-center gap-3">
+                <!-- Notification Icon -->
+                <button
+                    #notificationsButton
+                    type="button"
+                    mat-raised-button
+                    matBadgeSize="medium"
+                    [matBadge]="notificationCount"
+                    [matBadgeHidden]="notificationCount === 0"
+                    (click)="toggleNotifications($event)"
+                    class="layout-topbar-action"
+                >
+                    <i class="pi pi-bell"></i>
+                </button>
+
+                <!-- Profile Icon -->
+                <button type="button" class="layout-topbar-action" (click)="goToProfile()">
+                    <i class="pi pi-user"></i>
+                    <span class="hidden sm:inline">Profile</span> <!-- Hide label on small screen -->
+                </button>
             </div>
         </div>
     </div> 

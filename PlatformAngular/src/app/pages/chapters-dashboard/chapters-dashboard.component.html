@@ -1,6 +1,6 @@
 <div class="card">
 
-    <p-button [routerLink]="['/pages/createNewChapter']" label="إضافة فصل" icon="pi pi-plus" class="add-chapter-btn" />
+    <p-button *ngIf="roles | includesRole :['Teacher']" [routerLink]="['/pages/createNewChapter']" label="إضافة فصل" icon="pi pi-plus" class="add-chapter-btn" />
     <div class="filters-container">
         <p-floatlabel variant="on" class="filter-item">
             <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.chapterName"
@@ -20,7 +20,7 @@
     </div>
 </div>
 <ng-container [ngSwitch]="subject">
-<app-physics-background *ngSwitchCase="1" >
+<div *ngSwitchCase="1" >
         <div *ngIf="roles | includesRole :['Teacher','Physics_Student']"  class="h-[100%]">
             <div class="flex flex-wrap justify-center gap-8">
                 <div *ngFor="let chapter of Chapters" pAnimateOnScroll (click)="saveInSessionStorage(chapter.chapterID)"
@@ -42,9 +42,9 @@
                 </div>
             </div>
         </div>
-</app-physics-background>
+</div>
 
-<app-chemistry-background  *ngSwitchCase="2">
+<div  *ngSwitchCase="2">
         <div *ngIf="roles | includesRole :['Teacher','Chemistry_Student']" class="h-[100%]">
             <div class="flex flex-wrap justify-center gap-8">
                 <div *ngFor="let chapter of Chapters" pAnimateOnScroll (click)="saveInSessionStorage(chapter.chapterID)"
@@ -66,8 +66,8 @@
                 </div>
             </div>
         </div>
-    </app-chemistry-background>
-<app-biology-background *ngSwitchCase="3">
+    </div>
+<div *ngSwitchCase="3">
         <div class="h-[100%]">
             <div class="flex flex-wrap justify-center gap-8">
                 <div *ngFor="let chapter of Chapters" pAnimateOnScroll (click)="saveInSessionStorage(chapter.chapterID)"
@@ -89,9 +89,9 @@
                 </div>
             </div>
         </div>
-    </app-biology-background>
+    </div>
 
-    <app-egyptian-background *ngSwitchCase="4">
+    <div *ngSwitchCase="4">
         <div class="h-[100%]">
             <div class="flex flex-wrap justify-center gap-8">
                 <div *ngFor="let chapter of Chapters" pAnimateOnScroll (click)="saveInSessionStorage(chapter.chapterID)"
@@ -113,8 +113,8 @@
                 </div>
             </div>
         </div>
-    </app-egyptian-background>
- <app-math-background *ngSwitchCase="5">
+    </div>
+ <div *ngSwitchCase="5">
         <div class="h-[100%]">
             <div class="flex flex-wrap justify-center gap-8">
                 <div *ngFor="let chapter of Chapters" pAnimateOnScroll (click)="saveInSessionStorage(chapter.chapterID)"
@@ -136,5 +136,5 @@
                 </div>
             </div>
         </div>
-    </app-math-background>
+    </div>
 </ng-container>

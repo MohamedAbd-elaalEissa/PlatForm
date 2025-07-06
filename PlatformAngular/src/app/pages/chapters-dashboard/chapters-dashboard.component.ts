@@ -25,8 +25,8 @@ import { IncludesRolePipe } from '../Pipe/includes-role.pipe';
 @Component({
   selector: 'app-chapters-dashboard',
   imports: [AnimateOnScrollModule, CardModule, CommonModule, RouterModule, FloatLabelModule, InputIconModule,
-    DropdownModule, FormsModule, InputTextModule, ButtonModule, PhysicsBackgroundComponent
-    , ChemistryBackgroundComponent, EgyptianBackgroundComponent, BiologyBackgroundComponent, MathBackgroundComponent, IncludesRolePipe],
+    DropdownModule, FormsModule, InputTextModule, ButtonModule
+    , IncludesRolePipe],
   templateUrl: './chapters-dashboard.component.html',
   styleUrl: './chapters-dashboard.component.scss',
   standalone: true

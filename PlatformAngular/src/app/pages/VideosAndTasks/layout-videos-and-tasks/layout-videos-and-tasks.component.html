@@ -1,5 +1,6 @@
 <p-tabs value="tasks">
-    <p-tablist>
+     <div class="overflow-x-auto overflow-y-hidden whitespace-nowrap">
+    <p-tablist class="flex gap-4">
         <p-tab [value]="'tasks'" [routerLink]="['tasks']">
             <i class="pi pi-file-pdf"></i>
             <span>Tasks</span>
@@ -17,6 +18,7 @@
             <span>Upload Videos</span>
         </p-tab>
     </p-tablist>
+    </div>
 </p-tabs>
 <router-outlet></router-outlet>
 
