@@ -27,6 +27,7 @@ namespace Application.Shared
                 if (failures.Count != 0)
                 {
                     throw new ValidationException(failures);
+
                 }
             }
             return await next();

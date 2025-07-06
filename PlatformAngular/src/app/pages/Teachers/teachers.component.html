@@ -1,17 +1,19 @@
-
 <div class="card flex flex-col items-center overflow-hidden">
     <div class="h-[100%]">
         <div class="flex flex-wrap justify-center gap-8">
-            <div *ngFor="let teacher of teachers" 
-                pAnimateOnScroll (click)="saveInLocalStorage(teacher.teacherID,teacher.subjectId)"
+            <div *ngFor="let teacher of teachers" pAnimateOnScroll
+                (click)="saveInLocalStorage(teacher.teacherID,teacher.subjectId)"
                 enterClass="animate-enter fade-in-10 slide-in-from-t-20 animate-duration-1000"
-                leaveClass="animate-leave fade-out-0" 
+                leaveClass="animate-leave fade-out-0"
                 class="flex flex-col border border-primary-200 shadow-xl justify-center items-center max-w-lg rounded-3xl p-12 gap-6 cursor-pointer"
-                [routerLink]="['/pages/chaptersDashboard']" > 
-                
-                <img [src]="'assets/demo/TeacherImg/' + teacher.imagesUrl"  
+                [routerLink]="['/pages/chaptersDashboard']">
+
+                <!-- <img [src]="'assets/Teacher/' + teacher.displayImage"
                     alt="{{ teacher.firstName }} {{ teacher.lastName }}"
-                    class="w-56 h-56 rounded-full object-cover border-4 border-primary dark:border-primary-400" />
+                    class="w-56 h-56 rounded-full object-cover border-4 border-primary dark:border-primary-400" /> -->
+
+                <img [src]="teacher.displayImage" [alt]="teacher.firstName + ' ' + teacher.lastName"
+                    class="w-56 h-56 mx-auto rounded-full object-cover border-4 border-primary mb-4" />
 
                 <span class="text-3xl font-semibold text-gray-900 dark:text-white">
                     {{ teacher.firstName }} {{ teacher.lastName }}

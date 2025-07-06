@@ -65,10 +65,11 @@ export class LoginComponent {
         setTimeout(async () => {
           const teacherData = await this.teachersService.getTeacherByEmail(this.logInModel.email).toPromise();
           const isComplete =
-            teacherData.age !== 0 ||
-            (teacherData.brief && teacherData.brief.trim() !== "") ||
-            (teacherData.imagesUrl && teacherData.imagesUrl.trim() !== "") ||
+            teacherData.age !== 0 &&
+            teacherData.brief && teacherData.brief.trim() !== "" &&
+            teacherData.imagesUrl && teacherData.imagesUrl.trim() !== "" &&
             teacherData.subjectId !== null;
+
           if (isComplete) {
             this.router.navigate(['/pages/teachers']);
           } else {

@@ -35,11 +35,11 @@ export class LayoutService {
     };
 
     _state: LayoutState = {
-        staticMenuDesktopInactive: false,
-        overlayMenuActive: false,
-        configSidebarVisible: false,
-        staticMenuMobileActive: false,
-        menuHoverActive: false
+        staticMenuDesktopInactive: true,
+        overlayMenuActive: true,
+        configSidebarVisible: true,
+        staticMenuMobileActive: true,
+        menuHoverActive: true
     };
 
     layoutConfig = signal<layoutConfig>(this._config);

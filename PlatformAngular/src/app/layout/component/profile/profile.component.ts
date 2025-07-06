@@ -14,6 +14,7 @@ import { StudySubject } from '../../../pages/models/models';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '../../../pages/service/auth.service';
+import { Router } from '@angular/router';
 interface UploadEvent {
   originalEvent: Event;
   files: File[];
@@ -34,46 +35,51 @@ export class ProfileComponent {
   selectedImageNames: string[] = [];
   teacherEmail: string;
 
-  constructor(private messageService: MessageService, private teacherService: TeachersService, private athService: AuthService) {
-
-
-    this.teacherEmail =  this.athService.getUserEmail()
-
-      this.getStudySubjectsData()
-
-
+  constructor(private messageService: MessageService, private teacherService: TeachersService, private athService: AuthService, private router: Router) {
+    this.teacherEmail = this.athService.getUserEmail()
   }
 
   ngOnInit(): void {
-    const storedTeacher = localStorage.getItem('teacherProfile');
-    console.log("🚀 ~ ProfileComponent ~ ngOnInit ~ state?.teacher:", storedTeacher)
-
-    if (storedTeacher) {
-      const teacher = JSON.parse(storedTeacher);
-      this.profile = {
-        TeacherID: teacher.teacherID,
-        FirstName: teacher.firstName,
-        LastName: teacher.lastName,
-        Email: teacher.email,
-        Age: teacher.age == 0 ? 15 : teacher.age,
-        PhoneNumber: teacher.phoneNumber,
-        Brief: teacher.brief,
-        ImagesUrl: teacher.imagesUrl,
-        StudySubject: teacher.subject?.name || null, // تأكد إن عندك subject.name
-        SubjectId: teacher.subjectId
-      };
-    } else {
-
-    }
+    this.getStudySubjectsData()
+    this.checkProfileData(this.teacherEmail);
   }
 
+  checkProfileData(email: string) {
+    this.teacherService.getTeacherByEmail(email).subscribe({
+      next: (teacher) => {
+        if (teacher) {
+          let displayImage = 'https://localhost:44305/browser/my-profile-icon-blankcircle.png';
 
+          if (teacher.imagesUrl) {
+            const images = teacher.imagesUrl.split('_||_');
+            const randomIndex = Math.floor(Math.random() * images.length);
+            const selectedImage = images[randomIndex];
+            displayImage = `https://localhost:44305/browser/${selectedImage}`;
+          }
+          this.profile = {
+            TeacherID: teacher.teacherID,
+            FirstName: teacher.firstName,
+            LastName: teacher.lastName,
+            Email: teacher.email,
+            Age: teacher.age == 0 ? 15 : teacher.age,
+            PhoneNumber: teacher.phoneNumber,
+            Brief: teacher.brief,
+            ImagesUrl: teacher.imagesUrl,
+            StudySubject: teacher.subject?.name || null,
+            SubjectId: teacher.subjectId,
+            DisplayImage: displayImage
+          };
+        }
+      },
+      error: () => {
+      }
+    });
+  }
 
 
   getStudySubjectsData() {
     this.teacherService.getAllStudySubject().subscribe({
       next: (data) => {
-        console.log("🚀 ~ ProfileComponent ~ this.teacherService.getAllStudySubject ~ data:", data)
 
         this.SubjectData = data.map((item: any) => ({
           id: item.subjectId,
@@ -99,7 +105,6 @@ export class ProfileComponent {
 
     this.teacherService.UploadMultipleImages(formData).subscribe({
       next: (res) => {
-        console.log("🚀 ~ ProfileComponent ~ this.teacherService.UploadMultipleImages ~ res:", res)
 
         this.selectedImageNames = res;
         this.profile.ImagesUrl = res.join('_||_');
@@ -120,8 +125,66 @@ export class ProfileComponent {
     });
   }
 
+  onCancel(): void {
+    let hasMissingFields = false;
 
-  onCancel() {
+    if (!this.profile.FirstName?.trim()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'الاسم الأول ناقص',
+        detail: 'من فضلك أدخل الاسم الأول',
+      });
+      hasMissingFields = true;
+    }
+
+    if (!this.profile.LastName?.trim()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'الاسم الأخير ناقص',
+        detail: 'من فضلك أدخل الاسم الأخير',
+      });
+      hasMissingFields = true;
+    }
+
+    if (!this.profile.Brief?.trim()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'النبذة ناقصة',
+        detail: 'من فضلك أدخل نبذة عنك',
+      });
+      hasMissingFields = true;
+    }
+
+    if (!this.profile.ImagesUrl?.trim()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'الصورة الشخصية ناقصة',
+        detail: 'من فضلك قم برفع صورة شخصية',
+      });
+      hasMissingFields = true;
+    }
+
+    if (this.profile.SubjectId === null) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'المادة غير محددة',
+        detail: 'من فضلك اختر المادة الدراسية',
+      });
+      hasMissingFields = true;
+    }
+
+    if (this.profile.Age === 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'العمر غير مدخل',
+        detail: 'من فضلك أدخل عمرك',
+      });
+      hasMissingFields = true;
+    }
+
+    if (hasMissingFields) return;
+
+    this.router.navigate(['/pages/teachers']);
   }
 
 
@@ -172,9 +235,7 @@ export class ProfileComponent {
       imagesUrl: this.profile.ImagesUrl,
       subjectId: this.profile.SubjectId
     };
-
-    console.log("🚀 ~ ProfileComponent ~ onSaveChanges ~ teacherToUpdate:", teacherToUpdate);
-
+    
     this.teacherService.updateTeacher(teacherToUpdate).subscribe({
       next: () => {
         this.messageService.add({
@@ -182,6 +243,7 @@ export class ProfileComponent {
           summary: 'Data Saved',
           detail: 'تم حفظ البيانات بنجاح ✅',
         });
+        this.checkProfileData(this.teacherEmail);
       },
       error: (err) => {
         this.messageService.add({

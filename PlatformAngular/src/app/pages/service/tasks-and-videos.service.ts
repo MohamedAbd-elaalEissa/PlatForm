@@ -15,17 +15,14 @@ export class TasksAndVideosService {
   constructor(private http: HttpClient) { }
 
   getTeachersFiles(Obj: TeacherFileModel): Observable<any> {
-
     return this.http.post(this.apiUrl + "GetTeachersFiles", Obj);
   }
 
   downloadFile(fileName: string,isBook:boolean=false): Observable<HttpResponse<Blob>> {
-    debugger
     return this.http.get(this.apiUrl + "DownloadFile?fileName=" + fileName +"&isBook="+isBook, { responseType: 'blob', observe: 'response' });
   }
 
   uploadFile(formData: FormData): Observable<any> {
-    debugger
     return this.http.post(this.apiUrl + 'UploadFilePDF', formData);
   }
 

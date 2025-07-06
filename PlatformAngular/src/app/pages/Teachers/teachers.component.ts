@@ -9,31 +9,41 @@ import { AuthService } from '../service/auth.service';
 import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
 @Component({
   selector: 'app-teachers',
-  imports: [AnimateOnScrollModule, CardModule,CommonModule,RouterModule],
+  imports: [AnimateOnScrollModule, CardModule, CommonModule, RouterModule],
   templateUrl: './teachers.component.html',
   styleUrl: './teachers.component.scss',
-  standalone : true
+  standalone: true
 
 })
-
 
 export class TeachersComponent {
   teachers: any;
   email: any;
 
-  constructor(private teachersService: TeachersService,private signalRService: SignalrService,private authService:AuthService ) {}
+  constructor(private teachersService: TeachersService, private signalRService: SignalrService, private authService: AuthService) { }
 
   ngOnInit(): void {
-    this.getAllTeacher()
+    this.getAllTeachers()
     this.email = this.authService.getUserEmail();
     this.signalRService.startConnection(this.email);
   }
 
-  getAllTeacher() {
+  getAllTeachers() {
     this.teachersService.getAllTeachers().subscribe({
       next: (data) => {
-        debugger
-        this.teachers = data; 
+        this.teachers = data.map((teacher: any) => {
+          if (teacher.imagesUrl) {
+            const images = teacher.imagesUrl.split('_||_');
+            const randomIndex = Math.floor(Math.random() * images.length);
+            const selectedImage = images[randomIndex];
+            teacher.displayImage = `https://localhost:44305/browser/${selectedImage}`;
+          } 
+          else
+           {
+            teacher.displayImage = `https://localhost:44305/browser/my-profile-icon-blankcircle.png`; 
+          }
+          return teacher;
+        });
       },
       error: (err) => {
         console.error('Error fetching teachers:', err);
@@ -41,10 +51,8 @@ export class TeachersComponent {
     });
   }
 
-  saveInLocalStorage(teacherId : string,subjectId:any)
-  {
-  console.log("🚀 ~ TeachersComponent ~ subjectId:", subjectId)
-    
+  saveInLocalStorage(teacherId: string, subjectId: any) {
+
     sessionStorage.setItem('teacherId', teacherId);
     sessionStorage.setItem('subjectId', subjectId);
   }
