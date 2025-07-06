@@ -37,12 +37,11 @@ import { Location } from '@angular/common';
             <a class="layout-topbar-logo" routerLink="/pages/teachers">
                 <!-- <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 </svg> -->
-                <span style="width: max-content;">What Ever U want ⚡💪</span>
             </a>
              
         </div>
 
-        <div class="layout-topbar-actions">
+        <div class="flex flex-wrap items-center justify-end gap-2 w-full">
             
 
             <div class="layout-config-menu">
@@ -81,9 +80,9 @@ import { Location } from '@angular/common';
                 </button>
 
                 <!-- Profile Icon -->
-                <button type="button" class="layout-topbar-action" (click)="goToProfile()">
-                    <i class="pi pi-user"></i>
-                    <span class="hidden sm:inline">Profile</span> <!-- Hide label on small screen -->
+                <button type="button" class="layout-topbar-action">
+                    <i class="pi pi-user"routerLink="/profile"></i>
+                    <span>Profile</span> <!-- Hide label on small screen -->
                 </button>
             </div>
         </div>
