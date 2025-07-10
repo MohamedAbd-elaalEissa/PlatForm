@@ -1,0 +1,91 @@
+<div class="layout-topbar">
+        <div class="layout-topbar-logo-container">
+          
+           <!-- زر الرجوع -->
+            <button
+                type="button"
+                class="layout-topbar-action back-button"
+                (click)="goBack()"
+                pTooltip="رجوع"
+                tooltipPosition="bottom"
+            >
+                <i class="pi pi-arrow-left"></i>
+            </button>
+            
+            <!-- <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
+                <i class="pi pi-bars"></i>
+            </button>
+             -->
+
+            <a class="layout-topbar-logo" routerLink="/pages/teachers">
+                <!-- <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                </svg> -->
+            </a>
+             
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-2 w-full">
+            
+
+            <div class="layout-config-menu">
+                <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
+                    <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
+                </button>
+                <div class="relative">
+                    <button
+                        class="layout-topbar-action layout-topbar-action-highlight"
+                        pStyleClass="@next"
+                        enterFromClass="hidden"
+                        enterActiveClass="animate-scalein"
+                        leaveToClass="hidden"
+                        leaveActiveClass="animate-fadeout"
+                        [hideOnOutsideClick]="true"
+                    >
+                        <i class="pi pi-palette"></i>
+                    </button>
+                    <app-configurator />
+                </div>
+            </div>
+
+           <div class="flex items-center gap-3">
+                <!-- Notification Icon -->
+                <button
+                    #notificationsButton
+                    type="button"
+                    mat-raised-button
+                    matBadgeSize="medium"
+                    [matBadge]="notificationCount"
+                    [matBadgeHidden]="notificationCount === 0"
+                    (click)="toggleNotifications($event)"
+                    class="layout-topbar-action"
+                >
+                    <i class="pi pi-bell"></i>
+                </button>
+
+                <!-- Profile Icon -->
+                <div class="profile-dropdown">
+                    <button type="button" class="layout-topbar-action profile-btn">
+                        <i class="pi pi-user"></i>
+                        <span>Profile</span>
+                    </button>
+                    
+                    <div class="dropdown-menu">
+                        <a routerLink="/profile" class="dropdown-item">
+                            <i class="pi pi-user"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a  (click)="logout()" class="dropdown-item">
+                            <i class="pi pi-sign-out"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <p-toast></p-toast>
+    <div *ngIf="showMessages" class="messages-modal" #messagesModal>
+        <div *ngFor="let msg of messages" class="message-item">
+            {{ msg }}
+        </div>
+    </div>

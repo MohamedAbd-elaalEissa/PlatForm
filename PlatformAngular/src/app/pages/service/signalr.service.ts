@@ -10,15 +10,14 @@ export class SignalrService {
   private hubConnection!: signalR.HubConnection;
   private messageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');  // Subject to store the latest message
   message$ = this.messageSubject.asObservable();  // Observable to be used in components
+  private envDev = `${environment.signalR}`;
 
   constructor() {
   }
   startConnection(email: string): void {
     debugger
     this.hubConnection = new signalR.HubConnectionBuilder()
-
-      //.withUrl(`https://identitysso-001-site1.ktempurl.com/notificationHub?email=${email}`, {
-      .withUrl(`https://localhost:44305/notificationHub?email=${email}`, {
+      .withUrl(`${this.envDev}email=${email}`, {
         withCredentials: true // this matches the CORS settings on the server
       })
       .build();
@@ -26,7 +25,6 @@ export class SignalrService {
     this.hubConnection
       .start()
       .then(() => {
-        console.log('SignalR Connected')
         this.registerEvents();
         this.getMissedMessages(email);
       })

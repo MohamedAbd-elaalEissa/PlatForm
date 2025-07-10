@@ -1,0 +1,179 @@
+    .back-button {
+        margin-right: 1.5rem;
+        background-color: var(--primary-color, #2563eb);
+        color: white;
+        border-radius: 50%;
+        width: 2.5rem;
+        height: 2.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease;
+    }
+
+    .back-button:hover {
+        background-color: var(--primary-color-hover, #1d4ed8);
+    }
+
+    .pill-notification {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 5px;
+        border-radius: 10px;
+        background-color: #ff0000;
+        color: white;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-weight: bold;
+        line-height: 1;
+        box-shadow: 0 0 0 2px var(--surface-a);
+    }
+
+    .notification-button {
+        position: relative;
+    }
+
+    .messages-modal {
+        position: absolute;
+        top: 50px;
+        right: 20px;
+        width: 200px;
+        background-color: white;
+        border: 1px solid #ccc;
+        padding: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        color: red;
+    }
+
+    .message-item {
+        padding: 5px;
+        border-bottom: 1px solid #eee;
+    }
+
+    // Profile Dropdown Styles
+    .profile-dropdown {
+        position: relative;
+        display: inline-block;
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .pi-chevron-down {
+                font-size: 12px;
+                transition: transform 0.2s ease;
+            }
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--surface-card, #ffffff);
+            border: 1px solid var(--surface-border, #e0e0e0);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 160px;
+            margin-top: 8px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-color, #333333);
+            text-decoration: none;
+            transition: background-color 0.15s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+
+            &:first-child {
+                border-top-left-radius: 6px;
+                border-top-right-radius: 6px;
+            }
+
+            &:last-child {
+                border-bottom-left-radius: 6px;
+                border-bottom-right-radius: 6px;
+            }
+
+            &:hover {
+                background-color: var(--surface-hover, #f5f5f5);
+            }
+
+            i {
+                width: 16px;
+                font-size: 14px;
+            }
+
+            span {
+                font-weight: 500;
+            }
+        }
+
+        // Show dropdown on hover
+        &:hover {
+            .dropdown-menu {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
+
+            .profile-btn .pi-chevron-down {
+                transform: rotate(180deg);
+            }
+        }
+    }
+
+    // Dark theme support
+    [data-theme="dark"] .profile-dropdown {
+        .dropdown-menu {
+            background: var(--surface-card, #1f2937);
+            border-color: var(--surface-border, #374151);
+        }
+
+        .dropdown-item {
+            color: var(--text-color, #ffffff);
+
+            &:hover {
+                background-color: var(--surface-hover, #374151);
+            }
+        }
+    }
+
+    // Responsive design
+    @media (max-width: 768px) {
+        .profile-dropdown {
+            .dropdown-menu {
+                right: -8px;
+                min-width: 140px;
+            }
+
+            .dropdown-item {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .profile-btn span {
+                display: none; // Hide "Profile" text on mobile
+            }
+        }
+    }
