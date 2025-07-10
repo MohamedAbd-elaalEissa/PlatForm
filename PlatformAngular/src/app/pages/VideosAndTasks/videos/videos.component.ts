@@ -11,6 +11,7 @@ import { ProductService } from '../../service/product.service';
 import { academicLevelDataModel, TeachersVideosDataModel } from '../../models/models';
 import { TasksAndVideosService } from '../../service/tasks-and-videos.service';
 import { Router } from '@angular/router';
+import { LazyLoadEvent } from 'primeng/api';
 @Component({
     selector: 'app-videos',
     templateUrl: './videos.component.html',
@@ -38,7 +39,8 @@ export class VideosComponent {
     academicLevelId: number = 4
     videosData: any[] = [];
     chapterId!: number
-
+    totalRecords: number = 0;
+    loading: boolean = true;
 
     constructor(private tasksAndVideos: TasksAndVideosService, private productService: ProductService, private router: Router) {
         const teacherId = sessionStorage.getItem('teacherId');
@@ -59,7 +61,7 @@ export class VideosComponent {
             chapterId: this.chapterId,
             academicLevelId: this.academicLevelId,
             pageNumber: 1,
-            pageSize: 25
+            pageSize: 10
         }
         this.getVideos()
         this.getAcademicLevelFilter()
@@ -79,16 +81,30 @@ export class VideosComponent {
     }
 
     getVideos() {
+        this.loading = true;
         this.tasksAndVideos.getTeachersVideos(this.Filter).subscribe({
             next: (data) => {
                 this.videosData = data.items;
+                this.totalRecords = data.totalCount;
+                this.loading = false;
             },
             error: (err) => {
                 console.error('Error fetching teachers:', err);
+                this.loading = false;
             }
         });
     }
 
+    loadVideos(event: LazyLoadEvent) {
+
+        const first = event.first ?? 0;
+        const rows = event.rows ?? 25;
+
+        this.Filter.pageNumber = Math.floor(first / rows) + 1;
+        this.Filter.pageSize = rows;
+
+        this.getVideos();
+    }
 
     viewVideo(videoName: string) {
         sessionStorage.setItem("videoName", videoName)

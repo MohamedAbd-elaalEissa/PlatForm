@@ -1,6 +1,8 @@
 <div class="card">
 
-    <p-dataview [layout]="'grid'" [value]="tasksFiles">
+    <p-dataview [layout]="'grid'" [value]="tasksFiles" [paginator]="true" [rows]="Filter.pageSize"
+        [rowsPerPageOptions]="[10, 25, 50]" [lazy]="true" [totalRecords]="totalRecords" [loading]="loading"
+        (onLazyLoad)="loadTasks($event)">
         <ng-template #header>
             <div class="filters-container">
                 <p-floatlabel variant="on" class="filter-item">
@@ -24,42 +26,6 @@
             </div>
         </ng-template>
 
-        <!-- <ng-template #list let-items>
-        <div *ngFor="let item of tasksFiles; let first = first">
-            <div class="flex flex-col sm:flex-row sm:items-center p-6 gap-4"
-                [ngClass]="{ 'border-t border-surface-200 dark:border-surface-700': !first }">
-
-                <div class="md:w-40 relative">
-                    <img class="block xl:block mx-auto rounded w-full" [src]="'assets/File/PDFile.png'" [alt]="'PDF'" />
-                </div>
-                <div class="flex flex-col md:flex-row justify-between md:items-center flex-1 gap-6">
-                    <div class="flex flex-row md:flex-col justify-between items-start gap-2">
-                        <div>
-                            <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PDF Task</span>
-                            <div class="text-lg font-medium mt-2">{{ item.taskName }}</div>
-                        </div>
-                    </div>
-                    <div class="flex flex-row gap-8">
-                        <div class="flex flex-col gap-2">
-                            <button pButton icon="pi pi-clipboard" label="Download Task" class="whitespace-nowrap"
-                                (click)="downloadTask(item.fileName)">
-                            </button>
-
-                            <p-fileUpload name="file" customUpload="true"
-                                (uploadHandler)="uploadTask($event,item.filesID,studentId,item.teacherID,true,item.academicLevelID,item.taskName,item.taskName+'Answer')"
-                                mode="basic" [auto]="true" chooseLabel="Upload Solving" [disabled]="false"
-                                [accept]="'application/pdf'" chooseIcon="pi pi-file-check" />
-
-                        </div>
-                        <div class="flex flex-col justify-start items-center mt-4" style="margin-top: 20px;">
-                            <button pButton icon="pi pi-check-circle" [outlined]="!item.isAnswer"
-                                (click)="navigateWithFileId(item.filesID)"></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </ng-template> -->
         <ng-template #grid let-items>
             <div class="grid grid-cols-12 gap-4">
                 <div *ngFor="let itemGrid of tasksFiles"
@@ -105,7 +71,5 @@
             </div>
         </ng-template>
     </p-dataview>
-
     <p-toast></p-toast>
-
 </div>

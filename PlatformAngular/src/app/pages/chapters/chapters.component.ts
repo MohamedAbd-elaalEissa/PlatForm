@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService, SelectItem } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
 import { TagModule } from 'primeng/tag';
@@ -21,7 +21,7 @@ import { DialogModule } from 'primeng/dialog';
 @Component({
   selector: 'app-chapters',
   imports: [TableModule, ToastModule, CommonModule, TagModule, SelectModule,
-    ButtonModule, InputTextModule, FormsModule, FloatLabelModule, InputIconModule, DropdownModule, 
+    ButtonModule, InputTextModule, FormsModule, FloatLabelModule, InputIconModule, DropdownModule,
     ConfirmDialogModule, DialogModule],
   templateUrl: './chapters.component.html',
   standalone: true,
@@ -39,6 +39,8 @@ export class ChaptersComponent {
   statuses!: SelectItem[];
   visible: boolean = false;
   newChapter!: ChapterModel
+  totalRecords: number = 0;
+  loading: boolean = true;
 
   constructor(private tasksAndVideos: TasksAndVideosService, private confirmationService: ConfirmationService,
     private chapters: ChaptersService, private messageService: MessageService) {
@@ -60,7 +62,6 @@ export class ChaptersComponent {
 
     this.getChapterData()
     this.getAcademicLevelFilter()
-   
   }
 
   getAcademicLevelFilter() {
@@ -72,14 +73,27 @@ export class ChaptersComponent {
   }
 
   getChapterData() {
+    this.loading = true;
     this.chapters.getAllChapters(this.Filter).subscribe({
       next: (data) => {
         this.Chapters = data.items;
+        this.totalRecords = data.totalCount;
+        this.loading = false;
       },
       error: (err) => {
-        console.error('Error fetching teachers:', err);
+        console.error('Error fetching chapters:', err);
+        this.loading = false;
       }
     });
+  }
+
+  loadChapters(event: TableLazyLoadEvent) {
+    const first = event.first ?? 0;
+    const rows = event.rows ?? 25;
+    this.Filter.pageNumber = Math.floor(first / rows) + 1;
+    this.Filter.pageSize = rows;
+
+    this.getChapterData();
   }
 
   onRowEditInit(chapter: ChapterModel) {
@@ -89,8 +103,6 @@ export class ChaptersComponent {
   }
 
   onRowEditSave(chapter: ChapterModel) {
-    console.log("🚀 ~ ChaptersComponent ~ onRowEditSave ~ chapter:", chapter)
-    
     if (chapter.chapterName && chapter.chapterID && chapter.academicLevelId) {
       let obj: ChapterUpdateModel = {
         ChapterID: chapter.chapterID,
@@ -98,10 +110,8 @@ export class ChaptersComponent {
         academicLevelId: chapter.academicLevelId,
         chapterName: chapter.chapterName
       };
-
-      this.chapters.updateChapter({chapter:obj}).subscribe({
+      this.chapters.updateChapter({ chapter: obj }).subscribe({
         next: () => {
-
           this.messageService.add({ severity: 'success', summary: 'تم التحديث', detail: 'تم تعديل الفصل بنجاح' });
           delete this.clonedChapter[chapter.chapterID as string];
         },
@@ -138,7 +148,6 @@ export class ChaptersComponent {
         this.messageService.add({ severity: 'success', summary: 'تم الحذف', detail: 'تم حذف الفصل بنجاح' });
       });
     }
-
   }
 
   createChapter() {
@@ -152,7 +161,7 @@ export class ChaptersComponent {
       return;
     }
 
-    this.chapters.createChapter({chapter:this.newChapter}).subscribe(
+    this.chapters.createChapter({ chapter: this.newChapter }).subscribe(
       () => {
         this.messageService.add({
           severity: 'success',
@@ -173,7 +182,6 @@ export class ChaptersComponent {
     );
   }
 
-
   getAcademicLevelName(id: number): string {
     const level = this.academicLevelData.find(x => x.academicLevelID === id);
     return level ? level.academicLevelName : 'غير معروف';
@@ -190,6 +198,5 @@ export class ChaptersComponent {
       teacherId: this.teacherId,
     };
   }
-
 
 }

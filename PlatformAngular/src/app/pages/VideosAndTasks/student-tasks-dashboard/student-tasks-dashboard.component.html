@@ -1,14 +1,13 @@
 <div class="card">
-    <p-table #dt2 [value]="studentAnswerData" dataKey="id" [rows]="Filter.pageSize" [rowsPerPageOptions]="[10, 25, 50]"
-        [loading]="loading" [paginator]="true" [tableStyle]="{ 'min-width': '75rem' }">
-        <ng-template #header>
+    <p-table #dt2 [value]="studentAnswerData" dataKey="fileAnswersID" [paginator]="true" [lazy]="true"
+        [rows]="Filter.pageSize" [totalRecords]="totalRecords" [rowsPerPageOptions]="[10,25,30]" [loading]="loading"
+        (onLazyLoad)="loadStudents($event)" [tableStyle]="{ 'min-width': '75rem' }">
+        <ng-template pTemplate="header">
             <tr>
                 <th style="width:5%">#</th>
                 <th style="width:30%">Answer Name </th>
                 <th style="width:22%">Student Name</th>
-                <th style="width:22%">Academic Level Name</th>
                 <th style="width:15%">Download Answer</th>
-
             </tr>
             <tr>
                 <th>
@@ -31,7 +30,7 @@
                             (ngModelChange)="onFilterChange()" placeholder="Search keyword" />
                     </p-iconfield>
                 </th>
-                <th>
+                <!-- <th>
                     <p-iconfield iconPosition="left" class="ml-auto">
                         <p-inputicon>
                             <i class="pi pi-search"></i>
@@ -39,17 +38,17 @@
                         <input pInputText type="text" [(ngModel)]="Filter.AcademicLevelName"
                             (ngModelChange)="onFilterChange()" placeholder="Search keyword" />
                     </p-iconfield>
-                </th>
+                </th> -->
                 <th></th>
 
             </tr>
         </ng-template>
-        <ng-template #body let-rowData let-rowIndex="rowIndex">
+        <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
             <tr>
                 <td class="text-center">{{ rowIndex +1 }}</td>
                 <td class="text-center">{{ rowData.answerName }}</td>
                 <td class="text-center">{{ rowData.studentName }}</td>
-                <td class="text-center">{{ rowData.academicLevelName }}</td>
+                <!-- <td class="text-center">{{ rowData.academicLevelName }}</td> -->
                 <td class="text-center">
                     <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded flex items-center gap-2"
                         (click)="downloadTask(rowData.answerName)">
@@ -59,7 +58,7 @@
                 </td>
             </tr>
         </ng-template>
-        <ng-template #emptymessage>
+        <ng-template pTemplate="emptymessage">
             <tr>
                 <td colspan="5">No Data found.</td>
             </tr>

@@ -409,10 +409,13 @@ namespace Infrastructure.Repositories
             }
 
 
-            //if (!string.IsNullOrWhiteSpace(StudentAnswerFile.StudentName))
-            //{
-            //    query = query.Where(f => f.Student.StudentName.Contains(StudentAnswerFile.StudentName));
-            //}
+            if (!string.IsNullOrWhiteSpace(StudentAnswerFile.StudentName))
+            {
+                var name = StudentAnswerFile.StudentName.ToLower();
+                
+                query = query.Where(f =>
+                    ((f.Student.FirstName ?? "") + " " + (f.Student.LastName ?? "")).ToLower().Contains(name));
+            }
 
             var totalCount = await query.CountAsync();
 

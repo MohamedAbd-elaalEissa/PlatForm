@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { LazyLoadEvent, MessageService } from 'primeng/api';
 import { TasksAndVideosService } from '../../service/tasks-and-videos.service';
 import { academicLevelDataModel, TeacherFileModel } from '../../models/models';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -15,8 +15,6 @@ import { InputIconModule } from 'primeng/inputicon';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AuthService } from '../../service/auth.service';
-import { ChemistryBackgroundComponent } from '../../shared/chemistry-background/chemistry-background.component';
-
 
 @Component({
   selector: 'app-tasks',
@@ -28,7 +26,7 @@ import { ChemistryBackgroundComponent } from '../../shared/chemistry-background/
     ToastModule, RouterModule,
     InputIconModule,
     FloatLabelModule, InputTextModule,
-    DropdownModule,CheckboxModule
+    DropdownModule, CheckboxModule
   ],
   standalone: true,
   templateUrl: './tasks.component.html',
@@ -46,13 +44,15 @@ export class TasksComponent {
   academicLevelId: number = 4
   Filter!: TeacherFileModel
   academicLevelData: academicLevelDataModel[] = [];
+  totalRecords: number = 0;
+  loading: boolean = true;
 
   layout: 'list' | 'grid' = 'list';
 
   options = ['list', 'grid'];
   studentEmail: string;
 
-  constructor(private tasksAndVideos: TasksAndVideosService, private route: ActivatedRoute, private messageService: MessageService, private router: Router,private authService: AuthService) {
+  constructor(private tasksAndVideos: TasksAndVideosService, private route: ActivatedRoute, private messageService: MessageService, private router: Router, private authService: AuthService) {
     //Get student id here 
 
     const teacherId = sessionStorage.getItem('teacherId');
@@ -64,19 +64,17 @@ export class TasksComponent {
       this.chapterId = +chapterId
     }
     this.studentEmail = this.authService.getUserEmail();
-
   }
-
 
   ngOnInit() {
     this.Filter =
     {
       teacherId: this.teacherId,
-      chapterId : this.chapterId ,
+      chapterId: this.chapterId,
       academicLevelId: this.academicLevelId,
-      isBook:false,
+      isBook: false,
       pageNumber: 1,
-      pageSize: 25
+      pageSize: 10
     }
 
     this.getPDFiles()
@@ -85,16 +83,29 @@ export class TasksComponent {
   }
 
   getPDFiles() {
+    this.loading = true;
     this.tasksAndVideos.getTeachersFiles(this.Filter).subscribe({
       next: (data) => {
         this.tasksFiles = data.items;
+        this.totalRecords = data.totalCount;
+        this.loading = false;
       },
       error: (err) => {
         console.error('Error fetching teachers:', err);
+        this.loading = false;
       }
     });
   }
 
+  loadTasks(event: LazyLoadEvent) {
+    const first = event.first ?? 0;
+    const rows = event.rows ?? 25;
+
+    this.Filter.pageNumber = Math.floor(first / rows) + 1;
+    this.Filter.pageSize = rows;
+
+    this.getPDFiles();
+  }
   getAcademicLevelFilter() {
     this.tasksAndVideos.getAllAcademicLevels().subscribe({
       next: (data) => {
@@ -105,7 +116,7 @@ export class TasksComponent {
   }
 
   downloadTask(fileName: string) {
-    this.tasksAndVideos.downloadFile(fileName,this.Filter.isBook).subscribe({
+    this.tasksAndVideos.downloadFile(fileName, this.Filter.isBook).subscribe({
       next: (response) => {
         const blob = new Blob([response.body!], { type: response.body?.type });
 
@@ -161,7 +172,6 @@ export class TasksComponent {
   }
 
   onFilterChange() {
-    debugger
     this.getPDFiles()
   }
 }

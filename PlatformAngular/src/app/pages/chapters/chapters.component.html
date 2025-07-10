@@ -4,7 +4,6 @@
 
     <p-button (click)="showDialog()" label="إضافة فصل" icon="pi pi-plus" class="add-chapter-btn" />
 
-
     <div class="filters-container">
         <p-floatlabel variant="on" class="filter-item">
             <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.chapterName"
@@ -23,9 +22,9 @@
         </p-floatlabel>
     </div>
 
-
-
-    <p-table [value]="Chapters" dataKey="chaptersID" editMode="row" [tableStyle]="{'min-width': '50rem'}">
+    <p-table [value]="Chapters" dataKey="chaptersID" [paginator]="true" [rows]="Filter.pageSize"
+        [rowsPerPageOptions]="[10, 25, 50]" [lazy]="true" [totalRecords]="totalRecords" [loading]="loading"
+        (onLazyLoad)="loadChapters($event)" editMode="row" [tableStyle]="{'min-width': '50rem'}">>
         <ng-template pTemplate="header">
             <tr>
                 <th style="width:33%">اسم الفصل</th>

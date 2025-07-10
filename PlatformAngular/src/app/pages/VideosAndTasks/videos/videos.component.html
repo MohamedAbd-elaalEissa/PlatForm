@@ -1,10 +1,12 @@
 <div class="card">
-    <p-dataview #dv [value]="videosData" [layout]="'grid'">
+    <p-dataview #dv [value]="videosData" [layout]="'grid'" [paginator]="true" [rows]="Filter.pageSize"
+        [rowsPerPageOptions]="[10, 25, 50]" [lazy]="true" [totalRecords]="totalRecords" [loading]="loading"
+        (onLazyLoad)="loadVideos($event)">
         <ng-template #header>
             <div class="filters-container">
                 <p-floatlabel variant="on" class="filter-item">
-                    <input style="width: 100%;" pInputText id="VideoName" [(ngModel)]="Filter.videoName"(ngModelChange)="onFilterChange()"
-                     autocomplete="off" />
+                    <input style="width: 100%;" pInputText id="VideoName" [(ngModel)]="Filter.videoName"
+                        (ngModelChange)="onFilterChange()" autocomplete="off" />
                     <label for="VideoName" style="font-size: large;"> <p-inputicon Class="pi pi-search" />
                         اسم الفديو</label>
                 </p-floatlabel>
@@ -36,14 +38,16 @@
                                 <div>
                                     <span
                                         class="font-medium text-surface-500 dark:text-surface-400 text-sm">video</span>
-                                    <div class="text-lg font-medium mt-1">{{ video?.videoName?.replace('.mp4', '') }}</div>
+                                    <div class="text-lg font-medium mt-1">{{ video?.videoName?.replace('.mp4', '') }}
+                                    </div>
                                 </div>
 
                             </div>
                             <div class="flex flex-col gap-6 mt-6">
                                 <div class="flex gap-2">
                                     <button pButton icon="pi pi-video" label="Watch"
-                                       (click)="viewVideo(video.videoName)" class="flex-auto whitespace-nowrap"></button>
+                                        (click)="viewVideo(video.videoName)"
+                                        class="flex-auto whitespace-nowrap"></button>
                                 </div>
                             </div>
                         </div>

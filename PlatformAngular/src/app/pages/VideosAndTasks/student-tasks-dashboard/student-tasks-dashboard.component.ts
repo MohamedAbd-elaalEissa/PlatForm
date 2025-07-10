@@ -12,10 +12,11 @@ import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 import { FileUploadModule } from 'primeng/fileupload';
 import { StudentAnswerFilterModel } from '../../models/models';
+import { TableLazyLoadEvent } from 'primeng/table';
 
 @Component({
   selector: 'app-student-tasks-dashboard',
-  imports: [FileUploadModule,TableModule, TagModule, IconFieldModule, InputTextModule, InputIconModule, MultiSelectModule, SelectModule, HttpClientModule, CommonModule, FormsModule],
+  imports: [FileUploadModule, TableModule, TagModule, IconFieldModule, InputTextModule, InputIconModule, MultiSelectModule, SelectModule, HttpClientModule, CommonModule, FormsModule],
   templateUrl: './student-tasks-dashboard.component.html',
   styleUrl: './student-tasks-dashboard.component.scss',
   standalone: true,
@@ -28,8 +29,8 @@ export class StudentTasksDashboardComponent {
   teacherId!: number;
   loading: boolean = true;
   fileId!: number;
-  Filter! : StudentAnswerFilterModel 
-
+  Filter!: StudentAnswerFilterModel
+  totalRecords = 0;
   constructor(private tasksAndVideos: TasksAndVideosService) {
     debugger
     const teacherId = sessionStorage.getItem('teacherId');
@@ -53,29 +54,38 @@ export class StudentTasksDashboardComponent {
     this.getStudentAnswer()
   }
 
-  getStudentAnswer() {
-   
+  getStudentAnswer(): void {
+    this.loading = true;
 
-    this.tasksAndVideos.getStudentAnswer( this.Filter).subscribe({
+    this.tasksAndVideos.getStudentAnswer(this.Filter).subscribe({
       next: (data) => {
         this.studentAnswerData = data.items;
-
-        console.log("🚀 ~ TasksComponent ~ this.tasksAndVideos.getStudentAnswer ~ this.tasksAndVideos:", this.studentAnswerData);
+        this.totalRecords = data.totalCount;
         this.loading = false;
-
       },
       error: (err) => {
         console.error('Error fetching StudentAnswer:', err);
         this.loading = false;
-
       }
     });
   }
 
-  onFilterChange() {
-    this.getStudentAnswer()
+  loadStudents(event: TableLazyLoadEvent): void {
+    const first = event.first ?? 0;
+    const rows = event.rows ?? 25;
+
+    this.Filter.pageNumber = Math.floor(first / rows) + 1;
+    this.Filter.pageSize = rows;
+
+    this.getStudentAnswer();
   }
-  
+
+  onFilterChange(): void {
+    this.Filter.pageNumber = 1;
+    this.getStudentAnswer();
+  }
+
+
 
   downloadTask(fileName: string) {
     this.tasksAndVideos.downloadFile(fileName).subscribe({
