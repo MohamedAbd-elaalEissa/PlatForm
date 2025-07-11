@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, NgZone } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -30,23 +30,29 @@ export class AppTopbar {
     private signalRService: SignalrService,
     private toastService: MessageService,
     private location: Location,
-    private authservice:AuthService
+    private authservice: AuthService,
+    private zone: NgZone  // <-- Inject NgZone
+
   ) { }
 
   ngOnInit(): void {
     this.signalRService.message$.subscribe((message) => {
-      this.latestMessage = message;
-      if (this.latestMessage)
-        this.notificationCount++;
-      this.messages.push(message);
-      if (this.latestMessage) {
-        this.toastService.add({
-          severity: 'info',
-          summary: 'New Message',
-          detail: this.latestMessage
-        });
-      }
+      debugger
+      this.zone.run(() => {  // <-- Ensure UI update inside Angular zone
+        this.latestMessage = message;
+        if (this.latestMessage)
+          this.notificationCount++;
+        this.messages.push(message);
+        if (this.latestMessage) {
+          this.toastService.add({
+            severity: 'info',
+            summary: 'New Message',
+            detail: this.latestMessage
+          });
+        }
+      });
     });
+
   }
 
   @HostListener('document:click', ['$event'])

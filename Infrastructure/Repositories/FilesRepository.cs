@@ -206,7 +206,7 @@ namespace Infrastructure.Repositories
                     {
                         try
                         {
-                            string message = $"تم اضافه  {filePDF.taskName} في الفايلات";
+                            string message = $"{filePDF.taskName} تم اضافه";
                             var connections = UserConnectionManager.GetConnections(item.Email);
                             if (UserConnectionManager.IsOnline(item.Email))
                             {
@@ -366,7 +366,7 @@ namespace Infrastructure.Repositories
         public async Task<PaginatedResult<Videos>> GetTeachersVideoAsync(TeacherVideoDTO teacherVideo)
         {
             var query = _dbContext.Videos.AsQueryable();
-            query = query.Where(f => f.TeacherID == teacherVideo.TeacherId);
+            query = query.Where(f =>  f.ChapterID ==teacherVideo.ChapterId);
 
             if (!string.IsNullOrWhiteSpace(teacherVideo.VideoName))
             {

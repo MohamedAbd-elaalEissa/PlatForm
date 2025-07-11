@@ -15,6 +15,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '../../../pages/service/auth.service';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 interface UploadEvent {
   originalEvent: Event;
   files: File[];
@@ -34,6 +35,7 @@ export class ProfileComponent {
   SubjectData: StudySubject[] = [];
   selectedImageNames: string[] = [];
   teacherEmail: string;
+  private localApi = environment.localApi;
 
   constructor(private messageService: MessageService, private teacherService: TeachersService, private athService: AuthService, private router: Router) {
     this.teacherEmail = this.athService.getUserEmail()
@@ -48,13 +50,13 @@ export class ProfileComponent {
     this.teacherService.getTeacherByEmail(email).subscribe({
       next: (teacher) => {
         if (teacher) {
-          let displayImage = 'https://localhost:44305/browser/my-profile-icon-blankcircle.png';
+          let displayImage = `${this.localApi}/browser/my-profile-icon-blankcircle.png`;
 
           if (teacher.imagesUrl) {
             const images = teacher.imagesUrl.split('_||_');
             const randomIndex = Math.floor(Math.random() * images.length);
             const selectedImage = images[randomIndex];
-            displayImage = `https://localhost:44305/browser/${selectedImage}`;
+            displayImage = `${this.localApi}/browser/${selectedImage}`;
           }
           this.profile = {
             TeacherID: teacher.teacherID,
