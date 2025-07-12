@@ -57,7 +57,6 @@ export class UploadTasksComponent {
     if (teacherId) {
       this.teacherId = +teacherId
     }
-    debugger
     this.userEmail = this.authService.getUserEmail();
     // const chapterId = sessionStorage.getItem('chapterId');
     // if (chapterId) {
@@ -98,7 +97,6 @@ export class UploadTasksComponent {
   }
 
   onSelectedFiles(event: any): void {
-    debugger
     this.files = event.currentFiles || [];
     this.totalSize = this.files.reduce((sum, file) => sum + file.size, 0);
     

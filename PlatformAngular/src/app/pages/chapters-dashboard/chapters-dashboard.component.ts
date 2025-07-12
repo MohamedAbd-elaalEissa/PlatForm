@@ -56,7 +56,6 @@ export class ChaptersDashboardComponent {
     }
     const rolesArray = Array.isArray(this.roles) ? this.roles : [this.roles];
     if (rolesArray.some(role => role.includes('Student'))) {
-      debugger;
       this.email = this.authService.getUserEmail();
       this.GetStudentWithEmail();
     }
@@ -85,7 +84,6 @@ export class ChaptersDashboardComponent {
   }
 
   getChapterData() {
-    debugger
     this.chaptersService.getAllChapters(this.Filter).subscribe({
       next: (data) => {
         this.Chapters = data.items;
@@ -112,10 +110,8 @@ export class ChaptersDashboardComponent {
   }
 
   GetStudentWithEmail() {
-    debugger
     this.studentService.GetStudentWithEmail(this.email).subscribe({
       next: (data) => {
-        debugger
         this.studentLevel = data.academicLevelId;
       },
       error: (err) => {

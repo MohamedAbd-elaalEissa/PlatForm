@@ -43,7 +43,6 @@ export const tokenInterceptor: HttpInterceptorFn = (
       console.log('Interceptor caught error:', error.message); // Debug log
       if (error instanceof HttpErrorResponse && error.status === 401) {
         console.log('Handling 401 error'); // Debug log
-        debugger
         if (authReq.url.includes('Login')) {
           return throwError(() => error); 
         }
@@ -66,7 +65,6 @@ function handle401Error(
 
     return auth.refreshToken().pipe(
       switchMap((newAccessToken: any) => {
-        debugger
         isRefreshing = false;
         refreshTokenSubject.next(newAccessToken.token);
         const newReq = request.clone({
@@ -75,7 +73,6 @@ function handle401Error(
         return next(newReq);
       }),
       catchError((err) => {
-        debugger
         refreshTokenSubject.next('REFRESH_FAILED');
 
         isRefreshing = false;
@@ -91,8 +88,6 @@ function handle401Error(
       filter(token => token !== undefined), // Allow null to pass through
       take(1),
       switchMap((token) => {
-        debugger;
-
         if (token === null || token === 'REFRESH_FAILED') {
           // Handle both null and explicit failure cases
           auth.logout();

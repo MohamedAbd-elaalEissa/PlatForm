@@ -15,7 +15,6 @@ export class SignalrService {
   constructor() {
   }
   startConnection(email: string): void {
-    debugger
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${this.envDev}email=${email}`, {
         withCredentials: true // this matches the CORS settings on the server
@@ -32,7 +31,6 @@ export class SignalrService {
   }
   private registerEvents() {
     this.hubConnection.on('ReceiveNotification', (message: string) => {
-      debugger
       this.messageSubject.next(message);
     });
   }

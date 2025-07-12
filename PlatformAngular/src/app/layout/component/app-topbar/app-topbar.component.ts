@@ -37,7 +37,6 @@ export class AppTopbar {
 
   ngOnInit(): void {
     this.signalRService.message$.subscribe((message) => {
-      debugger
       this.zone.run(() => {  // <-- Ensure UI update inside Angular zone
         this.latestMessage = message;
         if (this.latestMessage)

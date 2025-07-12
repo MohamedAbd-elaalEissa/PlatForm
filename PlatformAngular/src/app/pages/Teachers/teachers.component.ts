@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { SignalrService } from '../service/signalr.service';
 import { AuthService } from '../service/auth.service';
 import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
+import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-teachers',
   imports: [AnimateOnScrollModule, CardModule, CommonModule, RouterModule],
@@ -19,6 +20,7 @@ import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
 export class TeachersComponent {
   teachers: any;
   email: any;
+  private localApi = environment.localApi;
 
   constructor(private teachersService: TeachersService, private signalRService: SignalrService, private authService: AuthService) { }
 
@@ -36,11 +38,11 @@ export class TeachersComponent {
             const images = teacher.imagesUrl.split('_||_');
             const randomIndex = Math.floor(Math.random() * images.length);
             const selectedImage = images[randomIndex];
-            teacher.displayImage = `https://localhost:44305/browser/${selectedImage}`;
+            teacher.displayImage = `${this.localApi}/browser/${selectedImage}`;
           } 
           else
            {
-            teacher.displayImage = `https://localhost:44305/browser/my-profile-icon-blankcircle.png`; 
+            teacher.displayImage = `${this.localApi}/browser/my-profile-icon-blankcircle.png`; 
           }
           return teacher;
         });

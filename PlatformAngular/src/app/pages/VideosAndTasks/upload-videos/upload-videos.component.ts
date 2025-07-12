@@ -127,7 +127,6 @@ export class UploadVideosComponent {
 
         this.tasksAndVideosService.uploadFileChunk(formData).subscribe({
           next: (data) => {
-            debugger
             console.log('Server response:', data);
             currentChunk++;
             this.uploadProgress = Math.round((currentChunk / totalChunks) * 100);
@@ -146,15 +145,14 @@ export class UploadVideosComponent {
             }
           },
           error: (error) => {
-            debugger
-            console.error('Upload error:', error);
+            //console.error('Upload error:', error);
 
             // Retry logic - only retry on network errors, timeouts, or server errors
             const shouldRetry = (
               error.status === 0 || // Network error
               error.status === 408 || // Timeout
               error.status >= 500 || // Server error
-              retryCount < 3
+              retryCount < 6
             );
 
             if (shouldRetry && retryCount < 3) {

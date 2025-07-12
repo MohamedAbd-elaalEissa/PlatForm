@@ -31,11 +31,11 @@ export class LoginComponent {
   password: string = '';
   checked: boolean = false;
   errorMessage: any;
-
-  constructor(private messageService: MessageService, private teachersService: TeachersService, private authService: AuthService, private router: Router, private errorHandler: ErrorHandlerService) { }
+  roles: any;
+  constructor(private messageService: MessageService, private teachersService: TeachersService, private authService: AuthService, private router: Router, private errorHandler: ErrorHandlerService) {
+  }
 
   async signIn() {
-    debugger;
     if (!this.logInModel.email || !this.logInModel.password) {
       this.messageService.add({
         severity: 'error',
@@ -44,7 +44,6 @@ export class LoginComponent {
       });
       return;
     }
-
     if (!this.logInModel.email.includes('@')) {
       this.messageService.add({
         severity: 'error',
@@ -63,18 +62,28 @@ export class LoginComponent {
         });
 
         setTimeout(async () => {
-          const teacherData = await this.teachersService.getTeacherByEmail(this.logInModel.email).toPromise();
-          const isComplete =
-            teacherData.age !== 0 &&
-            teacherData.brief && teacherData.brief.trim() !== "" &&
-            teacherData.imagesUrl && teacherData.imagesUrl.trim() !== "" &&
-            teacherData.subjectId !== null;
+          this.roles = this.authService.getUserTokenRoles();
+          if (!this.roles) {
+            this.router.navigate(['/notfound']);
+          }
+          const rolesArray = Array.isArray(this.roles) ? this.roles : [this.roles];
+          if (rolesArray.some(role => role.includes('Teacher'))) {
+            const teacherData = await this.teachersService.getTeacherByEmail(this.logInModel.email).toPromise();
+            const isComplete =
+              teacherData.age !== 0 &&
+              teacherData.brief && teacherData.brief.trim() !== "" &&
+              teacherData.imagesUrl && teacherData.imagesUrl.trim() !== "" &&
+              teacherData.subjectId !== null;
 
-          if (isComplete) {
+            if (isComplete) {
+              this.router.navigate(['/pages/teachers']);
+            } else {
+              localStorage.setItem('teacherProfile', JSON.stringify(teacherData));
+              this.router.navigate(['/profile']);
+            }
+          }
+          else {
             this.router.navigate(['/pages/teachers']);
-          } else {
-            localStorage.setItem('teacherProfile', JSON.stringify(teacherData));
-            this.router.navigate(['/profile']);
           }
         }, 1500);
       },
