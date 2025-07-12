@@ -17,7 +17,11 @@ namespace Infrastructure.Repositories
         }
 
         public async Task<IEnumerable<Teachers>> GetAllTeacherWithInclude()
-        => await _dbContext.Teachers.AsNoTracking().Include(t => t.Student).Include(t=>t.Subject).ToListAsync();
+        => await _dbContext.Teachers.AsNoTracking()
+            .Include(t => t.Student)
+            .Include(t=>t.Subject)
+            .OrderBy(t=>Guid.NewGuid())
+            .ToListAsync();
 
         public async Task<TeacherStudentDTO> GetTeacherWithInclude(int teacherID)
        => await _dbContext.Teachers.AsNoTracking().Where(t => t.TeacherID == teacherID)

@@ -15,6 +15,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AuthService } from '../../service/auth.service';
+import { IncludesRolePipe } from '../../Pipe/includes-role.pipe';
 
 @Component({
   selector: 'app-tasks',
@@ -26,7 +27,7 @@ import { AuthService } from '../../service/auth.service';
     ToastModule, RouterModule,
     InputIconModule,
     FloatLabelModule, InputTextModule,
-    DropdownModule, CheckboxModule
+    DropdownModule, CheckboxModule,IncludesRolePipe
   ],
   standalone: true,
   templateUrl: './tasks.component.html',
@@ -51,6 +52,7 @@ export class TasksComponent {
 
   options = ['list', 'grid'];
   studentEmail: string;
+  roles: any;
 
   constructor(private tasksAndVideos: TasksAndVideosService, private route: ActivatedRoute, private messageService: MessageService, private router: Router, private authService: AuthService) {
     //Get student id here 
@@ -79,7 +81,7 @@ export class TasksComponent {
 
     this.getPDFiles()
     this.getAcademicLevelFilter()
-
+    this.roles=this.authService.getUserTokenRoles();
   }
 
   getPDFiles() {

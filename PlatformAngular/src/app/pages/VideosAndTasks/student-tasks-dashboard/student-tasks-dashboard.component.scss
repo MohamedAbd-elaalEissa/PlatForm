@@ -1,0 +1,33 @@
+/* Let columns auto-fit naturally */
+p-table table {
+  table-layout: auto !important;
+  width: 100%;
+}
+
+/* Allow text wrapping for long content */
+p-table th,
+p-table td {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Ensure first column (#) is always small */
+p-table th:first-child,
+p-table td:first-child {
+  width: 40px;
+  text-align: center;
+}
+
+/* Responsive padding and font-size for mobile */
+@media (max-width: 768px) {
+  p-table th,
+  p-table td {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+p-table th, p-table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

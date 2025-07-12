@@ -21,72 +21,73 @@
             <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
         </p-floatlabel>
     </div>
+    <div class="overflow-x-auto">
+        <p-table [value]="Chapters" dataKey="chaptersID" [paginator]="true" [rows]="Filter.pageSize"
+            [rowsPerPageOptions]="[10, 25, 50]" [lazy]="true" [totalRecords]="totalRecords" [loading]="loading"
+            (onLazyLoad)="loadChapters($event)" editMode="row" [tableStyle]="{'min-width': '50rem'}">>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:10%">اسم الفصل</th>
+                    <th style="width:10%">المرحلة الدراسية</th>
+                    <th style="width:17%"></th>
+                    <!-- <th style="width:17%"></th> -->
+                </tr>
+            </ng-template>
 
-    <p-table [value]="Chapters" dataKey="chaptersID" [paginator]="true" [rows]="Filter.pageSize"
-        [rowsPerPageOptions]="[10, 25, 50]" [lazy]="true" [totalRecords]="totalRecords" [loading]="loading"
-        (onLazyLoad)="loadChapters($event)" editMode="row" [tableStyle]="{'min-width': '50rem'}">>
-        <ng-template pTemplate="header">
-            <tr>
-                <th style="width:33%">اسم الفصل</th>
-                <th style="width:33%">المرحلة الدراسية</th>
-                <th style="width:17%"></th>
-                <!-- <th style="width:17%"></th> -->
-            </tr>
-        </ng-template>
+            <ng-template pTemplate="body" let-Chapter let-editing="editing" let-ri="rowIndex">
+                <tr [pEditableRow]="Chapter">
+                    <!-- اسم الفصل -->
+                    <td>
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <input pInputText type="text" [(ngModel)]="Chapter.chapterName" />
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{Chapter.chapterName}}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
 
-        <ng-template pTemplate="body" let-Chapter let-editing="editing" let-ri="rowIndex">
-            <tr [pEditableRow]="Chapter">
-                <!-- اسم الفصل -->
-                <td>
-                    <p-cellEditor>
-                        <ng-template pTemplate="input">
-                            <input pInputText type="text" [(ngModel)]="Chapter.chapterName" />
-                        </ng-template>
-                        <ng-template pTemplate="output">
-                            {{Chapter.chapterName}}
-                        </ng-template>
-                    </p-cellEditor>
-                </td>
+                    <!-- المرحلة الدراسية -->
+                    <td>
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <p-dropdown [(ngModel)]="Chapter.academicLevelId" [options]="academicLevelData"
+                                    optionLabel="academicLevelName" optionValue="academicLevelID" inputId="academicLevel"
+                                    appendTo="body" [style]="{ 'width': '100%' }">
+                                </p-dropdown>
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                <p-tag [value]="getAcademicLevelName(Chapter.academicLevelId)"></p-tag>
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
 
-                <!-- المرحلة الدراسية -->
-                <td>
-                    <p-cellEditor>
-                        <ng-template pTemplate="input">
-                            <p-dropdown [(ngModel)]="Chapter.academicLevelId" [options]="academicLevelData"
-                                optionLabel="academicLevelName" optionValue="academicLevelID" inputId="academicLevel"
-                                appendTo="body" [style]="{ 'width': '100%' }">
-                            </p-dropdown>
-                        </ng-template>
-                        <ng-template pTemplate="output">
-                            <p-tag [value]="getAcademicLevelName(Chapter.academicLevelId)"></p-tag>
-                        </ng-template>
-                    </p-cellEditor>
-                </td>
+                    <td>
+                        <div class="flex items-center justify-center gap-2">
+                            <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
+                                (click)="onRowEditInit(Chapter)" text rounded severity="secondary"></button>
 
-                <td>
-                    <div class="flex items-center justify-center gap-2">
-                        <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
-                            (click)="onRowEditInit(Chapter)" text rounded severity="secondary"></button>
+                            <button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+                                (click)="onRowEditSave(Chapter)" text rounded severity="success"></button>
 
-                        <button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
-                            (click)="onRowEditSave(Chapter)" text rounded severity="success"></button>
+                            <button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+                                (click)="onRowEditCancel(Chapter, ri)" text rounded severity="danger"></button>
+                        </div>
+                    </td>
 
-                        <button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
-                            (click)="onRowEditCancel(Chapter, ri)" text rounded severity="danger"></button>
-                    </div>
-                </td>
-
-                <!-- حذف -->
-                <!-- <td>
-                    <div class="flex items-center justify-center gap-2">
-                        <button pButton pRipple type="button" icon="pi pi-trash" (click)="confirmDelete(Chapter)" text
-                            rounded severity="danger">
-                        </button>
-                    </div>
-                </td> -->
-            </tr>
-        </ng-template>
-    </p-table>
+                    <!-- حذف -->
+                    <!-- <td>
+                        <div class="flex items-center justify-center gap-2">
+                            <button pButton pRipple type="button" icon="pi pi-trash" (click)="confirmDelete(Chapter)" text
+                                rounded severity="danger">
+                            </button>
+                        </div>
+                    </td> -->
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
 </div>
 
 <div *ngIf="visible">
@@ -116,8 +117,8 @@
         </div>
 
         <div class="flex justify-end gap-2" style="margin-top: 200px;">
-            <p-button label="Cancel" severity="secondary" (click)="visible = false" />
-            <p-button label="Save" (click)="createChapter()" severity="success" />
+            <p-button label="الغاء" severity="secondary" (click)="visible = false" />
+            <p-button label="حفظ" (click)="createChapter()" severity="success" />
         </div>
     </p-dialog>
 </div>

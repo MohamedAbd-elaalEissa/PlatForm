@@ -3,19 +3,23 @@
     <p-tablist class="flex gap-4">
         <p-tab [value]="'tasks'" [routerLink]="['tasks']">
             <i class="pi pi-file-pdf"></i>
-            <span>Tasks</span>
+            <!-- <span>Tasks</span> -->
+            <span>المهام</span>
         </p-tab>
         <p-tab [value]="'videos'" [routerLink]="['videos']">
             <i class="pi pi-video"></i>
-            <span>Videos</span>
+            <!-- <span>Videos</span> -->
+            <span>الفيديوهات</span>
         </p-tab>
         <p-tab *ngIf="roles | includesRole :'Teacher'" [value]="'uploadTasks'" [routerLink]="['uploadTasks']">
             <i class="pi pi-cloud-upload"></i>
-            <span>Upload Tasks</span>
+            <!-- <span>Upload Tasks</span> -->
+            <span>رفع المهام</span>
         </p-tab>
         <p-tab *ngIf="roles | includesRole :'Teacher'" [value]="'uploadVideos'" [routerLink]="['uploadVideos']">
             <i class="pi pi-cloud-upload"></i>
-            <span>Upload Videos</span>
+            <!-- <span>Upload Videos</span> -->
+            <span>رفع الفيديوهات</span>
         </p-tab>
     </p-tablist>
     </div>

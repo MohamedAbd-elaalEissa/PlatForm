@@ -13,7 +13,7 @@
 
     <div class="CheckBox">
         <p-checkbox [(ngModel)]="isBook" [binary]="true" />
-        <label for="ny" class="ml-3">Is Book </label>
+        <label for="ny" class="ml-3">كتاب</label>
     </div>
 
     <p-fileupload [multiple]="false" accept="application/pdf" maxFileSize="1000000"
@@ -79,15 +79,20 @@
 </div>
 
 <div *ngIf="displayDialog">
-    <p-dialog header="اضافه فصل" [modal]="true" [(visible)]="displayDialog"
-        [style]="{width: '1000px', height: '600px'}">
+    <p-dialog header="اضافه فصل" 
+              [modal]="true" 
+              [(visible)]="displayDialog"
+              [style]="{width: '95vw', 'max-width': '1000px', 'max-height': '90vh'}" 
+              [resizable]="false"
+              styleClass="mobile-responsive-dialog">
 
         <ng-template pTemplate="header">
             <div class="custom-header">اضافه فصل</div>
         </ng-template>
 
-        <div class="flex items-center gap-4 mb-4 mt-4">
-            <p-floatlabel variant="on" class="filter-item" style="margin-top: 10px;">
+        <!-- Mobile-responsive filter container -->
+        <div class="dialog-filters-container">
+            <p-floatlabel variant="on" class="dialog-filter-item">
                 <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.chapterName"
                     (ngModelChange)="onFilterChange()" autocomplete="off" />
                 <label for="taskName" style="font-size: large;">
@@ -95,7 +100,7 @@
                 </label>
             </p-floatlabel>
 
-            <p-floatlabel class="w-full md:w-56 filter-item" variant="on" style="margin-top: 10px;">
+            <p-floatlabel class="dialog-filter-item" variant="on">
                 <p-dropdown [(ngModel)]="Filter.academicLevelId" inputId="academicLevel" [options]="academicLevelData"
                     (ngModelChange)="onFilterChange()" optionLabel="academicLevelName" optionValue="academicLevelID"
                     styleClass="w-full">
@@ -106,9 +111,14 @@
 
         <div class="card">
             <p-toast *ngIf="displayDialog"/>
-            <p-table [value]="Chapters" selectionMode="single" [(selection)]="selectedChapter" dataKey="chapterID"
-                (onRowSelect)="onRowSelect($event)" 
-                [tableStyle]="{'min-width': '50rem'}">
+            <p-table [value]="Chapters" 
+                     selectionMode="single" 
+                     [(selection)]="selectedChapter" 
+                     dataKey="chapterID"
+                     (onRowSelect)="onRowSelect($event)"
+                     [scrollable]="true"
+                     [tableStyle]="{'min-width': '100%', 'width': '100%'}"
+                     styleClass="mobile-table">
                 <ng-template #header>
                     <tr>
                         <th>اسم الفصل</th>
@@ -118,17 +128,15 @@
                 <ng-template #body let-chapter>
                     <tr [pSelectableRow]="chapter">
                         <td>{{ chapter.chapterName }}</td>
-                        <td>{{ chapter.academicLevelId }}</td>
+                        <td>{{ chapter.academicLevelName }}</td>
                     </tr>
                 </ng-template>
             </p-table>
-
         </div>
 
-        <div class="flex justify-end gap-2" style="margin-top: 50px;">
-            <p-button label="Cancel" severity="secondary" (click)="displayDialog = false" />
-            <p-button label="Save" (click)="displayDialog = false" severity="success" />
-
+        <div class="dialog-actions">
+            <p-button label="الغاء" severity="secondary" (click)="displayDialog = false" />
+            <p-button label="حفظ" (click)="displayDialog = false" severity="success" />
         </div>
     </p-dialog>
 </div>

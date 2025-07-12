@@ -22,7 +22,8 @@
 
             <div class="CheckBox">
                 <p-checkbox [(ngModel)]="Filter.isBook" [binary]="true" (ngModelChange)="onFilterChange()"></p-checkbox>
-                <label for="ny" class="ml-3">Is Book </label>
+                <!-- <label for="ny" class="ml-3">Is Book </label> -->
+                <label for="ny" class="ml-3">كتب </label>
             </div>
         </ng-template>
 
@@ -46,20 +47,20 @@
                                 </div>
                             </div>
 
-                            <div class="flex flex-row-reverse gap-2 pb-4">
+                            <div *ngIf="roles | includesRole :'Teacher'" class="flex flex-row-reverse gap-2 pb-4">
                                 <button pButton icon="pi pi-check-circle" [outlined]="!itemGrid.isAnswer"
                                     (click)="navigateWithFileId(itemGrid.filesID)"></button>
                             </div>
 
                             <div class="flex flex-row gap-2">
-                                <button pButton icon="pi pi-clipboard" label="Download Task"
+                                <button pButton icon="pi pi-clipboard" label="انزل المهمه"
                                     (click)="downloadTask(itemGrid.fileName)" class="flex-1 whitespace-nowrap"
                                     style="height: 40px;">
                                 </button>
                                 <div class="flex-1">
                                     <p-fileUpload name="file" customUpload="true"
                                         (uploadHandler)="uploadTask($event, itemGrid.filesID, itemGrid.teacherID, true, itemGrid.academicLevelID, itemGrid.taskName, itemGrid.taskName + 'Answer')"
-                                        mode="basic" [auto]="true" chooseLabel="Upload Solving" [disabled]="false"
+                                        mode="basic" [auto]="true" chooseLabel="رفع الاجابه" [disabled]="false"
                                         [accept]="'application/pdf'" chooseIcon="pi pi-file-check"
                                         class="whitespace-nowrap" [style]="{ width: '100%' , height: '100%'  }">
                                     </p-fileUpload>
