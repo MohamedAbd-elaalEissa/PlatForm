@@ -1,10 +1,11 @@
 .video-container {
-  position: relative;
+  position: relative; /* يخلي أي absolute جوه مرتبط بالكونتينر */
   width: 100%;
   margin: auto;
   background: #000;
   border-radius: 10px;
   box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  z-index: 1; /* يخلي الفيديو تحت أي عناصر تانية زي الناف بار */
 }
 
 video {
@@ -17,14 +18,13 @@ video {
 
 .custom-video-player {
   width: 100%;
-  border-radius: 1.5rem; // أكبر تقوس
+  border-radius: 1.5rem; 
   background-color: #000;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   aspect-ratio: 16 / 9;
   overflow: hidden;
 }
 
-/* لمنع كليك يمين على الفيديو */
 video::-internal-media-controls-download-button {
   display: none;
 }
@@ -44,4 +44,31 @@ video {
   -moz-user-select: none;
   user-select: none;
   pointer-events: auto;
+}
+
+.watermark {
+  position: absolute;
+  z-index: 10; /* يخليه فوق الفيديو بس، مش فوق الناف بار */
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 8px 12px;
+  border-radius: 8px;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1.4;
+  text-align: center;
+  mix-blend-mode: difference;
+  transition: top 0.4s ease, left 0.4s ease;
+}
+
+.watermark .line1 {
+  font-size: 40px; 
+}
+.watermark .line2 {
+  font-size: 25px;
+  opacity: 0.9;
 }

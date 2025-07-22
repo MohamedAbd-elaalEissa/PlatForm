@@ -1,30 +1,35 @@
 <div class="justify-center p-4">
- <p-card class="w-full md:w-7/12 lg:w-6/12 shadow-lg rounded-2xl overflow-hidden">
+  <p-card class="w-full md:w-7/12 lg:w-6/12 shadow-lg rounded-2xl overflow-hidden">
     <div class="mt-4 flex justify-between items-center">
       <h2 class="text-2xl font-bold text-primary-600 flex-1 text-right">
         {{ videoName.replace('.mp4', '') }}
       </h2>
     </div>
 
-   <div class="video-container mt-4 rounded-2xl overflow-hidden">
-  <ng-container *ngIf="videoUrl; else loading">
-    <video
-      #plyrVideo
-      class="custom-video-player"
-      controls
-      controlsList="nodownload"
-    >
-      <source [src]="videoUrl" type="video/mp4" />
-      متصفحك لا يدعم تشغيل الفيديو.
-    </video>
-  </ng-container>
+    <div class="video-container plyr__video-embed mt-4 rounded-2xl overflow-hidden" #videoContainer>
+      <ng-container *ngIf="videoUrl; else loading">
+        <video #plyrVideo class="custom-video-player" controls controlsList="nodownload">
+          <source [src]="videoUrl" type="video/mp4" />
+          متصفحك لا يدعم تشغيل الفيديو.
+        </video>
+      </ng-container>
 
-  <ng-template #loading>
-    <div class="flex justify-center items-center min-h-[300px] text-gray-400">
-      جاري تحميل الفيديو...
+      <ng-template #loading>
+        <div class="flex justify-center items-center min-h-[300px] text-gray-400">
+          جاري تحميل الفيديو...
+        </div>
+      </ng-template>
+
+      <!-- ✅ watermark داخل نفس container -->
+      <div class="watermark" [ngStyle]="{
+      top: watermarkPosition.y + '%',
+      left: watermarkPosition.x + '%'
+    }">
+        <div class="line1">{{ watermarkLine1 }}</div>
+        <div class="line2">{{ watermarkLine2 }}</div>
+      </div>
     </div>
-  </ng-template>
-</div>
+
 
   </p-card>
 </div>
