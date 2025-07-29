@@ -17,7 +17,7 @@ import { environment } from '../../../environments/environment';
 
 })
 
-export class TeachersComponent {
+export class TeachersComponent2 {
   teachers: any;
   email: any;
   private localApi = environment.localApi;
