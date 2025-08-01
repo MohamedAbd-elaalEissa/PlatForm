@@ -8,13 +8,14 @@ import { ChaptersComponent } from './chapters/chapters.component';
 import { TeachersComponent } from './teacher-cards/teacher-cards.component';
 
 export default [
+     { path: '', redirectTo: 'teachers', pathMatch: 'full' },
     { path: 'documentation', component: Documentation },
     { path: 'crud', component: Crud },
     { path: 'empty', component: Empty },
-    { path: 'teachers', component: TeachersComponent,canActivate:[AuthGuard] },
+    { path: 'teachers', component: TeachersComponent,canActivate:[AuthGuard], data: { breadcrumb: 'Teachers' } },
     // { path: 'card', component: TeacherCardsComponent,canActivate:[AuthGuard] },
-    { path: 'chaptersDashboard', component: ChaptersDashboardComponent,canActivate:[AuthGuard] },
-    { path: 'createNewChapter', component: ChaptersComponent,canActivate:[AuthGuard] },
+    { path: 'chaptersDashboard', component: ChaptersDashboardComponent,canActivate:[AuthGuard] ,data: { breadcrumb: 'ChaptersDashboard' } },
+    { path: 'createNewChapter', component: ChaptersComponent,canActivate:[AuthGuard] , data: { breadcrumb: 'CreateNewChapter' } },
 
     {
         path: 'teachers/videos-and-tasks',

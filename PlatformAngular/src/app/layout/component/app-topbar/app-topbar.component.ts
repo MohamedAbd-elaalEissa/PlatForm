@@ -5,15 +5,16 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { ToastModule } from 'primeng/toast';
 import { MatBadgeModule } from '@angular/material/badge';
-import { Location } from '@angular/common';
 import { LayoutService } from '../../service/layout.service';
 import { SignalrService } from '../../../pages/service/signalr.service';
 import { AppConfigurator } from '../app.configurator';
 import { AuthService } from '../../../pages/service/auth.service';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, ToastModule, MatBadgeModule],
+  imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, ToastModule, MatBadgeModule , BreadcrumbComponent,BreadcrumbModule],
   providers: [MessageService],
   templateUrl: './app-topbar.component.html',
   styleUrl: './app-topbar.component.scss'
@@ -29,7 +30,6 @@ export class AppTopbar {
     public layoutService: LayoutService,
     private signalRService: SignalrService,
     private toastService: MessageService,
-    private location: Location,
     private authservice: AuthService,
     private zone: NgZone  // <-- Inject NgZone
 
@@ -78,9 +78,7 @@ export class AppTopbar {
     }
   }
 
-  goBack() {
-    this.location.back();
-  }
+
 
   logout() {
     this.authservice.logout();

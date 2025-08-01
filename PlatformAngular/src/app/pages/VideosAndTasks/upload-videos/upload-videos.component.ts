@@ -18,12 +18,13 @@ import { DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
 import { ChaptersService } from '../../service/chapters.service';
 import { catchError, EMPTY, Observable, switchMap, tap } from 'rxjs';
+import { LottieLoaderComponent } from '../../lottie-loader/lottie-loader.component';
 @Component({
   selector: 'app-upload-videos',
   standalone: true,
   imports: [CommonModule, FileUploadModule, FloatLabelModule, DropdownModule, TableModule,
     FormsModule, ButtonModule, ProgressBar, BadgeModule, ToastModule, DialogModule
-    , InputTextModule, ConfirmDialogModule],
+    , InputTextModule, ConfirmDialogModule,LottieLoaderComponent],
   templateUrl: './upload-videos.component.html',
   styleUrl: './upload-videos.component.scss',
   providers: [MessageService, ConfirmationService]
@@ -44,7 +45,7 @@ export class UploadVideosComponent {
   Filter!: ChapterModel
   selectedChapter!: ChapterModel;
   chapterId!: number
-
+  Loading: boolean = false
   academicLevelID!: number
   constructor(private chapters: ChaptersService, private tasksAndVideosService: TasksAndVideosService, private messageService: MessageService, private confirmationService: ConfirmationService) {
 
@@ -81,16 +82,22 @@ export class UploadVideosComponent {
   }
 
   async uploadVideo() {
+    this.Loading = true
     if (!this.VideoName || !this.chapterId) {
       this.messageService.add({
         severity: 'warn',
         summary: 'تنبيه',
         detail: 'يرجى تحديد اسم الفديو واسم الفصل قبل الرفع.',
       });
+      this.Loading = false
       return;
     }
 
-    if (!this.selectedVideo) return;
+
+    if (!this.selectedVideo) {
+      this.Loading = false
+      return;
+    }
 
     const fileName = this.selectedVideo.name;
     const totalChunks = Math.ceil(this.selectedVideo.size / this.chunkSize);
@@ -109,6 +116,7 @@ export class UploadVideosComponent {
           this.selectedVideo = null;
           this.isPending = 2;
           this.uploadProgress = 100;
+          this.Loading = false
           return;
         }
         this.isPending = 1
@@ -127,7 +135,6 @@ export class UploadVideosComponent {
 
         this.tasksAndVideosService.uploadFileChunk(formData).subscribe({
           next: (data) => {
-            console.log('Server response:', data);
             currentChunk++;
             this.uploadProgress = Math.round((currentChunk / totalChunks) * 100);
 
@@ -141,6 +148,7 @@ export class UploadVideosComponent {
               });
               this.uploadProgress = 0;
               this.isPending = 3;
+              this.Loading = false
               return;
             }
           },
@@ -187,6 +195,7 @@ export class UploadVideosComponent {
         summary: 'خطأ',
         detail: 'فشل التحقق من الأجزاء المرفوعة',
       });
+      this.Loading = false
     }
   }
 

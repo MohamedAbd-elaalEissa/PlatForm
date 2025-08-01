@@ -1,11 +1,13 @@
 <div class="layout-topbar">
     <div class="layout-topbar-logo-container">
 
+    <app-breadcrumb></app-breadcrumb>
+
         <!-- زر الرجوع -->
-        <button type="button" class="layout-topbar-action back-button" (click)="goBack()" pTooltip="رجوع"
+        <!-- <button type="button" class="layout-topbar-action back-button" (click)="goBack()" pTooltip="رجوع"
             tooltipPosition="bottom">
             <i class="pi pi-arrow-left"></i>
-        </button>
+        </button> -->
 
         <!-- <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
                 <i class="pi pi-bars"></i>
@@ -13,8 +15,7 @@
              -->
 
         <a class="layout-topbar-logo" routerLink="/pages/teachers">
-            <!-- <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                </svg> -->
+           
         </a>
 
     </div>

@@ -14,13 +14,13 @@ export default [
         component: LayoutVideosAndTasksComponent,
         children: [
             { path: '', redirectTo: 'tasks', pathMatch: 'full' },  
-            { path: 'tasks', component: TasksComponent },
-            { path: 'videos', component: VideosComponent },
-            { path: 'uploadTasks', component: UploadTasksComponent },
-            { path: 'uploadVideos', component: UploadVideosComponent },
+            { path: 'tasks', component: TasksComponent ,data: { breadcrumb: 'Tasks' } },
+            { path: 'videos', component: VideosComponent , },
+            { path: 'uploadTasks', component: UploadTasksComponent  },
+            { path: 'uploadVideos', component: UploadVideosComponent  },
         ],
     },
-    { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent },
-    { path: 'VideoPlayer', component: VideoPlayerComponent }
+    { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent , data: { breadcrumb: 'StudentTasksDashboard' }}, 
+    { path: 'VideoPlayer', component: VideoPlayerComponent , data: { breadcrumb: 'videoPlayer' } }
 
 ] as Routes;
