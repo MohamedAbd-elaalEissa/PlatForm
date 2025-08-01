@@ -13,11 +13,11 @@ interface Teacher {
   lastName: string;
   subject: { subjectAR: string; subjectId: number; subject: string };
   rating: number;
-  experience: number;
+  numOfExperience: number;
   students: number;
   // location: string;
   // education: string;
-  brief: string;
+  education: string;
   email: string;
   phoneNumber: string;
   displayImage: string;
@@ -137,6 +137,7 @@ export class TeachersComponent implements OnInit, OnDestroy {
   }
 
   filterTeachers() {
+    debugger
     this.filteredTeachers = this.teachers.filter(teacher => {
       // Search filter
       const searchTermLower = this.searchTerm.toLowerCase();

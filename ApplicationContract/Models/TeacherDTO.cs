@@ -12,7 +12,8 @@ namespace ApplicationContract.Models
         public int? TeacherID { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string Brief { get; set; }
+        public string Education { get; set; }
+        public int NumOfExperience { get; set; }
         public int Age { get; set; }
         public string PhoneNumber { get; set; }
         public string StudySubject { get; set; }

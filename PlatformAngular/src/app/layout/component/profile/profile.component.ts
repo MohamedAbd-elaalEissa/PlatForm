@@ -65,11 +65,12 @@ export class ProfileComponent {
             Email: teacher.email,
             Age: teacher.age == 0 ? 15 : teacher.age,
             PhoneNumber: teacher.phoneNumber,
-            Brief: teacher.brief,
+            education: teacher.education,
             ImagesUrl: teacher.imagesUrl,
             StudySubject: teacher.subject?.name || null,
             SubjectId: teacher.subjectId,
-            DisplayImage: displayImage
+            DisplayImage: displayImage,
+            NumOfExperience:teacher.numOfExperience
           };
         }
       },
@@ -148,11 +149,11 @@ export class ProfileComponent {
       hasMissingFields = true;
     }
 
-    if (!this.profile.Brief?.trim()) {
+    if (!this.profile.education?.trim()) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'النبذة ناقصة',
-        detail: 'من فضلك أدخل نبذة عنك',
+        summary: 'المستوي التعليمي ناقص',
+        detail: 'من فضلك أدخل المستوي التعليمي لك',
       });
       hasMissingFields = true;
     }
@@ -233,9 +234,10 @@ export class ProfileComponent {
       email: this.profile.Email,
       age: this.profile.Age,
       phoneNumber: this.profile.PhoneNumber,
-      brief: this.profile.Brief,
+      education: this.profile.education,
       imagesUrl: this.profile.ImagesUrl,
-      subjectId: this.profile.SubjectId
+      subjectId: this.profile.SubjectId,
+      numOfExperience:this.profile.NumOfExperience
     };
     
     this.teacherService.updateTeacher(teacherToUpdate).subscribe({
