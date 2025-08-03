@@ -18,31 +18,44 @@ export class BreadcrumbComponent implements OnInit {
   constructor(private router: Router, private activatedRoute: ActivatedRoute) {}
 
   ngOnInit() {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      this.breadcrumbItems = this.buildBreadCrumb(this.activatedRoute.root);
-    });
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.breadcrumbItems = this.buildBreadCrumb(this.activatedRoute.root);
+      });
   }
 
   buildBreadCrumb(route: ActivatedRoute, url: string = '', breadcrumbs: any[] = []): any[] {
-    let children: ActivatedRoute[] = route.children;
+    const children: ActivatedRoute[] = route.children;
 
     if (children.length === 0) return breadcrumbs;
 
-    for (let child of children) {
+    for (const child of children) {
       if (child.outlet !== PRIMARY_OUTLET) continue;
 
       if (child.snapshot.url.length !== 0) {
         const routeURL: string = child.snapshot.url.map(segment => segment.path).join('/');
         url += `/${routeURL}`;
-
         const label = child.snapshot.data['breadcrumb'] || this.formatLabel(routeURL);
 
-        breadcrumbs.push({
-          label: label,
-          routerLink: url
-        });
+        // Inject 'Chapters Dashboard' manually if inside videos-and-tasks
+        if (
+          url.includes('chaptersDashboard/videos-and-tasks') &&
+          !breadcrumbs.some(b => b.label === 'Chapters Dashboard')
+        ) {
+          breadcrumbs.push({
+            label: 'Chapters Dashboard',
+            routerLink: '/pages/teachers/chaptersDashboard'
+          });
+        }
+
+        // Skip 'videos-and-tasks' from breadcrumbs
+        if (routeURL !== 'videos-and-tasks') {
+          breadcrumbs.push({
+            label,
+            routerLink: url
+          });
+        }
       }
 
       return this.buildBreadCrumb(child, url, breadcrumbs);

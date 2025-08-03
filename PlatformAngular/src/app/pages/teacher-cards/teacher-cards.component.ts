@@ -191,7 +191,7 @@ export class TeachersComponent implements OnInit, OnDestroy {
   viewProfile(teacherId: string, subjectId: any) {
     sessionStorage.setItem('teacherId', teacherId);
     sessionStorage.setItem('subjectId', subjectId);
-    this.router.navigate(['/pages/chaptersDashboard']);
+    this.router.navigate(['/pages/teachers/chaptersDashboard']);
   }
 
   getAvailabilityIcon(availability: string): string {
