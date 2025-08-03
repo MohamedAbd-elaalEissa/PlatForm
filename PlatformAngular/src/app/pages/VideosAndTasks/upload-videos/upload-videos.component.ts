@@ -164,7 +164,7 @@ export class UploadVideosComponent {
             );
 
             if (shouldRetry && retryCount < 3) {
-              console.log(`Retrying chunk ${currentChunk + 1}, attempt ${retryCount + 1}`);
+              // console.log(`Retrying chunk ${currentChunk + 1}, attempt ${retryCount + 1}`);
               // Exponential backoff delay
               setTimeout(() => {
                 uploadChunk(retryCount + 1);
@@ -182,6 +182,7 @@ export class UploadVideosComponent {
               });
               this.uploadProgress = 0;
               this.isPending = 3;
+              this.Loading = false
             }
           }
         });
@@ -258,7 +259,7 @@ export class UploadVideosComponent {
         this.Chapters = data.items;
       },
       error: (err) => {
-        console.error('Error fetching teachers:', err);
+        // console.error('Error fetching teachers:', err);
       }
     });
   }

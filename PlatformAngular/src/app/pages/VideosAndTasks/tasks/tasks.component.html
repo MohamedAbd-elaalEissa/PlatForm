@@ -57,7 +57,7 @@
                                     (click)="downloadTask(itemGrid.fileName)" class="flex-1 whitespace-nowrap"
                                     style="height: 40px;">
                                 </button>
-                                <div class="flex-1">
+                                <div *ngIf="Filter.isBook==false" class="flex-1">
                                     <p-fileUpload name="file" customUpload="true"
                                         (uploadHandler)="uploadTask($event, itemGrid.filesID, itemGrid.teacherID, true, itemGrid.academicLevelID, itemGrid.taskName, itemGrid.taskName + 'Answer')"
                                         mode="basic" [auto]="true" chooseLabel="رفع الاجابه" [disabled]="false"
@@ -74,3 +74,4 @@
     </p-dataview>
     <p-toast></p-toast>
 </div>
+<app-lottie-loader [show]="Loading"></app-lottie-loader>

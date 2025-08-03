@@ -16,6 +16,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AuthService } from '../../service/auth.service';
 import { IncludesRolePipe } from '../../Pipe/includes-role.pipe';
+import { LottieLoaderComponent } from '../../lottie-loader/lottie-loader.component';
 
 @Component({
   selector: 'app-tasks',
@@ -27,7 +28,7 @@ import { IncludesRolePipe } from '../../Pipe/includes-role.pipe';
     ToastModule, RouterModule,
     InputIconModule,
     FloatLabelModule, InputTextModule,
-    DropdownModule, CheckboxModule,IncludesRolePipe
+    DropdownModule, CheckboxModule,IncludesRolePipe,LottieLoaderComponent
   ],
   standalone: true,
   templateUrl: './tasks.component.html',
@@ -53,6 +54,7 @@ export class TasksComponent {
   options = ['list', 'grid'];
   studentEmail: string;
   roles: any;
+  Loading: boolean = false
 
   constructor(private tasksAndVideos: TasksAndVideosService, private route: ActivatedRoute, private messageService: MessageService, private router: Router, private authService: AuthService) {
     //Get student id here 
@@ -88,6 +90,7 @@ export class TasksComponent {
     this.loading = true;
     this.tasksAndVideos.getTeachersFiles(this.Filter).subscribe({
       next: (data) => {
+        debugger
         this.tasksFiles = data.items;
         this.totalRecords = data.totalCount;
         this.loading = false;
@@ -145,7 +148,7 @@ export class TasksComponent {
     });
   }
   uploadTask(event: any, filesID: number, teacherID: number, isAnswer: boolean, academicLevelID: number, taskName: string, taskNameAnswer: string) {
-
+    this.Loading = true
     const file = event.files[0];
     const formData = new FormData();
     formData.append('file', file);
@@ -161,16 +164,18 @@ export class TasksComponent {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'File uploaded successfully!' });
         this.getPDFiles()
+        this.Loading = false
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Upload failed!' });
+        this.Loading = false
       },
     });
   }
 
   navigateWithFileId(fileid: number) {
     sessionStorage.setItem('fileId', fileid.toString());
-    this.router.navigate(['/pages/teachers/videos-and-tasks/studentTasksDashboard']);
+    this.router.navigate(['/pages/teachers/chaptersDashboard/videos-and-tasks/studentTasksDashboard']);
   }
 
   onFilterChange() {

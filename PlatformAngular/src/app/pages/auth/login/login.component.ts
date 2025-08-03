@@ -71,7 +71,7 @@ export class LoginComponent {
             const teacherData = await this.teachersService.getTeacherByEmail(this.logInModel.email).toPromise();
             const isComplete =
               teacherData.age !== 0 &&
-              teacherData.brief && teacherData.brief.trim() !== "" &&
+              teacherData.education && teacherData.education.trim() !== "" &&
               teacherData.imagesUrl && teacherData.imagesUrl.trim() !== "" &&
               teacherData.subjectId !== null;
 

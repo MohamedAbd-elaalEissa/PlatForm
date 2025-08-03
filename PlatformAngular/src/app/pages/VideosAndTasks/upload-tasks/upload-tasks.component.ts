@@ -20,6 +20,7 @@ import { ChaptersService } from '../../service/chapters.service';
 import { DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
 import { AuthService } from '../../service/auth.service';
+import { LottieLoaderComponent } from '../../lottie-loader/lottie-loader.component';
 
 
 @Component({
@@ -27,7 +28,7 @@ import { AuthService } from '../../service/auth.service';
   standalone: true,
   imports: [FileUpload, ButtonModule, BadgeModule, ProgressBar, TableModule,
     ToastModule, HttpClientModule, CommonModule, InputTextModule, DialogModule,
-    FormsModule, MultiSelectModule, FloatLabelModule, DropdownModule, CheckboxModule],
+    FormsModule, MultiSelectModule, FloatLabelModule, DropdownModule, CheckboxModule,LottieLoaderComponent],
   templateUrl: './upload-tasks.component.html',
   styleUrls: ['./upload-tasks.component.scss'],
   providers: [MessageService]
@@ -49,7 +50,8 @@ export class UploadTasksComponent {
   Filter!: ChapterModel
   displayDialog = false;
   selectedChapter!: ChapterModel;
-  
+  Loading: boolean = false
+
   constructor(private config: PrimeNG, private messageService: MessageService, private tasksAndVideos: TasksAndVideosService,
     private chapters: ChaptersService,private authService: AuthService
   ) {
@@ -103,18 +105,22 @@ export class UploadTasksComponent {
   }
 
   uploadEvent(): void {
-
+  
+    this.Loading = true
     if (!this.taskName || !this.chapterId) {
       this.messageService.add({
         severity: 'warn',
         summary: 'تنبيه',
         detail: 'يرجى تحديد اسم التاسك واسم الفصل قبل الرفع.',
       });
+      this.Loading = false
       return;
     }
 
-    if (!this.files.length) return;
-
+    if (!this.files.length) {
+      this.Loading = false
+      return;
+    }
     const file = this.files[0];
     const formData = new FormData();
 
@@ -138,6 +144,7 @@ export class UploadTasksComponent {
           this.files = []
           this.isPending = false
           this.totalSizePercent = this.totalSize / 10;
+          this.Loading = false
         }
         else {
           this.messageService.add({
@@ -145,6 +152,7 @@ export class UploadTasksComponent {
             summary: 'خطأ',
             detail: data.transactionDetails,
           });
+          this.Loading = false
         }
 
       },
@@ -154,6 +162,7 @@ export class UploadTasksComponent {
           summary: 'خطأ',
           detail: 'فشل في رفع الملف!',
         });
+        this.Loading = false
       },
     });
   }
