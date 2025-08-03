@@ -48,19 +48,20 @@ export class SignupComponent {
   SubjectData: StudySubject[] = [];
   academicLevelData: academicLevelDataModel[] = [];
   roles: any;
-  academicId:any
-  constructor(private messageService: MessageService,private tasksAndVideos: TasksAndVideosService, private authService: AuthService, private router: Router, private errorHandler: ErrorHandlerService) {
+  academicId: any
+  constructor(private messageService: MessageService, private tasksAndVideos: TasksAndVideosService, private authService: AuthService, private router: Router, private errorHandler: ErrorHandlerService) {
     var token = localStorage.getItem('token');
     if (token != null) {
       var email = this.authService.getUserEmail();
       this.GetUserRoles(email);
       this.roles = this.authService.getUserTokenRoles();
       const rolesArray = Array.isArray(this.roles) ? this.roles : [this.roles];
-    // if (rolesArray.some(role => role.includes('Student'))) {
-    // }
-    this.getAcademicLevelFilter();
+      // if (rolesArray.some(role => role.includes('Student'))) {
+      // }
 
     }
+    this.getAcademicLevelFilter();
+
   }
   registerModel: RegisterModel = {
     userName: '',
@@ -138,10 +139,12 @@ export class SignupComponent {
 
 
   getAcademicLevelFilter() {
+    debugger
     this.tasksAndVideos.getAllAcademicLevels().subscribe({
       next: (data) => {
+        debugger
         this.academicLevelData = data
-      //console.log('this.academicLevelData',this.academicLevelData)
+        //console.log('this.academicLevelData',this.academicLevelData)
       }
     });
   }
@@ -149,5 +152,5 @@ export class SignupComponent {
     // console.log('Selected value:', event.value);
     // console.log('Academic ID:', this.registerModel.academicLevelId);
     // console.log('Available options:', this.academicLevelData);
-}
+  }
 }

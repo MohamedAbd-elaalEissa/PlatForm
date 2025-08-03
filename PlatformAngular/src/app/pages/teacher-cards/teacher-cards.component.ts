@@ -23,8 +23,8 @@ interface Teacher {
   displayImage: string;
   availability: 'available' | 'busy' | 'offline';
   featured: boolean;
-  teacherID:any,
-  subjectId:any
+  teacherID: any,
+  subjectId: any
 }
 
 @Component({
@@ -45,26 +45,31 @@ export class TeachersComponent implements OnInit, OnDestroy {
     subjects: 6
   };
 
- filterOptions = [
-  { id: 'all', label: 'المدرسين', icon: 'fas fa-th' },
-  { id: 'featured', label: 'مميز', icon: 'fas fa-star' },
-  { id: 'available', label: 'متاح الان', icon: 'fas fa-check-circle' },
-  { id: 'الفيزياء', label: 'الفيزياء', icon: 'fas fa-atom' },             
-  { id: 'الكيمياء', label: 'الكيمياء', icon: 'fas fa-vial' },             
-  { id: 'علم الأحياء', label: 'علم الأحياء', icon: 'fas fa-dna' },        
-  { id: 'التاريخ', label: 'التاريخ', icon: 'fas fa-landmark' },           
-  { id: 'الجغرافيا', label: 'الجغرافيا', icon: 'fas fa-globe-africa' }    
-];
+  filterOptions = [
+    { id: 'all', label: 'المدرسين', icon: 'fas fa-th' },
+    { id: 'featured', label: 'مميز', icon: 'fas fa-star' },
+    { id: 'available', label: 'متاح الان', icon: 'fas fa-check-circle' },
+    { id: 'الفيزياء', label: 'الفيزياء', icon: 'fas fa-atom' },
+    { id: 'الكيمياء', label: 'الكيمياء', icon: 'fas fa-vial' },
+    { id: 'علم الأحياء', label: 'علم الأحياء', icon: 'fas fa-dna' },
+    { id: 'التاريخ', label: 'التاريخ', icon: 'fas fa-landmark' },
+    { id: 'الجغرافيا', label: 'الجغرافيا', icon: 'fas fa-globe-africa' }
+  ];
   filteredTeachers: Teacher[] = [];
   teachers: Teacher[] = [];
   email: any;
   private localApi = environment.localApi;
-  constructor(private teachersService: TeachersService, private signalRService: SignalrService, private authService: AuthService,private router: Router) {
+  roles: any;
+  constructor(private teachersService: TeachersService, private signalRService: SignalrService, private authService: AuthService, private router: Router) {
   }
   ngOnInit() {
     this.getAllTeachers()
     this.email = this.authService.getUserEmail();
     this.signalRService.startConnection(this.email);
+    this.roles = this.authService.getUserTokenRoles();
+    if (!this.roles) {
+      this.router.navigate(['/notfound']);
+    }
   }
 
   ngOnDestroy() {
@@ -186,7 +191,7 @@ export class TeachersComponent implements OnInit, OnDestroy {
   viewProfile(teacherId: string, subjectId: any) {
     sessionStorage.setItem('teacherId', teacherId);
     sessionStorage.setItem('subjectId', subjectId);
-     this.router.navigate(['/pages/chaptersDashboard']);
+    this.router.navigate(['/pages/chaptersDashboard']);
   }
 
   getAvailabilityIcon(availability: string): string {

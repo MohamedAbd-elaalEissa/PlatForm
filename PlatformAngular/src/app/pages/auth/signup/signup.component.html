@@ -9,19 +9,24 @@
             style="background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
             <div class="w-full bg-white dark:bg-surface-900 py-20 px-8 sm:px-20 rounded-[53px]">
                 <div class="text-center mb-8">
+                    <h1 class="platform-title">
+                        <i class="fas fa-graduation-cap"></i>
+                        EduConnect Platform
+                    </h1>
                     <div class="text-surface-900 dark:text-white text-3xl font-medium mb-4">إنشاء حساب جديد</div>
-                    <span class="text-muted-color dark:text-surface-300 font-medium">يستغرق دقيقة واحدة فقط للتسجيل</span>
+                    <span class="text-muted-color dark:text-surface-300 font-medium">يستغرق دقيقة واحدة فقط
+                        للتسجيل</span>
                 </div>
 
                 <form (ngSubmit)="register()" class="p-fluid">
 
-                    <label for="username"
-                        class="block text-surface-900 dark:text-white text-xl font-medium mb-2">اسم المستخدم</label>
+                    <label for="username" class="block text-surface-900 dark:text-white text-xl font-medium mb-2">اسم
+                        المستخدم</label>
                     <input pInputText id="username" type="text" [(ngModel)]="registerModel.userName" name="username"
                         class="w-full md:w-[30rem] mb-5" placeholder="اختر اسم مستخدم" />
 
-                    <label for="email"
-                        class="block text-surface-900 dark:text-white text-xl font-medium mb-2">البريد الإلكتروني</label>
+                    <label for="email" class="block text-surface-900 dark:text-white text-xl font-medium mb-2">البريد
+                        الإلكتروني</label>
                     <input pInputText id="email" type="email" [(ngModel)]="registerModel.email" name="email"
                         class="w-full md:w-[30rem] mb-5" placeholder="البريد الإلكتروني" />
 
@@ -33,22 +38,24 @@
 
                     <div [hidden]="roles | includesRole :['Teacher']">
                         <p-floatlabel class="w-full md:w-56 filter-item" variant="on">
-                            <p-dropdown [(ngModel)]="registerModel.academicLevelId" inputId="academicLevel" [ngModelOptions]="{standalone: true}"
-                                [options]="academicLevelData" optionLabel="academicLevelName"
-                                optionValue="academicLevelID" styleClass="w-full" (onChange)="onAcademicLevelChange($event)">
+                            <p-dropdown [(ngModel)]="registerModel.academicLevelId" inputId="academicLevel"
+                                [ngModelOptions]="{standalone: true}" [options]="academicLevelData"
+                                optionLabel="academicLevelName" optionValue="academicLevelID" styleClass="w-full"
+                                (onChange)="onAcademicLevelChange($event)">
                             </p-dropdown>
                             <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
                         </p-floatlabel>
                     </div>
 
-                    <label for="password"
-                        class="block text-surface-900 dark:text-white text-xl font-medium mb-2">كلمة المرور</label>
+                    <label for="password" class="block text-surface-900 dark:text-white text-xl font-medium mb-2">كلمة
+                        المرور</label>
                     <p-password id="password" [(ngModel)]="registerModel.password" name="password"
                         placeholder="كلمة المرور" [toggleMask]="true" [feedback]="false" class="mb-5"
                         inputStyleClass="w-full" styleClass="w-full"></p-password>
 
                     <label for="confirmPassword"
-                        class="block text-surface-900 dark:text-white text-xl font-medium mb-2">تأكيد كلمة المرور</label>
+                        class="block text-surface-900 dark:text-white text-xl font-medium mb-2">تأكيد كلمة
+                        المرور</label>
                     <p-password id="confirmPassword" [(ngModel)]="confirmPassword" name="confirmPassword"
                         placeholder="تأكيد كلمة المرور" [toggleMask]="true" [feedback]="false" class="mb-6"
                         inputStyleClass="w-full" styleClass="w-full"></p-password>

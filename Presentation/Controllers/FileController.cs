@@ -1,6 +1,7 @@
 ﻿using Application.Features.Files.Commands;
 using Application.Features.Files.Queries;
 using ApplicationContract.Models.File;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Mvc;
@@ -72,6 +73,7 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [Route("GetAllAcademicLevels")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllAcademicLevels()
         {
             GetAllAcademicLevelsQuery query = new GetAllAcademicLevelsQuery();
