@@ -13,12 +13,14 @@ export default [
     component: LayoutVideosAndTasksComponent,
     children: [
       { path: '', redirectTo: 'tasks', pathMatch: 'full' },
-      { path: 'tasks', component: TasksComponent, data: { breadcrumb: 'Tasks' } },
-      { path: 'videos', component: VideosComponent, data: { breadcrumb: 'Videos' } },
-      { path: 'uploadTasks', component: UploadTasksComponent, data: { breadcrumb: 'Upload Tasks' } },
-      { path: 'uploadVideos', component: UploadVideosComponent, data: { breadcrumb: 'Upload Videos' } },
-      { path: 'VideoPlayer', component: VideoPlayerComponent, data: { breadcrumb: 'Video' } }
+      { path: 'tasks', component: TasksComponent, data: { breadcrumb: 'المهام' } },
+      { path: 'videos', component: VideosComponent, data: { breadcrumb: 'الفديوهات' } },
+      { path: 'uploadTasks', component: UploadTasksComponent, data: { breadcrumb: 'رفع المهام' } },
+      { path: 'uploadVideos', component: UploadVideosComponent, data: { breadcrumb: 'رفع الفديوهات' } },
+      { path: 'VideoPlayer', component: VideoPlayerComponent, data: { breadcrumb: 'مشغل الفديو' } },
     ]
   },
-  { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent, data: { breadcrumb: 'Student Tasks' } }
+  
+  { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent, data: { breadcrumb: 'الطلاب' } }
+
 ] as Routes;

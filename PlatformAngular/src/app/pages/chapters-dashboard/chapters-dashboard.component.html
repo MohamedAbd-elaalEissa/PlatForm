@@ -1,6 +1,6 @@
 <div class="card">
 
-    <p-button *ngIf="roles | includesRole :['Teacher']" [routerLink]="['/pages/createNewChapter']" label="إضافة فصل" icon="pi pi-plus" class="add-chapter-btn" />
+    <p-button *ngIf="roles | includesRole :['Teacher']" [routerLink]="['/pages/teachers/chaptersDashboard/createNewChapter']" label="إضافة / تعديل فصل" icon="pi pi-plus" class="add-chapter-btn" />
     <div class="filters-container">
         <p-floatlabel variant="on" class="filter-item">
             <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.chapterName"

@@ -1,24 +1,24 @@
 <div class="layout-topbar">
+
     <div class="layout-topbar-logo-container">
 
-    <app-breadcrumb></app-breadcrumb>
+        <app-breadcrumb></app-breadcrumb>
 
         <!-- زر الرجوع -->
         <!-- <button type="button" class="layout-topbar-action back-button" (click)="goBack()" pTooltip="رجوع"
             tooltipPosition="bottom">
             <i class="pi pi-arrow-left"></i>
         </button> -->
-
+        
         <!-- <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
                 <i class="pi pi-bars"></i>
             </button>
              -->
-
-        <a class="layout-topbar-logo" routerLink="/pages/teachers">
-           
-        </a>
-
+        <!-- <a class="layout-topbar-logo" routerLink="/pages/teachers">
+        </a> -->
     </div>
+
+
 
     <div class="flex flex-wrap items-center justify-end gap-2 w-full">
 
@@ -40,11 +40,11 @@
 
         <div class="flex items-center gap-3">
             <!-- Notification Icon -->
-            <button type="button" class="layout-topbar-action notification-button" 
-        (click)="toggleNotifications($event)">
-    <i class="pi pi-bell"></i>
-    <span class="custom-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
-</button>
+            <button type="button" class="layout-topbar-action notification-button"
+                (click)="toggleNotifications($event)">
+                <i class="pi pi-bell"></i>
+                <span class="custom-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+            </button>
 
             <!-- Profile Icon -->
             <div class="profile-dropdown">

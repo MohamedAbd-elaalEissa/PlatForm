@@ -108,7 +108,7 @@ export class VideosComponent {
 
     viewVideo(videoName: string) {
         sessionStorage.setItem("videoName", videoName)
-        this.router.navigate(["/pages/teachers/videos-and-tasks/VideoPlayer"]);
+        this.router.navigate(["/pages/teachers/chaptersDashboard/videos-and-tasks/VideoPlayer"]);
     }
 
 }
