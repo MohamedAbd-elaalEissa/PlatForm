@@ -1,27 +1,31 @@
+<ng-container [ngSwitch]="subject">
+    <div *ngSwitchCase="1">
 <div class="card">
 
-    <p-button *ngIf="roles | includesRole :['Teacher']" [routerLink]="['/pages/teachers/chaptersDashboard/createNewChapter']" label="إضافة / تعديل فصل" icon="pi pi-plus" class="add-chapter-btn" />
-    <div class="filters-container">
-        <p-floatlabel variant="on" class="filter-item">
-            <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.chapterName"
-                (ngModelChange)="onFilterChange()" autocomplete="off" />
-            <label for="taskName" style="font-size: large;">
-                <p-inputicon class="pi pi-search" /> اسم الفصل
-            </label>
-        </p-floatlabel>
+            <p-button *ngIf="roles | includesRole :['Physics_Teacher','PLT_Admin']" 
+                [routerLink]="['/pages/teachers/chaptersDashboard/createNewChapter']" label="إضافة / تعديل فصل"
+                icon="pi pi-plus" class="add-chapter-btn" />
+            <div class="filters-container">
+                <p-floatlabel *ngIf="roles | includesRole :['Chemistry_Teacher','Chemistry_Student','PLT_Admin']"
+                    variant="on" class="filter-item">
+                    <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.chapterName"
+                        (ngModelChange)="onFilterChange()" autocomplete="off" />
+                    <label for="taskName" style="font-size: large;">
+                        <p-inputicon class="pi pi-search" /> اسم الفصل
+                    </label>
+                </p-floatlabel>
 
-        <p-floatlabel *ngIf="roles | includesRole :['Teacher']" class="w-full md:w-56 filter-item" variant="on">
-            <p-dropdown [(ngModel)]="Filter.academicLevelId" inputId="academicLevel" [options]="academicLevelData"
-                optionLabel="academicLevelName" optionValue="academicLevelID" styleClass="w-full"
-                (ngModelChange)="onFilterChange()">
-            </p-dropdown>
-            <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
-        </p-floatlabel>
-    </div>
-</div>
-<ng-container [ngSwitch]="subject">
-<div *ngSwitchCase="1" >
-        <div *ngIf="roles | includesRole :['Physics_Teacher','Physics_Student','PLT_Admin']"  class="h-[100%]">
+                <p-floatlabel *ngIf="roles | includesRole :['Physics_Teacher','PLT_Admin']" 
+                    class="w-full md:w-56 filter-item" variant="on">
+                    <p-dropdown [(ngModel)]="Filter.academicLevelId" inputId="academicLevel"
+                        [options]="academicLevelData" optionLabel="academicLevelName" optionValue="academicLevelID"
+                        styleClass="w-full" (ngModelChange)="onFilterChange()">
+                    </p-dropdown>
+                    <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
+                </p-floatlabel>
+            </div>
+        </div>
+        <div *ngIf="roles | includesRole :['Physics_Teacher','Physics_Student','PLT_Admin']" class="h-[100%]">
             <div class="flex flex-wrap justify-center gap-8">
                 <div *ngFor="let chapter of Chapters" pAnimateOnScroll (click)="saveInSessionStorage(chapter.chapterID)"
                     enterClass="animate-enter fade-in-10 slide-in-from-t-20 animate-duration-1000"
@@ -42,16 +46,41 @@
                 </div>
             </div>
         </div>
-</div>
+    </div>
 
-<div  *ngSwitchCase="2">
+    <div *ngSwitchCase="2">
+        <div class="card">
+
+            <p-button *ngIf="roles | includesRole :['Chemistry_Teacher','PLT_Admin']"
+                [routerLink]="['/pages/teachers/chaptersDashboard/createNewChapter']" label="إضافة / تعديل فصل"
+                icon="pi pi-plus" class="add-chapter-btn" />
+            <div class="filters-container">
+                <p-floatlabel *ngIf="roles | includesRole :['Chemistry_Teacher','Chemistry_Student','PLT_Admin']"
+                    variant="on" class="filter-item">
+                    <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.chapterName"
+                        (ngModelChange)="onFilterChange()" autocomplete="off" />
+                    <label for="taskName" style="font-size: large;">
+                        <p-inputicon class="pi pi-search" /> اسم الفصل
+                    </label>
+                </p-floatlabel>
+
+                <p-floatlabel *ngIf="roles | includesRole :['Chemistry_Teacher','PLT_Admin']"
+                    class="w-full md:w-56 filter-item" variant="on">
+                    <p-dropdown [(ngModel)]="Filter.academicLevelId" inputId="academicLevel"
+                        [options]="academicLevelData" optionLabel="academicLevelName" optionValue="academicLevelID"
+                        styleClass="w-full" (ngModelChange)="onFilterChange()">
+                    </p-dropdown>
+                    <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
+                </p-floatlabel>
+            </div>
+        </div>
         <div *ngIf="roles | includesRole :['Chemistry_Teacher','Chemistry_Student','PLT_Admin']" class="h-[100%]">
             <div class="flex flex-wrap justify-center gap-8">
                 <div *ngFor="let chapter of Chapters" pAnimateOnScroll (click)="saveInSessionStorage(chapter.chapterID)"
                     enterClass="animate-enter fade-in-10 slide-in-from-t-20 animate-duration-1000"
                     leaveClass="animate-leave fade-out-0"
                     class="flex flex-col border border-primary-200 shadow-xl justify-center items-center max-w-lg rounded-3xl p-12 gap-6 cursor-pointer"
-                    [routerLink]="['/pages/teachers/videos-and-tasks']">
+                    [routerLink]="['/pages/teachers/chaptersDashboard/videos-and-tasks']">
 
                     <img [src]="'assets/Chapters/Chapter.jpeg'" alt="{{ chapter.chapterName }} "
                         class="w-56 h-56 rounded-full object-cover border-4 border-primary dark:border-primary-400" />
@@ -67,14 +96,39 @@
             </div>
         </div>
     </div>
-<div *ngSwitchCase="3">
-        <div class="h-[100%]">
+    <div *ngSwitchCase="3">
+        <div class="card">
+
+            <p-button *ngIf="roles | includesRole :['Biology_Teacher','PLT_Admin']"
+                [routerLink]="['/pages/teachers/chaptersDashboard/createNewChapter']" label="إضافة / تعديل فصل"
+                icon="pi pi-plus" class="add-chapter-btn" />
+            <div class="filters-container">
+                <p-floatlabel *ngIf="roles | includesRole :['Biology_Teacher','Biology_Student','PLT_Admin']"
+                    variant="on" class="filter-item">
+                    <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.chapterName"
+                        (ngModelChange)="onFilterChange()" autocomplete="off" />
+                    <label for="taskName" style="font-size: large;">
+                        <p-inputicon class="pi pi-search" /> اسم الفصل
+                    </label>
+                </p-floatlabel>
+
+                <p-floatlabel *ngIf="roles | includesRole :['Biology_Teacher','PLT_Admin']"
+                    class="w-full md:w-56 filter-item" variant="on">
+                    <p-dropdown [(ngModel)]="Filter.academicLevelId" inputId="academicLevel"
+                        [options]="academicLevelData" optionLabel="academicLevelName" optionValue="academicLevelID"
+                        styleClass="w-full" (ngModelChange)="onFilterChange()">
+                    </p-dropdown>
+                    <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
+                </p-floatlabel>
+            </div>
+        </div>
+        <div *ngIf="roles | includesRole :['Biology_Teacher','Biology_Student','PLT_Admin']" class="h-[100%]">
             <div class="flex flex-wrap justify-center gap-8">
                 <div *ngFor="let chapter of Chapters" pAnimateOnScroll (click)="saveInSessionStorage(chapter.chapterID)"
                     enterClass="animate-enter fade-in-10 slide-in-from-t-20 animate-duration-1000"
                     leaveClass="animate-leave fade-out-0"
                     class="flex flex-col border border-primary-200 shadow-xl justify-center items-center max-w-lg rounded-3xl p-12 gap-6 cursor-pointer"
-                    [routerLink]="['/pages/teachers/videos-and-tasks']">
+                    [routerLink]="['/pages/teachers/chaptersDashboard/videos-and-tasks']">
 
                     <img [src]="'assets/Chapters/Chapter.jpeg'" alt="{{ chapter.chapterName }} "
                         class="w-56 h-56 rounded-full object-cover border-4 border-primary dark:border-primary-400" />
@@ -92,13 +146,38 @@
     </div>
 
     <div *ngSwitchCase="4">
-        <div class="h-[100%]">
+        <div class="card">
+
+            <p-button *ngIf="roles | includesRole :['History_Teacher','PLT_Admin']"
+                [routerLink]="['/pages/teachers/chaptersDashboard/createNewChapter']" label="إضافة / تعديل فصل"
+                icon="pi pi-plus" class="add-chapter-btn" />
+            <div class="filters-container">
+                <p-floatlabel *ngIf="roles | includesRole :['History_Teacher','History_Student','PLT_Admin']"
+                    variant="on" class="filter-item">
+                    <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.chapterName"
+                        (ngModelChange)="onFilterChange()" autocomplete="off" />
+                    <label for="taskName" style="font-size: large;">
+                        <p-inputicon class="pi pi-search" /> اسم الفصل
+                    </label>
+                </p-floatlabel>
+
+                <p-floatlabel *ngIf="roles | includesRole :['History_Teacher','PLT_Admin']"
+                    class="w-full md:w-56 filter-item" variant="on">
+                    <p-dropdown [(ngModel)]="Filter.academicLevelId" inputId="academicLevel"
+                        [options]="academicLevelData" optionLabel="academicLevelName" optionValue="academicLevelID"
+                        styleClass="w-full" (ngModelChange)="onFilterChange()">
+                    </p-dropdown>
+                    <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
+                </p-floatlabel>
+            </div>
+        </div>
+        <div *ngIf="roles | includesRole :['History_Teacher','History_Student','PLT_Admin']" class="h-[100%]">
             <div class="flex flex-wrap justify-center gap-8">
                 <div *ngFor="let chapter of Chapters" pAnimateOnScroll (click)="saveInSessionStorage(chapter.chapterID)"
                     enterClass="animate-enter fade-in-10 slide-in-from-t-20 animate-duration-1000"
                     leaveClass="animate-leave fade-out-0"
                     class="flex flex-col border border-primary-200 shadow-xl justify-center items-center max-w-lg rounded-3xl p-12 gap-6 cursor-pointer"
-                    [routerLink]="['/pages/teachers/videos-and-tasks']">
+                    [routerLink]="['/pages/teachers/chaptersDashboard/videos-and-tasks']">
 
                     <img [src]="'assets/Chapters/Chapter.jpeg'" alt="{{ chapter.chapterName }} "
                         class="w-56 h-56 rounded-full object-cover border-4 border-primary dark:border-primary-400" />
@@ -114,14 +193,39 @@
             </div>
         </div>
     </div>
- <div *ngSwitchCase="5">
-        <div class="h-[100%]">
+    <div *ngSwitchCase="7">
+        <div class="card">
+
+            <p-button *ngIf="roles | includesRole :['Geography_Teacher','PLT_Admin']"
+                [routerLink]="['/pages/teachers/chaptersDashboard/createNewChapter']" label="إضافة / تعديل فصل"
+                icon="pi pi-plus" class="add-chapter-btn" />
+            <div class="filters-container">
+                <p-floatlabel *ngIf="roles | includesRole :['Geography_Teacher','Geography_Student','PLT_Admin']"
+                    variant="on" class="filter-item">
+                    <input style="width: 100%;" pInputText id="taskName" [(ngModel)]="Filter.chapterName"
+                        (ngModelChange)="onFilterChange()" autocomplete="off" />
+                    <label for="taskName" style="font-size: large;">
+                        <p-inputicon class="pi pi-search" /> اسم الفصل
+                    </label>
+                </p-floatlabel>
+
+                <p-floatlabel *ngIf="roles | includesRole :['Geography_Teacher','PLT_Admin']"
+                    class="w-full md:w-56 filter-item" variant="on">
+                    <p-dropdown [(ngModel)]="Filter.academicLevelId" inputId="academicLevel"
+                        [options]="academicLevelData" optionLabel="academicLevelName" optionValue="academicLevelID"
+                        styleClass="w-full" (ngModelChange)="onFilterChange()">
+                    </p-dropdown>
+                    <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
+                </p-floatlabel>
+            </div>
+        </div>
+        <div *ngIf="roles | includesRole :['Geography_Teacher','Geography_Student','PLT_Admin']" class="h-[100%]">
             <div class="flex flex-wrap justify-center gap-8">
                 <div *ngFor="let chapter of Chapters" pAnimateOnScroll (click)="saveInSessionStorage(chapter.chapterID)"
                     enterClass="animate-enter fade-in-10 slide-in-from-t-20 animate-duration-1000"
                     leaveClass="animate-leave fade-out-0"
                     class="flex flex-col border border-primary-200 shadow-xl justify-center items-center max-w-lg rounded-3xl p-12 gap-6 cursor-pointer"
-                    [routerLink]="['/pages/teachers/videos-and-tasks']">
+                    [routerLink]="['/pages/teachers/chaptersDashboard/videos-and-tasks']">
 
                     <img [src]="'assets/Chapters/Chapter.jpeg'" alt="{{ chapter.chapterName }} "
                         class="w-56 h-56 rounded-full object-cover border-4 border-primary dark:border-primary-400" />

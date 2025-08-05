@@ -44,6 +44,7 @@ export class TeachersComponent2 {
            {
             teacher.displayImage = `${this.localApi}/browser/my-profile-icon-blankcircle.png`; 
           }
+          console.log('kkk',data);
           return teacher;
         });
       },

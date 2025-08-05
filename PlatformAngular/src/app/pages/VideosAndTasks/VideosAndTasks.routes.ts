@@ -6,6 +6,8 @@ import { UploadTasksComponent } from './upload-tasks/upload-tasks.component';
 import { UploadVideosComponent } from './upload-videos/upload-videos.component';
 import { StudentTasksDashboardComponent } from './student-tasks-dashboard/student-tasks-dashboard.component';
 import { VideoPlayerComponent } from './video-player/video-player.component';
+import { AuthGuard } from '../auth/authguard';
+import { RoleGuard } from '../auth/RoleGuard';
 
 export default [
   {
@@ -13,14 +15,14 @@ export default [
     component: LayoutVideosAndTasksComponent,
     children: [
       { path: '', redirectTo: 'tasks', pathMatch: 'full' },
-      { path: 'tasks', component: TasksComponent, data: { breadcrumb: 'المهام' } },
-      { path: 'videos', component: VideosComponent, data: { breadcrumb: 'الفديوهات' } },
-      { path: 'uploadTasks', component: UploadTasksComponent, data: { breadcrumb: 'رفع المهام' } },
-      { path: 'uploadVideos', component: UploadVideosComponent, data: { breadcrumb: 'رفع الفديوهات' } },
+      { path: 'tasks', component: TasksComponent,data: { breadcrumb: 'المهام'} },
+      { path: 'videos', component: VideosComponent,data: { breadcrumb: 'الفديوهات'} },
+      { path: 'uploadTasks', component: UploadTasksComponent,  canActivate: [RoleGuard],data: { breadcrumb: 'رفع المهام', role: 'Teacher' } },
+      { path: 'uploadVideos', component: UploadVideosComponent, canActivate: [RoleGuard], data: { breadcrumb: 'رفع الفديوهات', role: 'Teacher' } },
       { path: 'VideoPlayer', component: VideoPlayerComponent, data: { breadcrumb: 'مشغل الفديو' } },
     ]
   },
   
-  { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent, data: { breadcrumb: 'الطلاب' } }
+  { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent,  canActivate: [RoleGuard],data: { breadcrumb: 'الطلاب' , role: 'Teacher'} }
 
 ] as Routes;

@@ -36,7 +36,7 @@
                     <input pInputText id="phone" type="tel" [(ngModel)]="registerModel.phoneNumber" name="phone"
                         class="w-full md:w-[30rem] mb-5" placeholder="رقم الهاتف" />
 
-                    <div [hidden]="roles | includesRole :['Teacher']">
+                    <div [hidden]="roles | includesRole :['Teacher','PLT_Admin']">
                         <p-floatlabel class="w-full md:w-56 filter-item" variant="on">
                             <p-dropdown [(ngModel)]="registerModel.academicLevelId" inputId="academicLevel"
                                 [ngModelOptions]="{standalone: true}" [options]="academicLevelData"
