@@ -37,10 +37,10 @@ buildBreadCrumbFromUrl(url: string): any[] {
     // Inject "الفصول التعليميه" manually if "videos-and-tasks" exists
     if (
       segment === 'videos-and-tasks' &&
-      !breadcrumbs.some(b => b.label === 'الفصول التعليميه')
+      !breadcrumbs.some(b => b.label === 'الفصول')
     ) {
       breadcrumbs.push({
-        label: 'الفصول التعليميه',
+        label: 'الفصول',
         routerLink: '/pages/teachers/chaptersDashboard'
       });
     }
@@ -84,7 +84,7 @@ buildBreadCrumbFromUrl(url: string): any[] {
     const mapping: { [key: string]: string } = {
       pages: 'المسارات',
       teachers: 'المعلمين',
-      chaptersDashboard: 'الفصول التعليميه',
+      chaptersDashboard: 'الفصول',
       tasks: 'المهام',
       videos: 'الفديوهات',
       VideoPlayer: 'مشغل الفديو',
