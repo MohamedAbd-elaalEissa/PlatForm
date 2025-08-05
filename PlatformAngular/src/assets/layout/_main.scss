@@ -7,6 +7,12 @@
     transition: margin-left var(--layout-section-transition-duration);
 }
 
+@media (max-width: 768px) {
+    .layout-main-container {
+        padding: 8rem 1rem 0 1rem;
+    }
+}
+
 .layout-main {
     flex: 1 1 auto;
     padding-bottom: 2rem;
