@@ -90,7 +90,6 @@ export class TasksComponent {
     this.loading = true;
     this.tasksAndVideos.getTeachersFiles(this.Filter).subscribe({
       next: (data) => {
-        debugger
         this.tasksFiles = data.items;
         this.totalRecords = data.totalCount;
         this.loading = false;

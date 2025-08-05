@@ -139,10 +139,8 @@ export class SignupComponent {
 
 
   getAcademicLevelFilter() {
-    debugger
     this.tasksAndVideos.getAllAcademicLevels().subscribe({
       next: (data) => {
-        debugger
         this.academicLevelData = data
         //console.log('this.academicLevelData',this.academicLevelData)
       }

@@ -142,7 +142,6 @@ export class TeachersComponent implements OnInit, OnDestroy {
   }
 
   filterTeachers() {
-    debugger
     this.filteredTeachers = this.teachers.filter(teacher => {
       // Search filter
       const searchTermLower = this.searchTerm.toLowerCase();
