@@ -35,25 +35,23 @@ export class ChaptersDashboardComponent {
   subject: number
   roles: string[] = [];
   email: any;
-  studentLevel: any;
+  studentLevel: any = null
+  isStudent: boolean=false;
   constructor(private tasksAndVideos: TasksAndVideosService, private chaptersService: ChaptersService, private authService: AuthService,
-     private studentService: StudentService,private router:Router) {
+    private studentService: StudentService, private router: Router) {
+    debugger
     const teacherId = sessionStorage.getItem('teacherId');
     this.subject = Number(sessionStorage.getItem('subjectId'));
     if (teacherId) {
       this.teacherId = teacherId
     }
     this.roles = this.authService.getUserTokenRoles();
-    if(!this.roles)
-    {
+    if (!this.roles) {
       this.router.navigate(['/notfound']);
 
     }
-    const rolesArray = Array.isArray(this.roles) ? this.roles : [this.roles];
-    if (rolesArray.some(role => role.includes('Student'))) {
-      this.email = this.authService.getUserEmail();
-      this.GetStudentWithEmail();
-    }
+
+
   }
 
   ngOnInit(): void {
@@ -62,10 +60,19 @@ export class ChaptersDashboardComponent {
       teacherId: this.teacherId,
       pageNumber: 1,
       pageSize: 25,
-      academicLevelId: (this.studentLevel ?? null)
+      academicLevelId: this.studentLevel
     }
-
-    this.getChapterData()
+    const rolesArray = Array.isArray(this.roles) ? this.roles : [this.roles];
+    if (rolesArray.some(role => role.includes('Student'))) {
+      this.email = this.authService.getUserEmail();
+      this.GetStudentWithEmail();
+      this.isStudent=true
+    }
+    debugger
+    if(this.isStudent==false)
+    {
+      this.getChapterData()
+    }
     this.getAcademicLevelFilter()
 
   }
@@ -79,13 +86,10 @@ export class ChaptersDashboardComponent {
   }
 
   getChapterData() {
-    this.chaptersService.getAllChapters(this.Filter).subscribe({
-      next: (data) => {
-        this.Chapters = data.items;
-      },
-      error: (err) => {
-        console.error('Error fetching teachers:', err);
-      }
+    debugger
+    this.chaptersService.getAllChapters(this.Filter).subscribe((data) => {
+      debugger
+      this.Chapters = data.items;
     });
   }
 
@@ -104,14 +108,11 @@ export class ChaptersDashboardComponent {
     this.getChapterData()
   }
 
-  GetStudentWithEmail() {
-    this.studentService.GetStudentWithEmail(this.email).subscribe({
-      next: (data) => {
-        this.studentLevel = data.academicLevelId;
-      },
-      error: (err) => {
-        console.error('Error fetching teachers:', err);
-      }
+  async GetStudentWithEmail() {
+    await this.studentService.GetStudentWithEmail(this.email).subscribe((res) => {
+      debugger
+      this.Filter.academicLevelId = res.academicLevelId;
+      this.getChapterData()
     });
   }
 

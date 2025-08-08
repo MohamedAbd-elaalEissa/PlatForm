@@ -51,7 +51,7 @@ export class TeachersComponent implements OnInit, OnDestroy {
     { id: 'available', label: 'متاح الان', icon: 'fas fa-check-circle' },
     { id: 'الفيزياء', label: 'الفيزياء', icon: 'fas fa-atom' },
     { id: 'الكيمياء', label: 'الكيمياء', icon: 'fas fa-vial' },
-    { id: 'علم الأحياء', label: 'علم الأحياء', icon: 'fas fa-dna' },
+    { id: 'الأحياء', label: 'الأحياء', icon: 'fas fa-dna' },
     { id: 'التاريخ', label: 'التاريخ', icon: 'fas fa-landmark' },
     { id: 'الجغرافيا', label: 'الجغرافيا', icon: 'fas fa-globe-africa' }
   ];
@@ -164,8 +164,8 @@ export class TeachersComponent implements OnInit, OnDestroy {
             return teacher?.subject?.subjectAR.toLowerCase().includes('الفيزياء');
           case 'الكيمياء':
             return teacher?.subject?.subjectAR.toLowerCase().includes('الكيمياء');
-          case 'علم الأحياء':
-            return teacher?.subject?.subjectAR.toLowerCase().includes('علم الأحياء');
+          case 'الأحياء':
+            return teacher?.subject?.subjectAR.toLowerCase().includes('الأحياء');
           case 'التاريخ':
             return teacher?.subject?.subjectAR.toLowerCase().includes('التاريخ');
           case 'الجغرافيا':
