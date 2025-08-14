@@ -27,9 +27,10 @@ namespace ApplicationContract.IFiles
         Task<IEnumerable<AcademicLevels>> GetAllAcademicLevelsAsync();
         Task<PaginatedResult<StudentAnswerFilesDTO>> GetStudentAnswerAsync(StudentAnswerFilesDTO StudentAnswerFile);
         Task<string> GetVideoFileStreamAsync(string fileName);
+        Task<IActionResult> GetVideoStreamAsync(string FileName, HttpRequest request);
 
         ////////////////////////////////////AWS/////////////////////////////////
-        
+
         //Task<CommonResult> InitializeMultipartUpload(InitiateUploadDto uploadDto);
         //Task<CommonResult> CompleteMultipartUpload(CompleteUploadDto completeDto);
         //Task<CommonResult> AbortMultipartUpload(AbortUploadDto abortDto);

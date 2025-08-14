@@ -98,8 +98,14 @@ uploadFileChunk(chunkData: FormData, onProgress?: (progress: number) => void): O
     return this.http.get(this.apiUrl + "CheckUploadedChunks?userId=" + userId + "&" + "fileName=" + fileName);
   }
 
-  getVideoFile(fileName: string): Observable<any> {
-    return this.http.get(this.apiUrl + "GetVideoFile?fileName=" + fileName);
-  }
+  // Existing method (unchanged)
+getVideoFile(fileName: string): Observable<any> {
+  return this.http.get(this.apiUrl + "GetVideoFile?fileName=" + fileName);
+}
 
+// NEW: Simple method that returns the streaming URL (not blob)
+// This allows the browser to handle all range requests automatically
+getVideoStreamUrl(fileName: string): string {
+  return this.apiUrl + "StreamVideo?fileName=" + fileName;
+}
 }

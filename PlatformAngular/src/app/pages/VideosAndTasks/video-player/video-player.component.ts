@@ -42,6 +42,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewChecked {
   /* === داخلي === */
   private playerInitialized = false;
   UserEmail: string;
+  videoBlobUrl: any;
 
   constructor(
     private tasksAndVideosService: TasksAndVideosService,
@@ -75,13 +76,14 @@ export class VideoPlayerComponent implements OnInit, AfterViewChecked {
 }
 
 
-
-  private getVideoFile(): void {
-    this.tasksAndVideosService.getVideoFile(this.videoName).subscribe({
-      next: res => (this.videoUrl = res.url),
-    });
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ private getVideoFile(): void {
+    // Simply set the URL to your streaming endpoint
+    // Browser will handle all the range requests automatically
+    this.videoUrl = this.tasksAndVideosService.getVideoStreamUrl(this.videoName);
   }
-
+  
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   private initWatermark(): void {
     const userName = this.UserEmail ?? 'Anonymous';
     this.watermarkLine1 = userName;
