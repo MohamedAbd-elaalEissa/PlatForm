@@ -62,13 +62,20 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [Route("DownloadFile")]
-        public async Task<IActionResult> Download(string fileName,bool isBook=false)
+        public async Task<IActionResult> Download(string fileName, bool isBook = false)
         {
-            var fileDto = await Mediator.Send(new DownloadFileQuery(fileName,isBook));
+            var fileDto = await Mediator.Send(new DownloadFileQuery(fileName, isBook));
 
-            return File(fileDto.Content, fileDto.ContentType, fileDto.FileName);
+            if (isBook)
+            {
+                Response.Headers["Content-Disposition"] = "inline; filename=" + fileDto.FileName;
+                return File(fileDto.Content, fileDto.ContentType);
+            }
+            else
+            {
+                return File(fileDto.Content, fileDto.ContentType, fileDto.FileName);
+            }
         }
-
 
 
         [HttpGet]

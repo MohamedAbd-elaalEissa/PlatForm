@@ -23,6 +23,7 @@ export default [
     ]
   },
   
-  { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent,  canActivate: [RoleGuard],data: { breadcrumb: 'الطلاب' , role: 'Teacher'} }
+  { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent,  canActivate: [RoleGuard],data: { breadcrumb: 'الطلاب' , role: 'Teacher'} },
+  
 
 ] as Routes;

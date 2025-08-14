@@ -17,6 +17,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { AuthService } from '../../service/auth.service';
 import { IncludesRolePipe } from '../../Pipe/includes-role.pipe';
 import { LottieLoaderComponent } from '../../lottie-loader/lottie-loader.component';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-tasks',
@@ -28,7 +29,7 @@ import { LottieLoaderComponent } from '../../lottie-loader/lottie-loader.compone
     ToastModule, RouterModule,
     InputIconModule,
     FloatLabelModule, InputTextModule,
-    DropdownModule, CheckboxModule,IncludesRolePipe,LottieLoaderComponent
+    DropdownModule, CheckboxModule, IncludesRolePipe, LottieLoaderComponent
   ],
   standalone: true,
   templateUrl: './tasks.component.html',
@@ -83,7 +84,7 @@ export class TasksComponent {
 
     this.getPDFiles()
     this.getAcademicLevelFilter()
-    this.roles=this.authService.getUserTokenRoles();
+    this.roles = this.authService.getUserTokenRoles();
   }
 
   getPDFiles() {
@@ -119,33 +120,38 @@ export class TasksComponent {
 
   }
 
-  downloadTask(fileName: string) {
-    this.tasksAndVideos.downloadFile(fileName, this.Filter.isBook).subscribe({
+downloadTask(fileName: string) {
+  this.Loading = true;
+
+  this.tasksAndVideos.downloadFile(fileName, this.Filter.isBook)
+    .pipe(finalize(() => this.Loading = false))
+    .subscribe({
       next: (response) => {
-        const blob = new Blob([response.body!], { type: response.body?.type });
-
-        const contentDisposition = response.headers.get('Content-Disposition');
-        let downloadedFileName = fileName;
-
-        if (contentDisposition) {
-          const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-          if (match && match[1]) {
-            downloadedFileName = match[1].replace(/['"]/g, '');
-          }
-        }
-
+        const contentType = this.Filter.isBook ? 'application/pdf' : (response.body?.type || '');
+        const blob = new Blob([response.body!], { type: contentType });
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = downloadedFileName;
-        a.click();
-        window.URL.revokeObjectURL(url);
+
+        if (this.Filter.isBook) {
+          window.open(`/assets/pdfjs/web/viewer.html?file=${encodeURIComponent(url)}`, '_blank');
+        } else {
+          let downloadedFileName = fileName;
+          const contentDisposition = response.headers.get('Content-Disposition');
+          if (contentDisposition) {
+            const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+            if (match && match[1]) downloadedFileName = match[1].replace(/['"]/g, '');
+          }
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = downloadedFileName;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        }
       },
-      error: (err) => {
-        console.error('Error downloading file:', err);
-      }
+      error: (err) => console.error('Error downloading file:', err)
     });
-  }
+}
+
+
   uploadTask(event: any, filesID: number, teacherID: number, isAnswer: boolean, academicLevelID: number, taskName: string, taskNameAnswer: string) {
     this.Loading = true
     const file = event.files[0];
