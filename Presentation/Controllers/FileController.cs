@@ -1,6 +1,8 @@
 ﻿using Application.Features.Files.Commands;
 using Application.Features.Files.Queries;
+using ApplicationContract.IFiles;
 using ApplicationContract.Models.File;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Timeouts;
@@ -90,6 +92,25 @@ namespace Presentation.Controllers
             return Ok(res);
         }
 
+        //[HttpGet]
+        //[Route("GetVideoFile")]
+        //public async Task<IActionResult> GetVideoFile(string fileName)
+        //{
+        //    try
+        //    {
+        //        var fileStreamResult = await Mediator.Send(new GetVideoFileQuery(fileName));
+        //        return Ok(new { url = fileStreamResult });
+        //    }
+        //    catch (FileNotFoundException)
+        //    {
+        //        return NotFound("الفيديو غير موجود");
+        //    }
+        //    catch (ArgumentException ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+
+        //}
         [HttpGet]
         [Route("GetVideoFile")]
         public async Task<IActionResult> GetVideoFile(string fileName)
@@ -107,9 +128,27 @@ namespace Presentation.Controllers
             {
                 return BadRequest(ex.Message);
             }
-
         }
 
-
+        // NEW: Added streaming endpoint with range support
+        [HttpGet]
+        [Route("StreamVideo")]
+        [AllowAnonymous]
+        public async Task<IActionResult> StreamVideo(string fileName)
+        {
+            try
+            {
+                var result = await Mediator.Send(new StreamVideoQuery(fileName, Request));
+                return result;
+            }
+            catch (FileNotFoundException)
+            {
+                return NotFound("الفيديو غير موجود");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

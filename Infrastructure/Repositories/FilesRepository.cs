@@ -7,6 +7,8 @@ using ApplicationContract.Models.File;
 using Domain.Entities;
 using Infrastructure.Presistence;
 using Infrastructure.Repositories.SignalR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -457,7 +459,6 @@ namespace Infrastructure.Repositories
                 PageSize = StudentAnswerFile.PageSize
             };
         }
-
         public async Task<string> GetVideoFileStreamAsync(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName) ||
@@ -479,8 +480,6 @@ namespace Infrastructure.Repositories
             try
             {
                 metadata = await _s3Client.GetObjectMetadataAsync(request);
-
-                // Log metadata for debugging
                 Console.WriteLine($"Content-Type: {metadata.Headers.ContentType}");
                 Console.WriteLine($"Content-Length: {metadata.Headers.ContentLength}");
             }
@@ -489,27 +488,157 @@ namespace Infrastructure.Repositories
                 throw new FileNotFoundException("الملف غير موجود", fileName);
             }
 
-            // Generate pre-signed URL with proper headers
+            // Generate pre-signed URL with proper headers to prevent download
             var urlRequest = new GetPreSignedUrlRequest
             {
                 BucketName = _bucketName,
                 Key = fileName,
                 Verb = HttpVerb.GET,
-                Expires = DateTime.UtcNow.AddDays(1),
-                // Add response headers to ensure proper content type
+                Expires = DateTime.UtcNow.AddHours(2), // Shorter expiry for security
+
                 ResponseHeaderOverrides = new ResponseHeaderOverrides
                 {
                     ContentType = "video/mp4",
-                    //CacheControl = "max-age=3600",
-                    ContentDisposition = "inline" // Important for inline video playback
+                    ContentDisposition = "inline; filename=\"video.mp4\"", // More explicit inline directive
+                    CacheControl = "no-store, must-revalidate", // Prevent caching
+
+                    // Additional headers to discourage downloads
+                    ContentEncoding = null // Ensure no encoding issues
                 }
             };
 
             return await _s3Client.GetPreSignedURLAsync(urlRequest);
         }
+        public async Task<IActionResult> GetVideoStreamAsync(string fileName, HttpRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(fileName) ||
+                fileName.Contains("..") ||
+                fileName.Contains("/") ||
+                fileName.Contains("\\"))
+            {
+                throw new ArgumentException("Invalid file name.");
+            }
 
+            // Get file metadata
+            var metadataRequest = new GetObjectMetadataRequest
+            {
+                BucketName = _bucketName,
+                Key = fileName
+            };
 
+            GetObjectMetadataResponse metadata;
+            try
+            {
+                metadata = await _s3Client.GetObjectMetadataAsync(metadataRequest);
+            }
+            catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                throw new FileNotFoundException("الملف غير موجود", fileName);
+            }
 
+            long fileSize = metadata.Headers.ContentLength;
+            long start = 0;
+            long end = fileSize - 1;
+
+            // Parse Range header
+            string rangeHeader = request.Headers["Range"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(rangeHeader) && rangeHeader.StartsWith("bytes="))
+            {
+                var range = rangeHeader.Substring(6);
+                var parts = range.Split('-');
+
+                if (parts.Length == 2)
+                {
+                    if (long.TryParse(parts[0], out long rangeStart))
+                    {
+                        start = rangeStart;
+                    }
+
+                    if (!string.IsNullOrEmpty(parts[1]) && long.TryParse(parts[1], out long rangeEnd))
+                    {
+                        end = Math.Min(rangeEnd, fileSize - 1);
+                    }
+                }
+            }
+
+            // Create S3 request with byte range
+            var s3Request = new GetObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = fileName,
+                ByteRange = new ByteRange(start, end)
+            };
+
+            var s3Response = await _s3Client.GetObjectAsync(s3Request);
+
+            // Calculate content length
+            long contentLength = end - start + 1;
+
+            // Create custom ActionResult that properly handles the stream
+            return new VideoStreamResult(s3Response.ResponseStream, contentLength, start, end, fileSize, "video/mp4");
+        }
+
+        // NEW: Custom ActionResult for video streaming
+        public class VideoStreamResult : IActionResult
+        {
+            private readonly Stream _stream;
+            private readonly long _contentLength;
+            private readonly long _start;
+            private readonly long _end;
+            private readonly long _fileSize;
+            private readonly string _contentType;
+
+            public VideoStreamResult(Stream stream, long contentLength, long start, long end, long fileSize, string contentType)
+            {
+                _stream = stream;
+                _contentLength = contentLength;
+                _start = start;
+                _end = end;
+                _fileSize = fileSize;
+                _contentType = contentType;
+            }
+
+            public async Task ExecuteResultAsync(ActionContext context)
+            {
+                var response = context.HttpContext.Response;
+
+                response.ContentType = _contentType;
+                response.Headers.Add("Accept-Ranges", "bytes");
+                response.Headers.Add("Content-Range", $"bytes {_start}-{_end}/{_fileSize}");
+                response.Headers.Add("Content-Length", _contentLength.ToString());
+
+                // Set status code
+                response.StatusCode = _start > 0 || _end < _fileSize - 1 ? 206 : 200;
+
+                // Disable response buffering for large files
+                var bufferingFeature = context.HttpContext.Features.Get<IHttpResponseBodyFeature>();
+                bufferingFeature?.DisableBuffering();
+
+                // Stream the content
+                const int bufferSize = 8192;
+                var buffer = new byte[bufferSize];
+                int bytesRead;
+
+                try
+                {
+                    while ((bytesRead = await _stream.ReadAsync(buffer, 0, bufferSize)) > 0)
+                    {
+                        await response.Body.WriteAsync(buffer, 0, bytesRead);
+                        await response.Body.FlushAsync();
+
+                        // Check if client disconnected
+                        if (context.HttpContext.RequestAborted.IsCancellationRequested)
+                        {
+                            break;
+                        }
+                    }
+                }
+                finally
+                {
+                    _stream?.Dispose();
+                }
+            }
+        }
         //////////////////////////////////////////////////////////////////////////////////////////////////////
         public async Task<CommonResult> UploadFileChunk([FromForm] FileChunkDto chunkDto)
         {
