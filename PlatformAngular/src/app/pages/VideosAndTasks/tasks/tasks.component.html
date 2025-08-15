@@ -11,6 +11,7 @@
                     <label for="taskName" style="font-size: large;"> <p-inputicon Class="pi pi-search" />
                         اسم التاسك</label>
                 </p-floatlabel>
+
                 <!-- <p-floatlabel class="w-full md:w-56 filter-item" variant="on">
                     <p-dropdown [(ngModel)]="Filter.academicLevelId" inputId="academicLevel"
                         [options]="academicLevelData" optionLabel="academicLevelName" optionValue="academicLevelID"
@@ -18,11 +19,11 @@
                     </p-dropdown>
                     <label style="font-size: large;" for="academicLevel">المرحلة الدراسية</label>
                 </p-floatlabel> -->
+
             </div>
 
             <div class="CheckBox">
                 <p-checkbox [(ngModel)]="Filter.isBook" [binary]="true" (ngModelChange)="onFilterChange()"></p-checkbox>
-                <!-- <label for="ny" class="ml-3">Is Book </label> -->
                 <label for="ny" class="ml-3">كتب </label>
             </div>
         </ng-template>
@@ -53,17 +54,26 @@
                             </div>
 
                             <div class="flex flex-row gap-2">
-                                <button pButton icon="pi pi-clipboard" label="انزل المهمه"
+                                
+                                <button *ngIf="Filter.isBook == false" pButton icon="pi pi-clipboard" label="انزل المهمه"
                                     (click)="downloadTask(itemGrid.fileName)" class="flex-1 whitespace-nowrap"
                                     style="height: 40px;">
                                 </button>
-                                <div *ngIf="Filter.isBook==false" class="flex-1">
+                                
+                                <button *ngIf="Filter.isBook == true" pButton icon="pi pi-book" label="اعرض الكتاب"
+                                    (click)="downloadTask(itemGrid.fileName)" class="flex-1 whitespace-nowrap"
+                                    style="height: 40px;">
+                                </button>
+
+                                <div *ngIf="Filter.isBook == false" class="flex-1">
+
                                     <p-fileUpload name="file" customUpload="true"
                                         (uploadHandler)="uploadTask($event, itemGrid.filesID, itemGrid.teacherID, true, itemGrid.academicLevelID, itemGrid.taskName, itemGrid.taskName + 'Answer')"
                                         mode="basic" [auto]="true" chooseLabel="رفع الاجابه" [disabled]="false"
                                         [accept]="'application/pdf'" chooseIcon="pi pi-file-check"
                                         class="whitespace-nowrap" [style]="{ width: '100%' , height: '100%'  }">
                                     </p-fileUpload>
+
                                 </div>
                             </div>
                         </div>
