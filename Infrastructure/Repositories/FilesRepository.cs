@@ -204,28 +204,32 @@ namespace Infrastructure.Repositories
                 if (studentId == 0)
                 {
                     var res = await _teacher.GetTeacherWithInclude(userId);
-                    foreach (var item in res.Students)
+                    if (res is not null)
                     {
-                        try
+                        foreach (var item in res.Students)
                         {
-                            string message = $"{filePDF.taskName} تم اضافه";
-                            var connections = UserConnectionManager.GetConnections(item.Email);
-                            if (UserConnectionManager.IsOnline(item.Email))
+                            try
                             {
-                                // Send notification to the student
-                                await _hub.Clients.Clients(connections).SendAsync("ReceiveNotification", message);
+                                string message = $"{filePDF.taskName} تم اضافه";
+                                var connections = UserConnectionManager.GetConnections(item.Email);
+                                if (UserConnectionManager.IsOnline(item.Email))
+                                {
+                                    // Send notification to the student
+                                    await _hub.Clients.Clients(connections).SendAsync("ReceiveNotification", message);
+                                }
+                                else
+                                {
+                                    // Save offline message
+                                    await OfflineMessageManager.SaveMessage(_dbContext, item.Email, message);
+                                }
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                // Save offline message
-                                await OfflineMessageManager.SaveMessage(_dbContext, item.Email, message);
+                                Console.WriteLine($"Failed to send notification to student {item.Email}: {ex.Message}");
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Failed to send notification to student {item.Email}: {ex.Message}");
                         }
                     }
+
                 }
 
                 Console.WriteLine("PDF file upload completed successfully");
@@ -368,7 +372,7 @@ namespace Infrastructure.Repositories
         public async Task<PaginatedResult<Videos>> GetTeachersVideoAsync(TeacherVideoDTO teacherVideo)
         {
             var query = _dbContext.Videos.AsQueryable();
-            query = query.Where(f =>  f.ChapterID ==teacherVideo.ChapterId);
+            query = query.Where(f => f.ChapterID == teacherVideo.ChapterId);
 
             if (!string.IsNullOrWhiteSpace(teacherVideo.VideoName))
             {
@@ -414,7 +418,7 @@ namespace Infrastructure.Repositories
             if (!string.IsNullOrWhiteSpace(StudentAnswerFile.StudentName))
             {
                 var name = StudentAnswerFile.StudentName.ToLower();
-                
+
                 query = query.Where(f =>
                     ((f.Student.FirstName ?? "") + " " + (f.Student.LastName ?? "")).ToLower().Contains(name));
             }

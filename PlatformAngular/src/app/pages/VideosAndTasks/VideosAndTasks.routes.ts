@@ -17,12 +17,12 @@ export default [
       { path: '', redirectTo: 'tasks', pathMatch: 'full' },
       { path: 'tasks', component: TasksComponent,data: { breadcrumb: 'المهام'} },
       { path: 'videos', component: VideosComponent,data: { breadcrumb: 'الفديوهات'} },
-      { path: 'uploadTasks', component: UploadTasksComponent,  canActivate: [RoleGuard],data: { breadcrumb: 'رفع المهام', role: 'Teacher' } },
-      { path: 'uploadVideos', component: UploadVideosComponent, canActivate: [RoleGuard], data: { breadcrumb: 'رفع الفديوهات', role: 'Teacher' } },
+      { path: 'uploadTasks', component: UploadTasksComponent,  canActivate: [RoleGuard],data: { breadcrumb: 'رفع المهام', role: ['Teacher','PLT_Admin'] } },
+      { path: 'uploadVideos', component: UploadVideosComponent, canActivate: [RoleGuard], data: { breadcrumb: 'رفع الفديوهات', role: ['Teacher','PLT_Admin'] } },
       { path: 'VideoPlayer', component: VideoPlayerComponent, data: { breadcrumb: 'مشغل الفديو' } },
     ]
   },
   
-  { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent,  canActivate: [RoleGuard],data: { breadcrumb: 'الطلاب' , role: 'Teacher'} }
+  { path: 'studentTasksDashboard', component: StudentTasksDashboardComponent,  canActivate: [RoleGuard],data: { breadcrumb: 'الطلاب' , role: ['Teacher','PLT_Admin']} }
 
 ] as Routes;

@@ -7,7 +7,7 @@ import { AuthService } from '../service/auth.service';
   providedIn: 'root',
 })
 export class RoleGuard implements CanActivate {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
   canActivate(
     route: ActivatedRouteSnapshot,
@@ -15,8 +15,11 @@ export class RoleGuard implements CanActivate {
   ): Observable<boolean> | Promise<boolean> | boolean {
     const roles = this.authService.getUserTokenRoles(); // Get the current user's roles
     const requiredRole = route.data['role']; // Get the required role from the route data
+    const rolesArray = Array.isArray(roles) ? roles : [roles];
+    const hasRequiredRole = requiredRole.some((required: string) =>
+      rolesArray.some((role: string) => role.includes(required)))
 
-    if (roles.includes(requiredRole)) {
+    if (hasRequiredRole) {
       return true; // Allow navigation if the user has the required role
     } else {
       this.router.navigate(['/notfound']); // Redirect to a "Not Authorized" page

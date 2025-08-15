@@ -11,12 +11,12 @@
             <!-- <span>Videos</span> -->
             <span>الفيديوهات</span>
         </p-tab>
-        <p-tab *ngIf="roles | includesRole :'Teacher'" [value]="'uploadTasks'" [routerLink]="['uploadTasks']">
+        <p-tab *ngIf="roles | includesRole :['Teacher','PLT_Admin']" [value]="'uploadTasks'" [routerLink]="['uploadTasks']">
             <i class="pi pi-cloud-upload"></i>
             <!-- <span>Upload Tasks</span> -->
             <span>رفع المهام</span>
         </p-tab>
-        <p-tab *ngIf="roles | includesRole :'Teacher'" [value]="'uploadVideos'" [routerLink]="['uploadVideos']">
+        <p-tab *ngIf="roles | includesRole :['Teacher','PLT_Admin']" [value]="'uploadVideos'" [routerLink]="['uploadVideos']">
             <i class="pi pi-cloud-upload"></i>
             <!-- <span>Upload Videos</span> -->
             <span>رفع الفيديوهات</span>
