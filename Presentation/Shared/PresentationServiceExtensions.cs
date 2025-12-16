@@ -40,7 +40,8 @@ namespace Presentation.Shared
                                             "https://ssoidentity-001-site1.anytempurl.com")
                               .AllowAnyHeader()
                               .AllowAnyMethod()
-                              .AllowCredentials();
+                              .AllowCredentials()
+                              .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
                     });
             });
 
